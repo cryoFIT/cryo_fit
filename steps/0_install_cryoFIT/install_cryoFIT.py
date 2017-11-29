@@ -7,7 +7,7 @@ from os.path import expanduser # to find home_dir
 import platform
 
 # this is needed to import all common functions
-path = check_output(["which", "cryo_fit.run"])
+path = check_output(["which", "phenix.cryoFIT"])
 splited = path.split("/")
 command_path = ''
 for i in range(len(splited)-3):
