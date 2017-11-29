@@ -1,4 +1,4 @@
-# LIBTBX_SET_DISPATCHER_NAME cryo_fit.run
+# LIBTBX_SET_DISPATCHER_NAME phenix.cryoFIT
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
@@ -8,10 +8,10 @@ import libtbx.phil.command_line
 from subprocess import check_output
 import libtbx.load_env
 
-cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+cryo_fit_repository_dir = libtbx.env.dist_path("cryoFIT")
 
 def run ():
-    # running this test_cryo_fit is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
+    # running this test_cryoFIT is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
     #git related changes
     
     # copy input files to a current folder (although it may take longer time by copying these files, it is more organized \

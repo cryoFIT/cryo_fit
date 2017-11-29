@@ -111,10 +111,10 @@ Steps
   step_6 = True
     .type = bool
     .short_caption = 6. Make a tpr file
-    .help = Make tpr file for CryoFit
+    .help = Make tpr file for cryoFIT
   step_7 = True
     .type = bool
-    .short_caption = 7. Fit to a Cryo-EM map
+    .short_caption = 7. Fit to a cryo-EM map
     .help = Fit a user given structure into a user given cryo-EM map
   step_8 = False
     .type = bool
@@ -132,7 +132,7 @@ Options
   emweight_multiply_by = 6
     .type = int
     .short_caption = EM weight multiply by
-    .help = multiply by this number to the number of atoms for weight for Cryo-EM map bias. \
+    .help = multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             The higher weight, the stronger bias toward EM map rather than MD force field. \
             If user's map has better resolution, higher number of emweight_multiply_by is recommended since map has much information. \
             If user's map has have worse resolution, lower number of emweight_multiply_by is recommended for more likely geometry. \
@@ -351,7 +351,7 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
     return user_entered_number_of_steps_for_cryo_fit
   print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   if (starting_pdb_without_pathways == "devel.pdb"):
-    number_of_steps_for_cryo_fit = 30
+    number_of_steps_for_cryo_fit = 10
     return number_of_steps_for_cryo_fit
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
@@ -363,7 +363,7 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
     number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     number_of_steps_for_cryo_fit = 80000
-  print "\tTherefore, a new number_of_steps for CryoFIT is ", number_of_steps_for_cryo_fit
+  print "\tTherefore, a new number_of_steps for cryoFIT is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
 
@@ -975,9 +975,9 @@ def run_cryo_fit(params):
       print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
       print "Exit now."
       exit(1)
-  # (end) check whether CryoFIT is installed to exit early for users who didn't install cryofit yet
+  # (end) check whether cryoFIT is installed to exit early for users who didn't install cryofit yet
   
-  show_header("Step 0: Prepare to run cryo_fit")
+  show_header("Step 0: Prepare to run cryoFIT")
 
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
@@ -1141,7 +1141,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print_author()
   if (len(args) < 2 and validated==False):
     print >> out, "-"*79
-    print >> out, "                               CryoFIT"
+    print >> out, "                               cryoFIT"
     print >> out, "-"*79
     print >> out, legend
     print >> out, "-"*79

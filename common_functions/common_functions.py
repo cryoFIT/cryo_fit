@@ -223,12 +223,12 @@ def know_home_cryo_fit_bin_dir_by_ls():
     # f_out.close()
     
     if folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added":
-        print "\tUser's cryoFIT was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
+        #print "\tUser's cryoFIT was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added/bin"
     elif folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added_mpi/bin"
     else:
-        print "Install CryoFit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "Install cryoFIT first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
     return home_cryo_fit_bin_dir
 # end of know_output_bool_enable_mpi_by_ls function
 
