@@ -21,7 +21,7 @@ def run ():
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
   
-    command_string = "cp " + cryo_fit_repository_dir + "/regression/minimized.gro ."
+    command_string = "cp " + cryo_fit_repository_dir + "/regression/input_file/minimized.gro ."
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
     
