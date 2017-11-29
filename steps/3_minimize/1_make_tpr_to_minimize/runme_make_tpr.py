@@ -13,8 +13,8 @@ sys.path.insert(0, common_functions_path)
 from common_functions import *
 '''
 
-cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
-common_functions_path = cryo_fit_repository_dir + "/command_line/"
+cryo_fit_repository_dir = libtbx.env.dist_path("cryoFIT")
+common_functions_path = cryo_fit_repository_dir + "/common_functions/"
 print "\tcommon_functions_path:", common_functions_path
 
 sys.path.insert(0, common_functions_path)

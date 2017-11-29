@@ -3,7 +3,7 @@ from subprocess import check_output
 
 args=sys.argv[1:]
 command_path = args[0]
-common_functions_path = command_path + "/command_line/"
+common_functions_path = command_path + "/common_functions/"
 sys.path.insert(0, common_functions_path)
 from common_functions import *
 

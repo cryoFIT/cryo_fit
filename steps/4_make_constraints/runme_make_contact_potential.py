@@ -77,7 +77,7 @@ if (__name__ == "__main__") :
   else:
     input_gro_file_name = args[0] # pdb input file
     command_path = args[1]
-    common_functions_path = command_path + "/command_line/"
+    common_functions_path = command_path + "/common_functions/"
     sys.path.insert(0, common_functions_path)
     from common_functions import *
     

@@ -98,7 +98,7 @@ if (__name__ == "__main__") :
       bool_ignh = args[2]
       bool_missing = args[3]
       
-      common_functions_path = command_path + "/command_line/"
+      common_functions_path = command_path + "/common_functions/"
       sys.path.insert(0, common_functions_path)
       from common_functions import *
       make_top(input_pdb_file_name, force_field, bool_ignh, bool_missing)

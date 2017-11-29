@@ -1,15 +1,15 @@
-# LIBTBX_SET_DISPATCHER_NAME cryo_fit.run
+# LIBTBX_SET_DISPATCHER_NAME phenix.cryoFIT
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT 
 
-# Steps of cryo_fit:
+# Steps of cryoFIT:
 # 1_Make_gro
 # 2_Clean_gro
 # 3_Minimize
 # 4_Make_constraints
 # 5_Make_0_charge
-# 6_Make_tpr_for_cryo_fit
-# 7_cryo_fit_itself
+# 6_Make_tpr_for_cryoFIT
+# 7_cryoFIT_itself
 # 8_Draw_a_figure_of_cc
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
@@ -22,6 +22,16 @@ import mmtbx.utils
 import platform
 import shutil # for rmdir
 from subprocess import check_output
+
+# this is needed to import all common functions
+path = check_output(["which", "phenix.cryoFIT"])
+splited = path.split("/")
+command_path = ''
+for i in range(len(splited)-3):
+  command_path = command_path + splited[i] + "/"
+command_path = command_path + "modules/cryoFIT/"
+common_functions_path = command_path + "common_functions/"
+sys.path.insert(0, common_functions_path)
 from common_functions import *
 
 legend = """\
@@ -29,8 +39,8 @@ Goal
     - Changes an input biomolecule structure to fit into the cryo-EM map
     
 How to use
-    - cryo_fit.run <input pdb file> <input map file>
-    - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryo_fit
+    - phenix.cryoFIT <input pdb file> <input map file>
+    - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryoFIT
 
 Input:
     - A pdb file
@@ -42,16 +52,16 @@ Input:
          Example usage of this map2map: map2map H40-H44_0.5A.map H40-H44_0.5A.sit
     
 Output:
-    - cryo_fitted.pdb (or .gro) in steps/7_cryo_fit folder: Fitted biomolecule structure to a target cryo-EM map
+    - cryo_fitted.pdb (or .gro) in steps/7_cryoFIT folder: Fitted biomolecule structure to a target cryo-EM map
     - Correlation coefficient record: Record of correlation coefficient 
       between cryo-EM map and current biomolecule structure will be printed 
-      on the screen during CryoFIT and after CryoFIT
+      on the screen during cryoFIT and after cryoFIT
       
 Usage example with minimum input requirements (all other options will run with default values):
-    - cryo_fit.run transmin1_gro.pdb H40-H44_0.5A.sit
+    - phenix.cryoFIT transmin1_gro.pdb H40-H44_0.5A.sit
 
 Usage example with step 1~5 only
-    - cryo_fit.run transmin1_gro.pdb H40-H44_0.5A.sit step_6=False step_7=False
+    - phenix.cryoFIT transmin1_gro.pdb H40-H44_0.5A.sit step_6=False step_7=False
     
 Most useful options (GUI has more explanation about these):
     - number_of_cores_to_use
@@ -143,7 +153,7 @@ Options
     .type = int
     .short_caption = Number of steps for cryoFIT
     .help = Specify number of steps for cryoFIT. \
-           If it is left blank, CryoFIT will estimate it automatically depending on molecule size.
+           If it is left blank, cryoFIT will estimate it automatically depending on molecule size.
   # number_of_threads_to_use = *2 4 8 12 16 24 32
   #   .type = choice
   #   .short_caption = Number of threads to use
@@ -456,7 +466,7 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
     color_print (("assumes that enable_mpi is"), 'red')
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     print bool_enable_mpi
-    color_print (("\ncryo_fit.run alone without any arguments introduces full options."), 'green')
+    color_print (("\nphenix.cryoFIT alone without any arguments introduces full options."), 'green')
     
     color_print (("Email doonam@lanl.gov for any feature request/help."), 'green')
     exit(1)
@@ -805,9 +815,9 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
 def step_7(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
            target_map_with_pathways, output_file_format, output_file_name_prefix):
   show_header("Step 7: Run cryoFIT")
-  remake_and_move_to_this_folder(starting_dir, "steps/7_cryo_fit")
+  remake_and_move_to_this_folder(starting_dir, "steps/7_cryoFIT")
   
-  command_string = "cp " + command_path + "steps/7_cryo_fit/* ."
+  command_string = "cp " + command_path + "steps/7_cryoFIT/* ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -876,7 +886,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py"
   print "\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
-  print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/7_cryo_fit\n"
+  print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/7_cryoFIT\n"
   
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
@@ -894,7 +904,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-  print "\tExtracted .pdb files with original chain information are extracted_x_steps_x_ps.pdb in steps/7_cryo_fit\n"
+  print "\tExtracted .pdb files with original chain information are extracted_x_steps_x_ps.pdb in steps/7_cryoFIT\n"
   
   print "\t.pdb file is for chimera/pymol/vmd"
   print "\t.gro file is for gromacs/vmd"
@@ -911,9 +921,9 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   results = dict()
   results['cc_record'] = cc_record
   
-  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/7_cryo_fit"
+  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/7_cryoFIT"
   print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
-  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/7_cryo_fit as well."
+  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/7_cryoFIT as well."
   
   print "\nStep 7", (show_time(time_start_cryo_fit, time_end_cryo_fit))
   
@@ -929,7 +939,7 @@ def step_8(command_path, starting_dir, starting_pdb_without_pathways, target_map
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  command_string = "cp ../7_cryo_fit/md.log ."
+  command_string = "cp ../7_cryoFIT/md.log ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -955,13 +965,13 @@ def run_cryo_fit(params):
   # works well at CentOS commandline
   # not works at CentOS GUI
   home_dir = expanduser("~")
-  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added"
+  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT"
   
   print "home_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
   #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\nInstall CryoFIT first."
+      print "\nInstall cryoFIT first."
       print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
       print "Exit now."
       exit(1)
@@ -1148,7 +1158,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   # logfile.close()
 
   input_command_file = open("cryo_fit.input_command", "w")
-  input_command_file.write("cryo_fit.run ")
+  input_command_file.write("phenix.cryoFIT ")
   for i in range(len(args)):
     input_command_file.write(args[i] + " ")
   input_command_file.write("\n")
@@ -1203,7 +1213,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\nTotal cryoFIT", show_time(time_total_start, time_total_end)
   
   return results
-  #return os.path.abspath(os.path.join('steps', '7_cryo_fit', output_file_name))
+  #return os.path.abspath(os.path.join('steps', '7_cryoFIT', output_file_name))
   # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function
 
