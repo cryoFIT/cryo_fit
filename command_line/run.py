@@ -460,7 +460,7 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   if (this_step_was_successfully_ran == 0):
     color_print (("Step 1 didn't run successfully"), 'red')
     color_print (("\nUser's command "), 'red')
-    f_in = open('../../cryo_fit.input_command')
+    f_in = open('../../cryoFIT.input_command')
     for line in f_in:
       print line
     color_print (("assumes that enable_mpi is"), 'red')

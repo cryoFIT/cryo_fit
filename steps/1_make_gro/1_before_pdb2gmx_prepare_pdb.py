@@ -102,7 +102,7 @@ def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   former_chain_name = ''
   subtract_this_number_from_res_num = ''
   for line in f_in:
-    if (line[:3] == "END"):
+    if (line[:3] == "END" or line[:3] == "TER"):
       f_out.write(line)
     else:
       chain = line[21:22]
@@ -449,7 +449,7 @@ def know_the_biggest_atom_num(input_pdb_file_name):
   max_atom_numer = -999
   for line in f_in:
     atom_number = line[5:11]
-    print "atom_number:", atom_number
+    #print "atom_number:", atom_number
     if atom_number != " *****":
       if (atom_number > max_atom_numer):
         max_atom_numer = atom_number
