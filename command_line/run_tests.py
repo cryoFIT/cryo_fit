@@ -1,4 +1,4 @@
-# LIBTBX_SET_DISPATCHER_NAME cryo_fit.run_tests
+# LIBTBX_SET_DISPATCHER_NAME cryoFIT.run_tests
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
@@ -8,12 +8,12 @@ import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from subprocess import check_output
 import libtbx.load_env
+import shutil
 
-cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+cryo_fit_repository_dir = libtbx.env.dist_path("cryoFIT")
 
 if (__name__ == "__main__") :
-  # running this run_tests is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
-  #git related changes
+  assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
 
 # Locate phenix executable
   print "This cryo_fit.run executable comes from ", cryo_fit_repository_dir
@@ -21,17 +21,18 @@ if (__name__ == "__main__") :
 # copy input files to a current folder (although it may take longer time by copying these files, it is more organized \
 # with respect to development in the long term)
 
-  command_string = "cp " + cryo_fit_repository_dir + "/tutorial_input_files/* ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  pdb_file_name = 'transmin1_gro.pdb'
+  sit_file_name = 'H40-H44_0.5A.sit'
+  shutil.copyfile(os.path.join(cryo_fit_repository_dir,
+                               'tutorial_input_files',
+                               pdb_file_name), pdb_file_name)
+  shutil.copyfile(os.path.join(cryo_fit_repository_dir,
+                               'tutorial_input_files',
+                               sit_file_name), sit_file_name)
   
-  command_string = "cryo_fit.run transmin1_gro_translated.pdb H40-H44_0.5A.sit"
+  command_string = "phenix.cryoFIT %(pdb_file_name)s %(sit_file_name)s" % locals()
   
 # Start the simplest testing
-  # command_string = "cryo_fit.run model=%s map=%s number_of_steps=100" % (
-  #   os.path.join(command_path, 'tutorial_input_files', 'transmin1_gro_translated.pdb'),
-  #   os.path.join(command_path, 'tutorial_input_files', 'H40-H44_0.5A.sit'),
-  #   )
   print "command that will be executed: ", command_string
   print "(for your information) this run_tests took 1.5 minutes on Doonam's laptop"
   print '\n ~> %s\n' % command_string
