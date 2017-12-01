@@ -1157,7 +1157,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print >> log, "input parameters:", args
   # logfile.close()
 
-  input_command_file = open("cryo_fit.input_command", "w")
+  input_command_file = open("cryoFIT.input_command", "w")
   input_command_file.write("phenix.cryoFIT ")
   for i in range(len(args)):
     input_command_file.write(args[i] + " ")

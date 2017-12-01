@@ -17,6 +17,10 @@ def run ():
     # copy input files to a current folder (although it may take longer time by copying these files, it is more organized \
     # with respect to development in the long term)
 
+    if (os.path.isfile("minimized_c_term_renamed_by_resnum_oc.gro")):
+        print "remove former result file"
+        os.remove("minimized_c_term_renamed_by_resnum_oc.gro")
+        
     command_string = "cp " + cryo_fit_repository_dir + "/steps/2_clean_gro/*rename*.py ."
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
