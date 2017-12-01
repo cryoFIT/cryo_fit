@@ -138,7 +138,7 @@ def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
   former_chain_name = ''
   new_atom_num = ''
   for line in f_in:
-    if (line[:3] == "END"):
+    if (line[:3] == "END" or line[:3] == "TER"):
       f_out.write(line)
     else:
       chain = line[21:22]
