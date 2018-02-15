@@ -13,9 +13,10 @@ command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
 
-#command_path = command_path + "modules/cryoFIT/"
-command_path = command_path + "modules/cryofit/"
-# capital letter does matter, so I'm changing into cryofit as my current installation instruction
+command_path = command_path + "modules/cryoFIT/"
+# capital letter does matter, so I'm uniting into cryoFIT
+#command_path = command_path + "modules/cryofit/"
+
 
 common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
