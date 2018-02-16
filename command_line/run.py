@@ -129,15 +129,15 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryoFIT running time. \
             If it is left blank, the cryoFIT will automatically determine the emsteps.
-  emweight_multiply_by = 6
+  emweight_multiply_by = 7
     .type = int
     .short_caption = EM weight multiply by
     .help = multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            The higher weight, the stronger bias toward EM map rather than MD force field. \
+            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 6) \
+            The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
             If user's map has better resolution, higher number of emweight_multiply_by is recommended since map has much information. \
             If user's map has have worse resolution, lower number of emweight_multiply_by is recommended for more likely geometry. \
-            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended for speedup. \
-            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 6)
+            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended for speedup.
   emwritefrequency = None
     .type = int
     .short_caption = EM write frequency
