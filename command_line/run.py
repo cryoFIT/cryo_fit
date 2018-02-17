@@ -66,6 +66,7 @@ Usage example with step 1~5 only
 Most useful options (GUI has more explanation about these):
     - number_of_cores_to_use
     - number_of_steps_for_cryo_fit
+    - number_of_steps_for_minimization
     - emweight_multiply_by
 """
 
@@ -331,9 +332,9 @@ def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
     number_of_steps_for_minimization = 1000
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_minimization = 2000
+    number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
   elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_minimization = 3000
+    number_of_steps_for_minimization = 5000
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     number_of_steps_for_minimization = 5000
   print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
@@ -894,7 +895,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
 
   for extracted_gro in glob.glob("*gro"):
     
-    ''' # frizzle nucleosome and beta-galactosidase
+    ''' (obsolete now) # frizzled nucleosome and beta-galactosidase
     command_string = "python replace_xyz_from_gro.py " + pdb_file_with_original_chains + " " + extracted_gro
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
@@ -904,11 +905,18 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-  print "\tExtracted .pdb files with original chain information are extracted_x_steps_x_ps.pdb in steps/7_cryoFIT\n"
+  print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/7_cryoFIT\n"
   
-  print "\t.pdb file is for chimera/pymol/vmd"
-  print "\t.gro file is for gromacs/vmd"
+  print "\t\t(.pdb file is for chimera/pymol/vmd)"
+  print "\t\t(.gro file is for gromacs/vmd)"
   
+  # recover chain information
+  for pdb_in_step7 in glob.glob("*.pdb"):
+      # worked perfectly with tRNA and Dieter's molecule
+      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step7
+      print "\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
+      
   f_in = open('cc_record')
   cc_record = list()
   for line in f_in:
