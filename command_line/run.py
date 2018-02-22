@@ -1,15 +1,15 @@
-# LIBTBX_SET_DISPATCHER_NAME phenix.cryoFIT
+# LIBTBX_SET_DISPATCHER_NAME phenix.cryo_fit
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT 
 
-# Steps of cryoFIT:
+# Steps of cryo_fit:
 # 1_Make_gro
 # 2_Clean_gro
 # 3_Minimize
 # 4_Make_constraints
 # 5_Make_0_charge
-# 6_Make_tpr_for_cryoFIT
-# 7_cryoFIT_itself
+# 6_Make_tpr_for_cryo_fit
+# 7_cryo_fit_itself
 # 8_Draw_a_figure_of_cc
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
@@ -24,12 +24,12 @@ import shutil # for rmdir
 from subprocess import check_output
 
 # this is needed to import all common functions
-path = check_output(["which", "phenix.cryoFIT"])
+path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
 command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
-command_path = command_path + "modules/cryoFIT/"
+command_path = command_path + "modules/cryo_fit/"
 common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
 from common_functions import *
@@ -39,8 +39,8 @@ Goal
     - Changes an input biomolecule structure to fit into the cryo-EM map
     
 How to use
-    - phenix.cryoFIT <input pdb file> <input map file>
-    - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryoFIT
+    - phenix.cryo_fit <input pdb file> <input map file>
+    - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryo_fit
 
 Input:
     - A pdb file
@@ -52,16 +52,16 @@ Input:
          Example usage of this map2map: map2map H40-H44_0.5A.map H40-H44_0.5A.sit
     
 Output:
-    - cryo_fitted.pdb (or .gro) in steps/7_cryoFIT folder: Fitted biomolecule structure to a target cryo-EM map
+    - cryo_fitted.pdb (or .gro) in steps/7_cryo_fit folder: Fitted biomolecule structure to a target cryo-EM map
     - Correlation coefficient record: Record of correlation coefficient 
       between cryo-EM map and current biomolecule structure will be printed 
-      on the screen during cryoFIT and after cryoFIT
+      on the screen during cryo_fit and after cryo_fit
       
 Usage example with minimum input requirements (all other options will run with default values):
-    - phenix.cryoFIT transmin1_gro.pdb H40-H44_0.5A.sit
+    - phenix.cryo_fit transmin1_gro.pdb H40-H44_0.5A.sit
 
 Usage example with step 1~5 only
-    - phenix.cryoFIT transmin1_gro.pdb H40-H44_0.5A.sit step_6=False step_7=False
+    - phenix.cryo_fit transmin1_gro.pdb H40-H44_0.5A.sit step_6=False step_7=False
     
 Most useful options (GUI has more explanation about these):
     - number_of_cores_to_use
@@ -112,7 +112,7 @@ Steps
   step_6 = True
     .type = bool
     .short_caption = 6. Make a tpr file
-    .help = Make tpr file for cryoFIT
+    .help = Make tpr file for cryo_fit
   step_7 = True
     .type = bool
     .short_caption = 7. Fit to a cryo-EM map
@@ -128,8 +128,8 @@ Options
     .type = int
     .short_caption = EM steps
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
-            The longer the emsteps be, the faster overall cryoFIT running time. \
-            If it is left blank, the cryoFIT will automatically determine the emsteps.
+            The longer the emsteps be, the faster overall cryo_fit running time. \
+            If it is left blank, the cryo_fit will automatically determine the emsteps.
   emweight_multiply_by = 7
     .type = int
     .short_caption = EM weight multiply by
@@ -144,21 +144,21 @@ Options
     .short_caption = EM write frequency
     .help = Frequency with which the simulated maps are written to file. \
             If this frequency is too small, it can cause extremely large amounts of data to be written.\
-            If it is left blank, the cryoFIT will automatically determine the emwritefrequency.
+            If it is left blank, the cryo_fit will automatically determine the emwritefrequency.
   number_of_steps_for_minimization = None
     .type = int
     .short_caption = Number of steps for minimization
     .help = Specify number of steps for minimization. \
-           If it is left blank, cryoFIT will estimate it automatically depending on molecule size.
+           If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
   number_of_steps_for_cryo_fit = None
     .type = int
-    .short_caption = Number of steps for cryoFIT
-    .help = Specify number of steps for cryoFIT. \
-           If it is left blank, cryoFIT will estimate it automatically depending on molecule size.
+    .short_caption = Number of steps for cryo_fit
+    .help = Specify number of steps for cryo_fit. \
+           If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
   # number_of_threads_to_use = *2 4 8 12 16 24 32
   #   .type = choice
   #   .short_caption = Number of threads to use
-  #   .help = Specify number of threads to use for cryoFIT. \
+  #   .help = Specify number of threads to use for cryo_fit. \
   #           number_of_threads_to_use = 1 is NOT allowed since it resulted in segfault during mdrun
 }
 Output
@@ -185,7 +185,7 @@ lincs_order = None
   .short_caption = LINear Constraint Solver
   .help = The accuracy in set with lincs-order, which sets the number of matrices \
           in the expansion for the matrix inversion. \
-          If it is not specified, the cryoFIT will use 4.
+          If it is not specified, the cryo_fit will use 4.
 missing = True
   .type = bool
   .short_caption = If true, Continue when atoms are missing, dangerous
@@ -198,8 +198,8 @@ ns_type = *grid simple
 number_of_cores_to_use = 2 4 8 12 16 24 32 *max
   .type = choice
   .short_caption = Number of cores to use for minimization and cryo_fit
-  .help = Specify number of cores for minimization and cryoFIT. \
-          If it is not specified, or max is chosen, the cryoFIT will try to use most cores automatically (up to 16)
+  .help = Specify number of cores for minimization and cryo_fit. \
+          If it is not specified, or max is chosen, the cryo_fit will try to use most cores automatically (up to 16)
 perturb_xyz_by = 0.05
   .type = float
   .short_caption = perturb xyz coordinates of 0,0,0 atoms by this much after gromacs' pdb2gmx
@@ -344,7 +344,7 @@ def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
 def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starting_pdb_with_pathways, \
                                           user_entered_number_of_steps_for_cryo_fit):
 # Determine the number of steps for cryo_fit
-  print "\tDetermine number_of_steps_for cryoFIT"
+  print "\tDetermine number_of_steps_for cryo_fit"
 
   if (user_entered_number_of_steps_for_cryo_fit != None ):
     print "\tCryoFIT will use user_entered_number_of_steps_for_cryo_fit:", \
@@ -364,7 +364,7 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
     number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     number_of_steps_for_cryo_fit = 80000
-  print "\tTherefore, a new number_of_steps for cryoFIT is ", number_of_steps_for_cryo_fit
+  print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
 
@@ -461,13 +461,13 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   if (this_step_was_successfully_ran == 0):
     color_print (("Step 1 didn't run successfully"), 'red')
     color_print (("\nUser's command "), 'red')
-    f_in = open('../../cryoFIT.input_command')
+    f_in = open('../../cryo_fit.input_command')
     for line in f_in:
       print line
     color_print (("assumes that enable_mpi is"), 'red')
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     print bool_enable_mpi
-    color_print (("\nphenix.cryoFIT alone without any arguments introduces full options."), 'green')
+    color_print (("\nphenix.cryo_fit alone without any arguments introduces full options."), 'green')
     
     color_print (("Email doonam@lanl.gov for any feature request/help."), 'green')
     exit(1)
@@ -737,7 +737,7 @@ def step_5(command_path, starting_dir):
     
 def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
            emweight_multiply_by, emsteps, emwritefrequency, lincs_order):
-  show_header("Step 6 : Make a tpr file for cryoFIT")
+  show_header("Step 6 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_tpr_with_disre2")
 
   command_string = "cp " + command_path + "steps/6_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
@@ -749,7 +749,7 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  print "\tBe number_of_steps_for_cryoFIT as ", number_of_steps_for_cryo_fit
+  print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
   with open("template_for_cryo_fit.mdp", "rt") as fin:
     with open("for_cryo_fit.mdp", "wt") as fout:
       for line in fin:
@@ -815,10 +815,10 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
 
 def step_7(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
            target_map_with_pathways, output_file_format, output_file_name_prefix):
-  show_header("Step 7: Run cryoFIT")
-  remake_and_move_to_this_folder(starting_dir, "steps/7_cryoFIT")
+  show_header("Step 7: Run cryo_fit")
+  remake_and_move_to_this_folder(starting_dir, "steps/7_cryo_fit")
   
-  command_string = "cp " + command_path + "steps/7_cryoFIT/* ."
+  command_string = "cp " + command_path + "steps/7_cryo_fit/* ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -831,7 +831,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   
-  f_in = open('log.step_7_cryoFIT_real_command')
+  f_in = open('log.step_7_cryo_fit_real_command')
   for line in f_in:
     # progress is shown to monitor in GUI (but slow, so I shortened emsteps)
     from subprocess import Popen, PIPE, STDOUT
@@ -887,7 +887,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py"
   print "\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
-  print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/7_cryoFIT\n"
+  print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/7_cryo_fit\n"
   
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
@@ -905,7 +905,7 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-  print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/7_cryoFIT\n"
+  print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/7_cryo_fit\n"
   
   print "\t\t(.pdb file is for chimera/pymol/vmd)"
   print "\t\t(.gro file is for gromacs/vmd)"
@@ -929,9 +929,9 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   results = dict()
   results['cc_record'] = cc_record
   
-  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/7_cryoFIT"
+  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/7_cryo_fit"
   print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
-  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/7_cryoFIT as well."
+  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/7_cryo_fit as well."
   
   print "\nStep 7", (show_time(time_start_cryo_fit, time_end_cryo_fit))
   
@@ -947,7 +947,7 @@ def step_8(command_path, starting_dir, starting_pdb_without_pathways, target_map
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  command_string = "cp ../7_cryoFIT/md.log ."
+  command_string = "cp ../7_cryo_fit/md.log ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -968,24 +968,24 @@ def step_8(command_path, starting_dir, starting_pdb_without_pathways, target_map
 
 def run_cryo_fit(params):
   
-  # (begin) check whether cryoFIT is installed to exit early for users who didn't install it yet
+  # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
   # works well at macOS commandline and GUI
   # works well at CentOS commandline
   # not works at CentOS GUI
   home_dir = expanduser("~")
-  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT"
+  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
   
   print "home_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
   #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\nInstall cryoFIT first."
+      print "\nInstall cryo_fit first."
       print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
       print "Exit now."
       exit(1)
-  # (end) check whether cryoFIT is installed to exit early for users who didn't install cryofit yet
+  # (end) check whether cryo_fit is installed to exit early for users who didn't install cryofit yet
   
-  show_header("Step 0: Prepare to run cryoFIT")
+  show_header("Step 0: Prepare to run cryo_fit")
 
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
@@ -1149,7 +1149,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print_author()
   if (len(args) < 2 and validated==False):
     print >> out, "-"*79
-    print >> out, "                               cryoFIT"
+    print >> out, "                               cryo_fit"
     print >> out, "-"*79
     print >> out, legend
     print >> out, "-"*79
@@ -1165,8 +1165,8 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print >> log, "input parameters:", args
   # logfile.close()
 
-  input_command_file = open("cryoFIT.input_command", "w")
-  input_command_file.write("phenix.cryoFIT ")
+  input_command_file = open("cryo_fit.input_command", "w")
+  input_command_file.write("phenix.cryo_fit ")
   for i in range(len(args)):
     input_command_file.write(args[i] + " ")
   input_command_file.write("\n")
@@ -1218,10 +1218,10 @@ def cmd_run(args, validated=False, out=sys.stdout):
   results = run_cryo_fit(working_params)
     
   time_total_end = time.time()
-  print "\nTotal cryoFIT", show_time(time_total_start, time_total_end)
+  print "\nTotal cryo_fit", show_time(time_total_start, time_total_end)
   
   return results
-  #return os.path.abspath(os.path.join('steps', '7_cryoFIT', output_file_name))
+  #return os.path.abspath(os.path.join('steps', '7_cryo_fit', output_file_name))
   # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function
 

@@ -14,26 +14,26 @@ sys.path.insert(0, common_functions_path)
 from common_functions import *
 '''
 
-#cryo_fit_repository_dir = libtbx.env.dist_path("cryoFIT")
+#cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 # Suddenly 02/07/2018, this doesn't work with
 '''command:  python runme_make_tpr.py
 Traceback (most recent call last):
   File "runme_make_tpr.py", line 16, in <module>
-    cryo_fit_repository_dir = libtbx.env.dist_path("cryoFIT")
+    cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
   File "/Users/doonam/bin/phenix-1.13rc1-2961/modules/cctbx_project/libtbx/env_config.py", line 508, in dist_path
     result = self.module_dist_paths[module_name]
-KeyError: 'cryoFIT'
+KeyError: 'cryo_fit'
 Step 3-1  didn't successfully ran
 '''
 
-#cryo_fit_repository_dir = libtbx.env.dist_path("phenix.cryoFIT")
+#cryo_fit_repository_dir = libtbx.env.dist_path("phenix.cryo_fit")
 
-path = check_output(["which", "phenix.cryoFIT"])
+path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
 command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
-cryo_fit_repository_dir = command_path + "modules/cryoFIT/"
+cryo_fit_repository_dir = command_path + "modules/cryo_fit/"
 
 common_functions_path = cryo_fit_repository_dir + "/common_functions/"
 print "\tcommon_functions_path:", common_functions_path

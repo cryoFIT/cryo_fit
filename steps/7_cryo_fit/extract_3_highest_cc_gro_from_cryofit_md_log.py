@@ -23,7 +23,7 @@ def extract_gro(target_step):
     os.system("echo 0 > input_parameters") # to select system
     
     home_dir = expanduser("~")
-    home_bin_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT/bin"
+    home_bin_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
     cmd = home_bin_cryo_fit_bin_dir + "/trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     os.system(cmd)

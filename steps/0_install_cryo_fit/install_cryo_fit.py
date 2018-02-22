@@ -7,14 +7,14 @@ from os.path import expanduser # to find home_dir
 import platform
 
 # this is needed to import all common functions
-path = check_output(["which", "phenix.cryoFIT"])
+path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
 command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
 
-command_path = command_path + "modules/cryoFIT/"
-# capital letter does matter, so I'm uniting into cryoFIT
+command_path = command_path + "modules/cryo_fit/"
+# capital letter does matter, so I'm uniting into cryo_fit
 #command_path = command_path + "modules/cryofit/"
 
 
@@ -36,9 +36,9 @@ def get_FFTW_INSTALL_path (home_dir):
   print "A folder that installed FFTW: ", FFTW_INSTALL
   if ((FFTW_INSTALL) == False):
       print "Your computer seem to not have installed fftw yet."
-      print "Please FULLY install fftw first before installing this cryoFIT, because the cryoFIT installation needs to specify fftw installation folder location."
+      print "Please FULLY install fftw first before installing this cryo_fit, because the cryo_fit installation needs to specify fftw installation folder location."
       print "You are welcome to download the fftw at http://www.fftw.org/download.html"
-      print "Then, you may install the fftw, for example, python /Users/doonam/bin/phenix-dev-2747/modules/cryoFIT/steps/0_install_cryoFIT/2_runme_to_install_fftw.py fftw-3.3.6-pl2.tar.gz"
+      print "Then, you may install the fftw, for example, python /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit/steps/0_install_cryo_fit/2_runme_to_install_fftw.py fftw-3.3.6-pl2.tar.gz"
       print "Hit enter key to exit."
       raw_input()
       exit(1)
@@ -72,7 +72,7 @@ def clean ():
   color_print ("\nIf you see a message of ", 'green')
   print "    \"make: *** No rule to make target `clean'.  Stop.\""
   color_print ("it is OK.", 'green')
-  color_print ("It just means that you never configured/compiled gromacs_cryoFIT at here before.", 'green')
+  color_print ("It just means that you never configured/compiled gromacs_cryo_fit at here before.", 'green')
   
   color_print ("\nOr, if you see the \"make disclean\" ended with", 'green')
   print "    rm -rf .libs _libs"
@@ -82,7 +82,7 @@ def clean ():
   color_print ("\nMake sure that there was no error", 'green')
 # end of clean function
 
-def configure_cryoFIT (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw):
+def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw):
   print "\ncommand: cd ", GMX_MD_SRC
   os.chdir(GMX_MD_SRC)
 
@@ -132,7 +132,7 @@ def configure_cryoFIT (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_
     color_print ("I'm sorry to hear that your configuration didn't go well", 'red')
     color_print ("\nWhen Doonam saw this error", 'red')
     color_print ("\t...checking whether the C compiler works... no", 'red')
-    color_print ("\t   configure: error: in `/Users/doonam/src/gromacs-4.5.5_cryoFIT_added':", 'red')
+    color_print ("\t   configure: error: in `/Users/doonam/src/gromacs-4.5.5_cryo_fit_added':", 'red')
     color_print ("\t   configure: error: C compiler cannot create executables", 'red')
     color_print ("\t   See `config.log' for more details", 'red')
     color_print ("\nInstalling commandline tool helped", 'red')
@@ -146,7 +146,7 @@ def configure_cryoFIT (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_
   color_print ((show_time("configuration", start_time_configure, end_time_configure)), 'green')
   color_print ("\nHit enter key to continue.", 'green')
   raw_input()
-# end of configure_cryoFIT function
+# end of configure_cryo_fit function
 
 def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
   if os.path.isdir(GMX_MD_INSTALL):
@@ -159,7 +159,7 @@ def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
   print command_script, "\n"
   os.system(command_script)
     
-def install_gromacs_cryoFIT(zipped_file, *args):
+def install_gromacs_cryo_fit(zipped_file, *args):
   starting_dir = os.getcwd()
   color_print ("\nCurrent working directory: ", 'green')
   print starting_dir
@@ -167,12 +167,12 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   splited = zipped_file.split("/")
   wo_ext = str(splited[len(splited)-1])
   splited = wo_ext.split(".zip")
-  gromacs_cryoFIT_file_name = splited[0]
-  color_print ("\ngromacs_cryoFIT_file_name: ", 'green')
-  print gromacs_cryoFIT_file_name
+  gromacs_cryo_fit_file_name = splited[0]
+  color_print ("\ngromacs_cryo_fit_file_name: ", 'green')
+  print gromacs_cryo_fit_file_name
 
   home_dir = expanduser("~")
-  GMX_MD_INSTALL = home_dir + "/bin/" + gromacs_cryoFIT_file_name
+  GMX_MD_INSTALL = home_dir + "/bin/" + gromacs_cryo_fit_file_name
     
   # color_print ("\nDo you want to install with mpi enabled? (Hi Nigel, please type N)", 'green')
   # color_print ("Unless users are confident with relatively newer version of \
@@ -180,7 +180,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   # color_print ("Type either Y or N and hit enter.", 'green')
   # enable_mpi = raw_input()
   
-  # to avoid network related warning message during GUI based cryoFIT in MacOS,
+  # to avoid network related warning message during GUI based cryo_fit in MacOS,
   # and to avoid some version related mpi failure (like Karissa's case),
   # enable_mpi = "N" by default, enable_mpi = "N" will support most cores
   # (like 32 cores) anyway, and runs with same speed as with enable_mpi=Y
@@ -224,7 +224,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
       remake_GMX_MD_INSTALL(GMX_MD_INSTALL)
   
   src_dir = home_dir + "/src"
-  GMX_MD_SRC = home_dir + "/src/" + gromacs_cryoFIT_file_name
+  GMX_MD_SRC = home_dir + "/src/" + gromacs_cryo_fit_file_name
   color_print ("gromacs source code path: ", 'green')
   print GMX_MD_SRC, "\n"
   if os.path.isdir(GMX_MD_SRC):
@@ -239,7 +239,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   print "\n", GMX_MD_INSTALL
   color_print ("was made", 'green')
 
-  check_this_zip_file = home_dir + "/src/" + gromacs_cryoFIT_file_name + ".zip"
+  check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"
   
   if (exists(check_this_zip_file) == False):
     command_string = "cp " + zipped_file + " ~/src"
@@ -257,7 +257,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   print command_string
 
   color_print ("\nIf you see", 'green')
-  print "   replace __MACOSX/gromacs_cryoFIT/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
+  print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
   color_print ("Doonam recommends to press A\n", 'green')
   color_print ("\nHit enter key to continue.", 'green')
   raw_input()
@@ -268,7 +268,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   message = "unzipping " + zipped_file
   color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
   
-  configure_cryoFIT (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw)
+  configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw)
         
   # Make
   core_numbers_to_use = decide_number_of_cores_to_use(1)
@@ -297,7 +297,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
       color_print ("If you see a message of", 'red')
       color_print ("\t\"configure: error: Cannot compile and link MPI code with cc\",", 'red')
       color_print ("consider to install mpicc by openmpi first", 'red')
-      color_print ("\nYou can install openmpi by python /Users/ftuser/bin/phenix-dev-2880/modules/cryoFIT/steps/0_install_cryoFIT/1_runme_to_install_openmpi.py ~/Downloads/openmpi-2.1.1.tar.gz", 'red')
+      color_print ("\nYou can install openmpi by python /Users/ftuser/bin/phenix-dev-2880/modules/cryo_fit/steps/0_install_cryo_fit/1_runme_to_install_openmpi.py ~/Downloads/openmpi-2.1.1.tar.gz", 'red')
       color_print ("\nIf", 'red')
       color_print ("    \"an error ./Xstuff.h:51:10: fatal error: 'X11/Xresource.h' file not found\" ", 'red')
       color_print ("occurred, it needs to be fixed for proper installation.", 'red')
@@ -313,12 +313,12 @@ def install_gromacs_cryoFIT(zipped_file, *args):
   color_print ("\nHit enter key to continue.", 'green')
   raw_input()
 
-  # Installation of cryoFIT (all gromacs executables)
+  # Installation of cryo_fit (all gromacs executables)
   start_time_install = time.time()
   command_string = "make install"
   color_print ("command: ", 'green')
   print command_string
-  color_print ("\nHit enter key to install cryoFIT.", 'green')
+  color_print ("\nHit enter key to install cryo_fit.", 'green')
   raw_input()
   #libtbx.easy_run.call(command=command_string)
   os.system(command_string)
@@ -348,7 +348,7 @@ def install_gromacs_cryoFIT(zipped_file, *args):
     
   end_time_install = time.time()
 
-  color_print ((show_time ("The final installation of cryoFIT", start_time_install, end_time_install)), 'green')
+  color_print ((show_time ("The final installation of cryo_fit", start_time_install, end_time_install)), 'green')
   
   if (enable_mpi == "Y"):
     command_string = "\nexport TMPDIR=/tmp"
@@ -356,14 +356,14 @@ def install_gromacs_cryoFIT(zipped_file, *args):
     print command_string
     color_print ("\nThis command was needed to avoid a unexpected error", 'green')
     color_print ("\t\"PMIx has detected a temporary directory name that results in a path that is too long for the Unix domain socket:\"", 'green')
-    color_print ("when running cryoFIT in mpi mode", 'green')
+    color_print ("when running cryo_fit in mpi mode", 'green')
     color_print ("\nHit enter key to export like this (Edition of ~/.bashrc or ~/.bash_profile is recommended for better convenience).", 'green')
 ######## Doonam needs to code to edit .bashrc automatically
     raw_input()
     
   color_print ("\nHit enter key to finish", 'green')
   raw_input()
-# end of install_gromacs_cryoFIT function
+# end of install_gromacs_cryo_fit function
 
 if (__name__ == "__main__") :
   total_start_time = time.time()
@@ -373,17 +373,17 @@ if (__name__ == "__main__") :
   
   args=sys.argv[1:]
   if len(args) < 1:
-      print "Please specify your downloaded gromacs_cryoFIT zip file"
-      print "Usage: python 3_runme_to_install_gromacs_cryoFIT.py <gromacs_cryoFIT.zip>"
-      print "Example usage: python 3_runme_to_install_gromacs_cryoFIT.py ~/gromacs_cryoFIT.zip"
-      sys.exit("runme_to_install_gromacs_cryoFIT.py exits now.")
+      print "Please specify your downloaded gromacs_cryo_fit zip file"
+      print "Usage: python 3_runme_to_install_gromacs_cryo_fit.py <gromacs_cryo_fit.zip>"
+      print "Example usage: python 3_runme_to_install_gromacs_cryo_fit.py ~/gromacs_cryo_fit.zip"
+      sys.exit("runme_to_install_gromacs_cryo_fit.py exits now.")
   else: # len(args) >= 1:
-      zipped_file = args[0] # input cryoFIT zip file
-      color_print ("input gromacs_cryoFIT.zip file: ", 'green')
+      zipped_file = args[0] # input cryo_fit zip file
+      color_print ("input gromacs_cryo_fit.zip file: ", 'green')
       print zipped_file
       if zipped_file.find("openmpi") != -1:
-        color_print ("\nPlease provide cryoFIT installation file, not openmpi installation file.", 'green')
+        color_print ("\nPlease provide cryo_fit installation file, not openmpi installation file.", 'green')
         exit(1)
-      install_gromacs_cryoFIT(zipped_file)
+      install_gromacs_cryo_fit(zipped_file)
   total_end_time = time.time()
-  color_print ((show_time("Total cryoFIT installation", total_start_time, total_end_time)), 'green')
+  color_print ((show_time("Total cryo_fit installation", total_start_time, total_end_time)), 'green')

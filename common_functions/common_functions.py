@@ -16,7 +16,7 @@ except Exception:
     termcolor_installed = False
     ''' # disable this for now, so that phenix launch will not show this message
     print "\n\tUser's computer has no termcolor"
-    print "\tIf you want to see cryoFIT installation helper's comments in color..."
+    print "\tIf you want to see cryo_fit installation helper's comments in color..."
     print "\t1. Download termcolor-1.1.0.tar.gz from https://pypi.python.org/pypi/termcolor"
     print "\t2. Extract termcolor-1.1.0.tar.gz (for example, tar -xvf termcolor-1.1.0.tar.gz)"
     print "\t3. Run \"python setup.py install\" at the extracted folder"
@@ -162,10 +162,10 @@ def know_output_bool_enable_mpi_by_ls():
     # used exit early for users who didn't install cryofit yet as well
     output_bool_enable_mpi = ''
     home_dir = expanduser("~")
-    home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT"
+    home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
     #print "\thome_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
     if (os.path.exists(home_cryo_fit_bin_dir) == False):
-        print "\nInstall cryoFIT first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "\nInstall cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
         print "exit now"
         exit(1)
     output_bool_enable_mpi = False
@@ -177,7 +177,7 @@ def know_output_bool_enable_mpi_by_ls():
     try: # this try-except seems to be needed for CentOS machine
         folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     except:
-        print "\nInstall cryoFIT first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "\nInstall cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
         print "exit now"
         exit(1)
     #print "folder_of_cryo_fit[0]:", folder_of_cryo_fit[0]
@@ -189,7 +189,7 @@ def know_output_bool_enable_mpi_by_ls():
         print "folder_of_cryo_fit[0] = gromacs-4.5.5_cryo_fit_added_mpi"
         output_bool_enable_mpi = True
     else:
-        print "\nInstall cryoFIT first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "\nInstall cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
         print "exit now"
         exit(1)
     return output_bool_enable_mpi
@@ -212,7 +212,7 @@ def know_cryo_fit_bin_dir_by_options(home_dir, bool_enable_mpi, bool_enable_fftw
 def know_home_cryo_fit_bin_dir_by_ls():
     home_dir = expanduser("~")
     home_cryo_fit_bin_dir = ''
-    command_string = "ls ~/bin | grep gromacs-4.5.5_cryoFIT"
+    command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
     print "\n\tcommand: ", command_string
     folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     #print "\tfolder_of_cryo_fit[0]:", folder_of_cryo_fit[0]
@@ -223,27 +223,27 @@ def know_home_cryo_fit_bin_dir_by_ls():
     # f_out.close()
     
     if folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added":
-        #print "\tUser's cryoFIT was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
+        #print "\tUser's cryo_fit was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added/bin"
     elif folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added_mpi/bin"
     else:
-        print "Install cryoFIT first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "Install cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
     return home_cryo_fit_bin_dir
 # end of know_output_bool_enable_mpi_by_ls function
 
 def know_home_cryo_fit_bin_dir_by_ls_find():
     home_dir = expanduser("~")
     home_cryo_fit_bin_dir = ''
-    command_string = "ls ~/bin | grep gromacs-4.5.5_cryoFIT"
+    command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
     print "\n\tcommand: ", command_string
     folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     
     if folder_of_cryo_fit[0].find("mpi") == -1:
-        print "\tUser's cryoFIT was installed with enable_mpi=False, so the cryoFIT will run as enable_mpi = False"
-        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT/bin"
+        print "\tUser's cryo_fit was installed with enable_mpi=False, so the cryo_fit will run as enable_mpi = False"
+        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
     else: # folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
-        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryoFIT_mpi/bin"
+        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_mpi/bin"
     return home_cryo_fit_bin_dir
 # end of know_output_bool_enable_mpi_by_ls_find function
 
@@ -271,13 +271,13 @@ def know_total_number_of_cores():
 # end of know_total_number_of_cores function
 
 def locate_Phenix_executable():
-    path = check_output(["which", "phenix.cryoFIT"])
+    path = check_output(["which", "phenix.cryo_fit"])
     splited = path.split("/")
     command_path = ''
     for i in range(len(splited)-3):
       command_path = command_path + splited[i] + "/"
-    command_path = command_path + "modules/cryoFIT/"
-    print "\tUser's phenix.cryoFIT executable comes from ", command_path
+    command_path = command_path + "modules/cryo_fit/"
+    print "\tUser's phenix.cryo_fit executable comes from ", command_path
     return command_path
 # end of locate_Phenix_executable function
 

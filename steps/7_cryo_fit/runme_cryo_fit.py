@@ -60,7 +60,7 @@ if (__name__ == "__main__") :
   f_out.write("\n")
   f_out.close()
   
-  f_out = open('log.step_7_cryoFIT_real_command', 'wt')
+  f_out = open('log.step_7_cryo_fit_real_command', 'wt')
   f_out.write(write_this_input_command)
   f_out.close()
 #end of if (__name__ == "__main__")
