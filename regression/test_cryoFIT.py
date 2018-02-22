@@ -8,7 +8,7 @@ import libtbx.phil.command_line
 from subprocess import check_output
 import libtbx.load_env
 
-cryoFIT_repository_dir = libtbx.env.dist_path("cryoFIT")
+cryoFIT_repository_dir = libtbx.env.dist_path("cryofit")
 
 def run ():
     # running this test_cryoFIT is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
