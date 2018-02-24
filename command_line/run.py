@@ -39,14 +39,14 @@ Goal
     - Changes an input biomolecule structure to fit into the cryo-EM map
     
 How to use
-    - phenix.cryo_fit <input pdb file> <input map file>
+    - phenix.cryo_fit <input cif/pdb file> <input map file>
     - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryo_fit
 
 Input:
-    - A pdb file
+    - A .cif or .pdb file
          A template/starting structure that is aligned to a target cryo EM 
          density map structurally (for example by USCF chimera)
-    - A sit file, a cryo EM density map 
+    - A .sit file, a cryo EM density map 
          For example, you may generate the sit file by Situs 
          (http://situs.biomachina.org)'s map2map
          Example usage of this map2map: map2map H40-H44_0.5A.map H40-H44_0.5A.sit
@@ -434,7 +434,7 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
     print bool_enable_mpi
     color_print (("\nphenix.cryo_fit alone without any arguments introduces full options."), 'green')
     
-    color_print (("Email doonam@lanl.gov for any feature request/help."), 'green')
+    color_print (("Please email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."), 'green')
     exit(1)
   print "Step 1", (show_time(start, end))
 # end of step_1 function
@@ -965,13 +965,25 @@ def run_cryo_fit(params):
   bool_step_8 = params.cryo_fit.Steps.step_8
   
   print "\tparams.cryo_fit.model_file_name: ", params.cryo_fit.Input.model_file_name
+  cif_provided = 0 
   if params.cryo_fit.Input.model_file_name.endswith('.cif'):
     print "\tUser provided .cif file, let's turn into .pdb"
-    #cif_as_pdb(file_name)
+    cif_provided = 1
+    cif_as_pdb(params.cryo_fit.Input.model_file_name)
+    
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
   starting_pdb_without_pathways = ''
   print "\tlen(splited_model_file_name):", len(splited_model_file_name)
-  if len(splited_model_file_name) == 1:  # a case of running cryo_fit at a same folder with a pdb file
+  if (cif_provided == 1):
+    params.cryo_fit.Input.model_file_name = splited_model_file_name[len(splited_model_file_name)-1]
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
+    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
+    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
+    # Doonam knows that this is just a superhack way of adding absolute path. 
+    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
+    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
+  elif (len(splited_model_file_name) == 1):
+    # a case of running cryo_fit at a same folder with a pdb file
     starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
     params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
     # Doonam knows that this is just a superhack way of adding absolute path. 

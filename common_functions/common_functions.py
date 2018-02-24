@@ -1,11 +1,13 @@
 import glob, os, platform, subprocess
-from subprocess import check_output, Popen, PIPE
+import iotbx.pdb
+import iotbx.pdb.mmcif
 from libtbx import phil
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from libtbx.utils import multi_out
 import mmtbx.utils
 from os.path import expanduser # to find home_dir
+from subprocess import check_output, Popen, PIPE
 
 termcolor_installed = '' # just initial value
 try:
@@ -24,7 +26,7 @@ except Exception:
     '''
     #raw_input() # disable this for now, so that Phenix GUI will work
 
-
+# copied from /Users/doonam/bin/phenix-1.13rc1-2961/modules/cctbx_project/iotbx/command_line/cif_as_pdb.py
 def cif_as_pdb(file_name):  
     try:
       assert os.path.exists(file_name)
@@ -52,6 +54,7 @@ def color_print(text, color):
         print colored (text, color)
     else:
         print text
+# end of color_print()
 
 def decide_number_of_cores_to_use(check_at_each_step):
     number_of_total_cores = know_total_number_of_cores()
