@@ -23,6 +23,29 @@ except Exception:
     print "Press any key to continue"
     '''
     #raw_input() # disable this for now, so that Phenix GUI will work
+
+
+def cif_as_pdb(file_name):  
+    try:
+      assert os.path.exists(file_name)
+      print "Converting %s to PDB format." %file_name
+      cif_input = iotbx.pdb.mmcif.cif_input(file_name=file_name)
+      hierarchy = cif_input.construct_hierarchy()
+      basename = os.path.splitext(os.path.basename(file_name))[0]
+      iotbx.pdb.write_whole_pdb_file(
+          file_name=basename+".pdb",
+          output_file=None,
+          processed_pdb_file=None,
+          pdb_hierarchy=hierarchy,
+          crystal_symmetry=cif_input.crystal_symmetry(),
+          ss_annotation=cif_input.extract_secondary_structure(),
+          append_end=True,
+          atoms_reset_serial_first_value=None,
+          link_records=None)
+    except Exception, e:
+      print "Error converting %s to PDB format:" %file_name
+      print " ", str(e)
+# end of cif_as_pdb()
     
 def color_print(text, color):
     if (termcolor_installed == True):
@@ -132,7 +155,45 @@ def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_inp
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
-    
+
+def get_fc(complete_set, xray_structure):
+  f_calc = complete_set.structure_factors_from_scatterers(
+    xray_structure=xray_structure).f_calc()
+  return f_calc
+
+def get_fft_map(map_coeffs=None):
+    from cctbx import maptbx
+    from cctbx.maptbx import crystal_gridding
+    ccs=map_coeffs.crystal_symmetry()
+    fft_map = map_coeffs.fft_map( resolution_factor = 0.25,
+       symmetry_flags=maptbx.use_space_group_symmetry)
+    fft_map.apply_sigma_scaling()
+    return fft_map.real_map_unpadded().as_double()
+# end of get_fft_map function
+
+# not used for now, but will be used in future
+def get_structure_factor_from_pdb_string () :
+  prefix = "tmp_iotbx_map_tools"
+  pdb_file = prefix + ".pdb"
+  mtz_file = prefix + ".mtz"
+  pdb_in = iotbx.pdb.hierarchy.input(pdb_string="""\
+ATOM      1  N   GLY P  -1     -22.866  -2.627  15.217  1.00  0.00           N
+ATOM      2  CA  GLY P  -1     -22.714  -3.068  16.621  1.00  0.00           C
+ATOM      3  C   GLY P  -1     -21.276  -3.457  16.936  1.00  0.00           C
+ATOM      4  O   GLY P  -1     -20.538  -3.887  16.047  1.00  0.00           O
+ATOM      5  H1  GLY P  -1     -22.583  -3.364  14.590  1.00  0.00           H
+ATOM      6  H2  GLY P  -1     -22.293  -1.817  15.040  1.00  0.00           H
+ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
+""")
+  xrs = pdb_in.input.xray_structure_simple()
+# x-ray structure
+
+#  open(pdb_file, "w").write(pdb_in.hierarchy.as_pdb_string(xrs))
+  fc = xrs.structure_factors(d_min=1.5).f_calc()
+  #print dir(fc).statistical_mean
+# end of get_structure_factor_from_pdb_string function
+
+
 def kill_mdrun_mpirun_in_linux():
     color_print ("\tkill any existing mdrun jobs (gromacs)", 'green')
     command_string = "top -b -d 1 | head -200 > top_200"

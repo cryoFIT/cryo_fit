@@ -225,70 +225,74 @@ master_params = master_params_str
 master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
-def show_header(title):
-  print "\n"
-  print '#'*105
-  number_of_remaining_sharp = 105 - len(title)
-  put_this_number_of_sharp = int(int(number_of_remaining_sharp)/2)
-  print '#'*(put_this_number_of_sharp-1) + " " + title + " " + '#'*(put_this_number_of_sharp-1)
-  print '#'*105
-# end of show_header function
+def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
+  if (os.path.isfile(check_this_file)):
+    returned_file_size = file_size(check_this_file)
+    if (returned_file_size > 0):
+      if (step_name != "Step 8"): # for step_8 (drawing a graph), determining a success now is early
+        print step_name, " successfully ran"
+      return 1
+  print step_name, " didn't successfully ran"
+  if (step_name == "Step 3-2" or step_name == "Step 7"):
+    return 0
+  exit(1)
+# end of check_whether_the_step_was_successfully_ran function
 
 
-def validate_params(params): # validation for GUI
-  if (params.cryo_fit.Input.model_file_name is None):
-    raise Sorry("Model file should be given")
-  if (params.cryo_fit.Input.map_file_name is None):
-    raise Sorry("Map file should be given")
-  # check if file type is OK
+def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starting_pdb_with_pathways, \
+                                          user_entered_number_of_steps_for_cryo_fit):
+# Determine the number of steps for cryo_fit
+  print "\tDetermine number_of_steps_for cryo_fit"
 
-  file_reader.any_file(
-    file_name = params.cryo_fit.Input.model_file_name).check_file_type(expected_type = 'pdb')
+  if (user_entered_number_of_steps_for_cryo_fit != None ):
+    print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", \
+        user_entered_number_of_steps_for_cryo_fit
+    return user_entered_number_of_steps_for_cryo_fit
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  if (starting_pdb_without_pathways == "devel.pdb"):
+    number_of_steps_for_cryo_fit = 10
+    return number_of_steps_for_cryo_fit
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
+  number_of_steps_for_cryo_fit = '' # just initial declaration
+  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
+    number_of_steps_for_cryo_fit = 15000
+  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
+    number_of_steps_for_cryo_fit = 20000
+  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
+    number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
+  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
+    number_of_steps_for_cryo_fit = 80000
+  print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
+  return number_of_steps_for_cryo_fit
+# end of determine_number_of_steps_for_cryo_fit function
 
-#  file_reader.any_file(
- #   file_name = params.cryo_fit.map_file_name).check_file_type(expected_type = 'sit')
-  # Doonam commented this for now since it resulted in "Sorry: This file format ('Text') is not supported as input for this field; only files of type 'Unknown' are allowed."
+def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
+                                               starting_pdb_with_pathways, \
+                                               user_entered_number_of_steps_for_minimization):
+# Determine the number of steps for minimization
+  print "\tDetermine number_of_steps for minimization"
 
-  print "validate_params pass"
-  return True
-# end of validate_params function
-
-def get_fc(complete_set, xray_structure):
-  f_calc = complete_set.structure_factors_from_scatterers(
-    xray_structure=xray_structure).f_calc()
-  return f_calc
-
-def get_fft_map(map_coeffs=None):
-    from cctbx import maptbx
-    from cctbx.maptbx import crystal_gridding
-    ccs=map_coeffs.crystal_symmetry()
-    fft_map = map_coeffs.fft_map( resolution_factor = 0.25,
-       symmetry_flags=maptbx.use_space_group_symmetry)
-    fft_map.apply_sigma_scaling()
-    return fft_map.real_map_unpadded().as_double()
-# end of get_fft_map function
-
-# not used for now, but will be used in future
-def get_structure_factor_from_pdb_string () :
-  prefix = "tmp_iotbx_map_tools"
-  pdb_file = prefix + ".pdb"
-  mtz_file = prefix + ".mtz"
-  pdb_in = iotbx.pdb.hierarchy.input(pdb_string="""\
-ATOM      1  N   GLY P  -1     -22.866  -2.627  15.217  1.00  0.00           N
-ATOM      2  CA  GLY P  -1     -22.714  -3.068  16.621  1.00  0.00           C
-ATOM      3  C   GLY P  -1     -21.276  -3.457  16.936  1.00  0.00           C
-ATOM      4  O   GLY P  -1     -20.538  -3.887  16.047  1.00  0.00           O
-ATOM      5  H1  GLY P  -1     -22.583  -3.364  14.590  1.00  0.00           H
-ATOM      6  H2  GLY P  -1     -22.293  -1.817  15.040  1.00  0.00           H
-ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
-""")
-  xrs = pdb_in.input.xray_structure_simple()
-# x-ray structure
-
-#  open(pdb_file, "w").write(pdb_in.hierarchy.as_pdb_string(xrs))
-  fc = xrs.structure_factors(d_min=1.5).f_calc()
-  #print dir(fc).statistical_mean
-# end of get_structure_factor_from_pdb_string function
+  if (user_entered_number_of_steps_for_minimization != None ):
+    print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", \
+            user_entered_number_of_steps_for_minimization
+    return user_entered_number_of_steps_for_minimization
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  if (starting_pdb_without_pathways == "devel.pdb"):
+    number_of_steps_for_minimization = 10
+    return number_of_steps_for_minimization
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
+  number_of_steps_for_minimization = '' # just initial declaration
+  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
+    number_of_steps_for_minimization = 1000
+  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
+    number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
+  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
+    number_of_steps_for_minimization = 5000
+  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
+    number_of_steps_for_minimization = 5000
+  print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
+  return number_of_steps_for_minimization
+# end of determine_number_of_steps_for_minimization function
 
 def get_release_tag():
   release_tag = os.environ.get("PHENIX_RELEASE_TAG", None)
@@ -312,79 +316,7 @@ def print_author():
   cryo_fit %s 
     - Doo Nam Kim (doonam@lanl.gov), Serdal Kirmizialtin, Nigel Moriarty, Billy Poon
  %s""" % ("-"*78, version, "-"*78)
-
-def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
-                                               starting_pdb_with_pathways, \
-                                               user_entered_number_of_steps_for_minimization):
-# Determine the number of steps for minimization
-  print "\tDetermine number_of_steps for minimization"
-
-  if (user_entered_number_of_steps_for_minimization != None ):
-    print "\tCryoFIT will use user_entered_number_of_steps_for_minimization:", \
-            user_entered_number_of_steps_for_minimization
-    return user_entered_number_of_steps_for_minimization
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  if (starting_pdb_without_pathways == "devel.pdb"):
-    number_of_steps_for_minimization = 10
-    return number_of_steps_for_minimization
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
-  number_of_steps_for_minimization = '' # just initial declaration
-  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_minimization = 1000
-  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
-  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_minimization = 5000
-  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_minimization = 5000
-  print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
-  return number_of_steps_for_minimization
-# end of determine_number_of_steps_for_minimization function
-
-def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starting_pdb_with_pathways, \
-                                          user_entered_number_of_steps_for_cryo_fit):
-# Determine the number of steps for cryo_fit
-  print "\tDetermine number_of_steps_for cryo_fit"
-
-  if (user_entered_number_of_steps_for_cryo_fit != None ):
-    print "\tCryoFIT will use user_entered_number_of_steps_for_cryo_fit:", \
-        user_entered_number_of_steps_for_cryo_fit
-    return user_entered_number_of_steps_for_cryo_fit
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  if (starting_pdb_without_pathways == "devel.pdb"):
-    number_of_steps_for_cryo_fit = 10
-    return number_of_steps_for_cryo_fit
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
-  number_of_steps_for_cryo_fit = '' # just initial declaration
-  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_cryo_fit = 15000
-  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_cryo_fit = 20000
-  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
-  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_cryo_fit = 80000
-  print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
-  return number_of_steps_for_cryo_fit
-# end of determine_number_of_steps_for_cryo_fit function
-
-def return_number_of_atoms_in_gro():
-  for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
-    command_string = "wc -l " + check_this_file
-    print "\tcommand: ", command_string
-    wc_result = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    splited = wc_result[0].split()
-    print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
-    return str(splited[0])
-# end of return_number_of_atoms_in_gro function
-
-def remake_this_folder(this_folder):
-  if (os.path.isdir(this_folder) == True):
-      print "\tRemove a former " + this_folder + " folder"
-      shutil.rmtree(this_folder)
-  print "\tMake a new " + this_folder + " folder"
-  os.mkdir(this_folder)
-# end of remake_this_folder function
+# end of print_author()
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
@@ -397,18 +329,51 @@ def remake_and_move_to_this_folder(starting_dir, this_folder):
   os.chdir( new_path )
 # end of remake_and_move_to_this_folder function
 
-def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
-  if (os.path.isfile(check_this_file)):
-    returned_file_size = file_size(check_this_file)
-    if (returned_file_size > 0):
-      if (step_name != "Step 8"): # for step_8 (drawing a graph), determining a success now is early
-        print step_name, " successfully ran"
-      return 1
-  print step_name, " didn't successfully ran"
-  if (step_name == "Step 3-2" or step_name == "Step 7"):
-    return 0
-  exit(1)
-# end of check_whether_the_step_was_successfully_ran function
+def remake_this_folder(this_folder):
+  if (os.path.isdir(this_folder) == True):
+      print "\tRemove a former " + this_folder + " folder"
+      shutil.rmtree(this_folder)
+  print "\tMake a new " + this_folder + " folder"
+  os.mkdir(this_folder)
+# end of remake_this_folder function
+
+def return_number_of_atoms_in_gro():
+  for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
+    command_string = "wc -l " + check_this_file
+    print "\tcommand: ", command_string
+    wc_result = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    splited = wc_result[0].split()
+    print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
+    return str(splited[0])
+# end of return_number_of_atoms_in_gro function
+
+def show_header(title):
+  print "\n"
+  print '#'*105
+  number_of_remaining_sharp = 105 - len(title)
+  put_this_number_of_sharp = int(int(number_of_remaining_sharp)/2)
+  print '#'*(put_this_number_of_sharp-1) + " " + title + " " + '#'*(put_this_number_of_sharp-1)
+  print '#'*105
+# end of show_header function
+
+def validate_params(params): # validation for GUI
+  if (params.cryo_fit.Input.model_file_name is None):
+    raise Sorry("Model file should be given")
+  if (params.cryo_fit.Input.map_file_name is None):
+    raise Sorry("Map file should be given")
+  # check if file type is OK
+
+  file_reader.any_file(
+    file_name = params.cryo_fit.Input.model_file_name).check_file_type(expected_type = 'pdb')
+
+#  file_reader.any_file(
+ #   file_name = params.cryo_fit.map_file_name).check_file_type(expected_type = 'sit')
+  # Doonam commented this for now since it resulted in "Sorry: This file format ('Text') is not supported as input for this field; only files of type 'Unknown' are allowed."
+
+  print "validate_params pass"
+  return True
+# end of validate_params function
+
 
 def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
            force_field, ignh, missing, remove_metals):
@@ -1000,6 +965,9 @@ def run_cryo_fit(params):
   bool_step_8 = params.cryo_fit.Steps.step_8
   
   print "\tparams.cryo_fit.model_file_name: ", params.cryo_fit.Input.model_file_name
+  if params.cryo_fit.Input.model_file_name.endswith('.cif'):
+    print "\tUser provided .cif file, let's turn into .pdb"
+    #cif_as_pdb(file_name)
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
   starting_pdb_without_pathways = ''
   print "\tlen(splited_model_file_name):", len(splited_model_file_name)
@@ -1021,7 +989,7 @@ def run_cryo_fit(params):
     else: # len(dot_dot) = 1 when data/devel.pdb
       current_dir = os.getcwd()
       print "\tCurrent working directory: %s" % current_dir
-      print "splited_model_file_name:", splited_model_file_name
+      print "\t:", splited_model_file_name
       new_dir = current_dir + "/" + splited_model_file_name[0]
       os.chdir(new_dir)
       starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
@@ -1052,7 +1020,6 @@ def run_cryo_fit(params):
     else: # len(dot_dot) = 1 when data/devel.sit
       current_dir = os.getcwd()
       print "\tCurrent working directory: %s" % current_dir
-      print "splited_model_file_name:", splited_map_file_name
       new_dir = current_dir + "/" + splited_map_file_name[0]
       os.chdir(new_dir)
       target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
