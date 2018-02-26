@@ -429,9 +429,9 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
     f_in = open('../../cryo_fit.input_command')
     for line in f_in:
       print line
-    color_print (("assumes that enable_mpi is"), 'red')
+    #color_print (("assumes that enable_mpi is"), 'red')
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
-    print bool_enable_mpi
+    #print bool_enable_mpi
     color_print (("\nphenix.cryo_fit alone without any arguments introduces full options."), 'green')
     
     color_print (("Please email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."), 'green')

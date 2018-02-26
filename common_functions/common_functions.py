@@ -304,7 +304,7 @@ def know_home_cryo_fit_bin_dir_by_ls_find():
     folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     
     if folder_of_cryo_fit[0].find("mpi") == -1:
-        print "\tUser's cryo_fit was installed with enable_mpi=False, so the cryo_fit will run as enable_mpi = False"
+        #print "\tUser's cryo_fit was installed with enable_mpi=False, so the cryo_fit will run as enable_mpi = False"
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
     else: # folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_mpi/bin"
