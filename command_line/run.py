@@ -458,9 +458,20 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   os.chdir (starting_dir)
   remake_and_move_to_this_folder(starting_dir, "steps/2_clean_gro")
 
-  command_string = "cp ../1_make_gro/*.gro ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp_command_string = "cp ../../data/input_for_step_2/few_RNAs_cleaned_for_gromacs_by_pdb2gmx.gro ."
+
+  if (this_is_test == 0):
+    cp_command_string = "cp ../1_make_gro/*.gro ."
+  
+  #copy step_1 output
+  print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
   start_time_renaming = time.time()
   
@@ -479,7 +490,7 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
     libtbx.easy_run.call(command_string)
   
   the_step_was_successfully_ran = 0 # initial value
-  for check_this_file in glob.glob("*.gro"): # there will be only one file like this
+  for check_this_file in glob.glob("*.gro"): # there will be only "will_be_minimized_cleaned.gro"
     the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 2", check_this_file)
 
   if (the_step_was_successfully_ran == 0):
@@ -531,6 +542,23 @@ def step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization
   command_script = "cp " + command_path + "steps/3_minimize/1_make_tpr_to_minimize/runme_make_tpr.py ."
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
+  
+  '''
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp_command_string = "cp ../../data/input_for_step_2/few_RNAs_cleaned_for_gromacs_by_pdb2gmx.gro ."
+
+  if (this_is_test == 0):
+    cp_command_string = "cp ../1_make_gro/*.gro ."
+  
+  #copy step_1 output
+  print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  '''
 
   command_script = "cp ../../2_clean_gro/*.gro . "
   print "\tcommand: ", command_script
