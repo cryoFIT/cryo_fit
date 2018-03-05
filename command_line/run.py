@@ -380,6 +380,10 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   show_header("Step 1: Make gro and topology file by regular gromacs")
   remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
 
+  #os.chdir (starting_dir)
+  cw_dir = os.getcwd()
+  print "\tCurrent working directory: %s" % cw_dir
+  
   command_string = "cp " + starting_pdb_with_pathways + " ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
@@ -403,6 +407,12 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
   
+  os.chdir (starting_dir)
+  
+  cw_dir = os.getcwd()
+  print "\tCurrent working directory: %s" % cw_dir
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)  
   if (number_of_atoms_in_input_pdb < 7000): # tRNA for development (transmin1_gro.pdb). This is just for short test purpose only
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 7 seconds to make a gro file.\n"
@@ -413,6 +423,9 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 2 hours to make a gro file.\n"
     
+  new_path = starting_dir + "/steps/1_make_gro"
+  os.chdir( new_path )
+  
   command_script = "python 2_runme_make_gro.py " + str(command_path) + " " + force_field + " " + \
             str(ignh) + " " + str(missing)
   # there is only 1 pdb file in this folder, so it is ok not to provide pdb arguments
@@ -944,7 +957,7 @@ def run_cryo_fit(params):
   #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\nInstall cryo_fit first."
+      print "\nPlease install cryo_fit first."
       print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
       print "Exit now."
       exit(1)
@@ -983,13 +996,13 @@ def run_cryo_fit(params):
     # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
     print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
   elif (len(splited_model_file_name) == 1):
-    # a case of running cryo_fit at a same folder with a pdb file
+    # when running cryo_fit at a same folder with a pdb file
     starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
     params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
     # Doonam knows that this is just a superhack way of adding absolute path. 
     # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
     print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
-  elif len(splited_model_file_name) == 2:  # a case of running cryo_fit at a same folder with a ../pdb file
+  elif len(splited_model_file_name) == 2:  
     dot_dot = params.cryo_fit.Input.model_file_name.split("..")
     if len(dot_dot) == 2: #when ../devel.pdb
       os.chdir("..")
@@ -1001,12 +1014,21 @@ def run_cryo_fit(params):
     else: # len(dot_dot) = 1 when data/devel.pdb
       current_dir = os.getcwd()
       print "\tCurrent working directory: %s" % current_dir
-      print "\t:", splited_model_file_name
+      print "\tsplited_model_file_name:", splited_model_file_name
       new_dir = current_dir + "/" + splited_model_file_name[0]
       os.chdir(new_dir)
       starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
       params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
       os.chdir(starting_dir)
+  elif len(splited_model_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
+    current_dir = os.getcwd()
+    print "\tCurrent working directory: %s" % current_dir
+    print "\tsplited_model_file_name:", splited_model_file_name
+    new_dir = current_dir + "/" + splited_model_file_name[0] + "/" + splited_model_file_name[1]
+    os.chdir(new_dir)
+    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+    params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
+    os.chdir(starting_dir)
   else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
     starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
@@ -1042,7 +1064,7 @@ def run_cryo_fit(params):
   
   # Input
   starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
-  print "starting_pdb_with_pathways:", starting_pdb_with_pathways
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
   
   # Options  
