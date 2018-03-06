@@ -464,7 +464,7 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = 1
-      cp_command_string = "cp ../../data/input_for_step_2/few_RNAs_cleaned_for_gromacs_by_pdb2gmx.gro ."
+      cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
 
   if (this_is_test == 0):
     cp_command_string = "cp ../1_make_gro/*.gro ."
@@ -543,30 +543,24 @@ def step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
   
-  '''
   this_is_test = 0
   splited_starting_dir = starting_dir.split("/")
-  cp_command_string = ''
+  cp1_command_string = ''
+  cp2_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = 1
-      cp_command_string = "cp ../../data/input_for_step_2/few_RNAs_cleaned_for_gromacs_by_pdb2gmx.gro ."
-
+      cp1_command_string = "cp ../../../data/input_for_step_3/* ."
   if (this_is_test == 0):
-    cp_command_string = "cp ../1_make_gro/*.gro ."
+    cp1_command_string = "cp ../../2_clean_gro/*.gro . "
+    cp2_command_string = "cp ../../1_make_gro/*.top . "
+    print "\tcp2_command_string: ", cp2_command_string
+    libtbx.easy_run.fully_buffered(cp2_command_string)
   
-  #copy step_1 output
-  print "\tcp_command_string: ", cp_command_string
-  libtbx.easy_run.fully_buffered(cp_command_string)
-  '''
-
-  command_script = "cp ../../2_clean_gro/*.gro . "
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  #copy step_2 output
+  print "\tcp1_command_string: ", cp1_command_string
+  libtbx.easy_run.fully_buffered(cp1_command_string)
   
-  command_script = "cp ../../1_make_gro/*.top . "
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
 
   command_string = "python runme_make_tpr.py"
   print "\tcommand: ", command_string
@@ -691,11 +685,21 @@ def step_4(command_path, starting_dir):
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 
-  command_string = "cp ../3_minimize/2_run/*.gro ."
-  # usually, it will be minimized_c_term_renamed_by_resnum_oc.gro
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp_command_string = "cp ../../data/input_for_step_4/* ."
+  if (this_is_test == 0):
+    cp_command_string = "cp ../3_minimize/2_run/*.gro ."
+    # there will be minimized_c_term_renamed_by_resnum_oc.gro
+  
+  #copy step_3 output
+  print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
   command_string = "python runme_make_contact_potential.py *.gro " + str(command_path)
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
@@ -722,20 +726,32 @@ def step_5(command_path, starting_dir):
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 
-  command_string = "cp ../4_make_constraints/*including_disre2_itp.top ."
-  # In normal case, it will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp_command_string = "cp ../../data/input_for_step_5/* ."
+  if (this_is_test == 0):
+    cp_command_string = "cp ../4_make_constraints/*including_disre2_itp.top ."
+  # In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
+  
+  #copy step_4 output
+  print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
   
   command_string = "python runme_make_0_charge.py *.top"
   print "\tcommand: ", command_string
   start = time.time()
   libtbx.easy_run.fully_buffered(command_string)
   end = time.time()
-  
+
   for check_this_file in glob.glob("*_0_charge.top"): # there will be only one file like this
     check_whether_the_step_was_successfully_ran("Step 5", check_this_file)
-
+    
   print "Step 5", (show_time(start, end))
   #color_print ((show_time("Step 5", start, end)), 'green')
   os.chdir( starting_dir )
@@ -750,10 +766,27 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  command_string = "cp ../4_make_constraints/*.gro ."
-  # there is only 1 .gro file in step_4 folder, usually it is minimized_c_term_renamed_by_resnum_oc.gro
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp1_command_string = ''
+  cp2_command_string = ''
+  cp3_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp1_command_string = "cp ../../data/input_for_step_6/* ."
+  if (this_is_test == 0):
+    cp1_command_string = "cp ../4_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
+    cp2_command_string = "cp ../4_make_constraints/disre2.itp ."
+    print "\tcp2_command_string: ", cp2_command_string
+    libtbx.easy_run.fully_buffered(cp2_command_string)
+    cp3_command_string = "cp ../5_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
+    print "\tcp3_command_string: ", cp3_command_string
+    libtbx.easy_run.fully_buffered(cp3_command_string)
+    
+  #copy step_5 output
+  print "\tcp1_command_string: ", cp1_command_string
+  libtbx.easy_run.fully_buffered(cp1_command_string)
   
   print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
   with open("template_for_cryo_fit.mdp", "rt") as fin:
@@ -774,6 +807,9 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
             fout.write(new_line)
         elif splited[0] == "emweight":
           number_of_atoms_in_gro = return_number_of_atoms_in_gro()
+          print "\tnumber_of_atoms_in_gro:", number_of_atoms_in_gro
+          print "\temweight_multiply_by:", emweight_multiply_by
+          
           new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
           fout.write(new_line)
         elif splited[0] == "emwritefrequency":
@@ -797,14 +833,6 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   fin.close()
   
   command_string = "cp " + command_path + "steps/6_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-
-  command_string = "cp ../4_make_constraints/disre2.itp ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-
-  command_string = "cp ../5_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 
@@ -916,12 +944,20 @@ def step_7(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   print "\t\t(.pdb file is for chimera/pymol/vmd)"
   print "\t\t(.gro file is for gromacs/vmd)"
   
-  # recover chain information
-  for pdb_in_step7 in glob.glob("*.pdb"):
-      # worked perfectly with tRNA and Dieter's molecule
-      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step7
-      print "\tcommand: ", command_string
-      libtbx.easy_run.fully_buffered(command_string)
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+  
+  if (this_is_test == 0):
+    # recover chain information
+    for pdb_in_step7 in glob.glob("*.pdb"):
+        # worked perfectly with tRNA and Dieter's molecule
+        command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step7
+        print "\tcommand: ", command_string
+        libtbx.easy_run.fully_buffered(command_string)
       
   f_in = open('cc_record')
   cc_record = list()
@@ -1087,6 +1123,14 @@ def run_cryo_fit(params):
       target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
       params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
       os.chdir(starting_dir)
+  elif len(splited_map_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
+    current_dir = os.getcwd()
+    print "\tCurrent working directory: %s" % current_dir
+    new_dir = current_dir + "/" + splited_map_file_name[0] + "/" + splited_map_file_name[1]
+    os.chdir(new_dir)
+    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+    params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
+    os.chdir(starting_dir)
   else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.sit, len(splited) could be 4
     target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
   
