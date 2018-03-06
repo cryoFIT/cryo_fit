@@ -155,6 +155,17 @@ Options
     .short_caption = Number of steps for cryo_fit
     .help = Specify number of steps for cryo_fit. \
            If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
+  time_step_for_minimization = 0.001
+    .type = float
+    .help = default value is 0.001. Try 0.0005 if you see this error during minimization
+    "Fatal error: A charge group moved too far between two domain decomposition steps \
+    This usually means that your system is not well equilibrated"
+  time_step_for_cryo_fit = 0.002
+    .type = float
+    .short_caption = time step for molecular dynamics simulation during cryo_fit
+    .help = default value is 0.002. Try 0.001 if you see this error during cryo_fit \
+    "Fatal error: A charge group moved too far between two domain decomposition steps \
+    This usually means that your system is not well equilibrated"
   # number_of_threads_to_use = *2 4 8 12 16 24 32
   #   .type = choice
   #   .short_caption = Number of threads to use
@@ -758,7 +769,7 @@ def step_5(command_path, starting_dir):
 # end of step_5 function
     
 def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
-           emweight_multiply_by, emsteps, emwritefrequency, lincs_order):
+           emweight_multiply_by, emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit):
   show_header("Step 6 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_tpr_with_disre2")
 
@@ -793,7 +804,10 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
     with open("for_cryo_fit.mdp", "wt") as fout:
       for line in fin:
         splited = line.split()
-        if splited[0] == "emsteps":
+        if splited[0] == "dt":
+          new_line = "dt = " + str(time_step_for_cryo_fit) + "\n"
+          fout.write(new_line)
+        elif splited[0] == "emsteps":
           if (emsteps == None):
             #if (int(number_of_steps_for_cryo_fit/5) < 5000):
             if (int(number_of_steps_for_cryo_fit) < 25000):
@@ -809,7 +823,6 @@ def step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, \
           number_of_atoms_in_gro = return_number_of_atoms_in_gro()
           print "\tnumber_of_atoms_in_gro:", number_of_atoms_in_gro
           print "\temweight_multiply_by:", emweight_multiply_by
-          
           new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
           fout.write(new_line)
         elif splited[0] == "emwritefrequency":
@@ -1144,8 +1157,10 @@ def run_cryo_fit(params):
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   #number_of_threads_to_use = params.cryo_fit.Options.number_of_threads_to_use
+  time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
+  
   
   print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value \
         that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization
@@ -1181,6 +1196,7 @@ def run_cryo_fit(params):
   number_of_cores_to_use = params.cryo_fit.number_of_cores_to_use
   perturb_xyz_by = params.cryo_fit.perturb_xyz_by
   remove_metals = params.cryo_fit.remove_metals
+  
   
   steps_list = [bool_step_1, bool_step_2, bool_step_3, bool_step_4, bool_step_5, bool_step_6, bool_step_7\
                 , bool_step_8]
@@ -1225,7 +1241,7 @@ def run_cryo_fit(params):
   
   if (steps_list[5] == True):
     step_6(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-           emwritefrequency, lincs_order)
+           emwritefrequency, lincs_order, time_step_for_cryo_fit)
   
   if (steps_list[6] == True):
     results = step_7(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 

@@ -13,7 +13,7 @@ def extract_gro(target_step):
     nsteps = splited[2]
     print "\tnsteps: ", nsteps
     
-    total_ps = float(dt)*float(nsteps)
+    total_ps = float(dt)*float(nsteps) 
     print "\tTherefore, total mdrun running time was: ", total_ps, "ps (10^-12) second"
     print "\tUser wants to extract a gro file from ", target_step, "steps"
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
