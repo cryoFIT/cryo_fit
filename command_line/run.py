@@ -520,7 +520,7 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   #color_print ((show_time("Step 2", start_time_renaming, end_time_renaming)), 'green')
 # end of step_2 function
 
-def step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization, \
+def step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization, time_step_for_minimization, 
            number_of_available_cores, number_of_cores_to_use):
   show_header("Step 3: Minimize a gro file (to prevent \"blowup\" during Molecular Dynamics Simulation)")
   os.chdir (starting_dir)
@@ -536,17 +536,22 @@ def step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization
   print "\tBe number_of_steps_for_minimization as ", number_of_steps_for_minimization
   with open("minimization_template.mdp", "rt") as fin:
     with open("minimization.mdp", "wt") as fout:
-        for line in fin:
-          splited = line.split()
-          if splited[0] == "nsteps":
-              new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " \
-                        ; Maximum number of minimization steps to perform\n"
-              fout.write(new_line)
-          elif splited[0] == "ns_type":
-              new_line = "ns_type  = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
-              fout.write(new_line)
-          else:
-              fout.write(line)
+      for line in fin:
+        splited = line.split()
+        if splited[0] == "nsteps":
+          new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " \
+                    ; Maximum number of minimization steps to perform\n"
+          fout.write(new_line)
+        elif splited[0] == "ns_type":
+          new_line = "ns_type  = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
+          fout.write(new_line)
+        else:
+          fout.write(line)
+      print "\ttime_step_for_minimization:", time_step_for_minimization
+      if time_step_for_minimization != "0.001":
+        print "time_step_for_minimization != 0.001"
+        new_line = "\ndt = " + str(time_step_for_minimization) + "\n"
+        fout.write(new_line)
     fout.close()
   fin.close()
   
@@ -1158,6 +1163,7 @@ def run_cryo_fit(params):
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   #number_of_threads_to_use = params.cryo_fit.Options.number_of_threads_to_use
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
+  time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
   
@@ -1230,8 +1236,8 @@ def run_cryo_fit(params):
            perturb_xyz_by, remove_metals)
     
   if (steps_list[2] == True):
-    step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization, number_of_available_cores, \
-           number_of_cores_to_use)
+    step_3(command_path, starting_dir, ns_type, number_of_steps_for_minimization, time_step_for_minimization, \
+           number_of_available_cores, number_of_cores_to_use)
   
   if (steps_list[3] == True):
     step_4(command_path, starting_dir)
