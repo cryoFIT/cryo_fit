@@ -583,7 +583,10 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
       this_is_test = 1
       cp1_command_string = "cp ../../data/input_for_step_3/* ."
   if (this_is_test == 0):
-    cp1_command_string = "cp ../2_clean_gro/*.gro . "
+    if str(constraint_algorithm_minimization) != "none_default":
+      cp1_command_string = "cp ../2_clean_gro/*.gro . "
+    else:
+      cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
     cp2_command_string = "cp ../1_make_gro/*.top . "
     print "\tcp2_command_string: ", cp2_command_string
     libtbx.easy_run.fully_buffered(cp2_command_string)
@@ -890,14 +893,14 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
-  print "\tcommand: ", command_string
+  print "\t\ncommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
   print "\ttarget_map_with_pathways:", target_map_with_pathways
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + target_map_with_pathways\
               + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix)
-  print "\tcommand: ", command_string
+  print "\t\ncommand: ", command_string
   
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
@@ -956,7 +959,7 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   
   print "\n\tExtract .gro files from the 3 highest cc values."
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py"
-  print "\tcommand: ", command_string
+  print "\t\ncommand: ", command_string
   libtbx.easy_run.call(command_string)
   print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
   
@@ -1266,6 +1269,13 @@ def run_cryo_fit(params):
              time_step_for_minimization)
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
+    
+    cp_command_string = "cp steps/4_minimize/minimized_c_term_renamed_by_resnum_oc.gro . "
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
+    shutil.rmtree("steps/3_make_tpr_to_minimize")
+    shutil.rmtree("steps/4_minimize")
+    
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
              time_step_for_minimization)
