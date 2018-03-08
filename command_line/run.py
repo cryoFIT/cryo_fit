@@ -617,9 +617,23 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
 
-  command_script = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  cp_command_string = ''
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+      cp_command_string = "cp ../../data/input_for_step_4/* ."
+  if (this_is_test == 0):
+    cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
+  
+  #copy step_3 output
+  print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
+  # command_script = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
+  # print "\tcommand: ", command_script
+  # libtbx.easy_run.fully_buffered(command_script)
 
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
   command_string = "python runme_minimize.py to_minimize.tpr " + str(command_path) + " " + \
@@ -893,14 +907,22 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
-  print "\t\ncommand: ", command_string
+  print "\n\tcp_command: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  print "\ttarget_map_with_pathways:", target_map_with_pathways
+  this_is_test = 0
+  splited_starting_dir = starting_dir.split("/")
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      this_is_test = 1
+  
+  print "\tthis_is_test:", this_is_test
+  print "\n\ttarget_map_with_pathways:", target_map_with_pathways
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + target_map_with_pathways\
-              + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix)
-  print "\t\ncommand: ", command_string
+              + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
+              + str(this_is_test)
+  print "\n\tcommand: ", command_string
   
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
@@ -958,23 +980,16 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   f_out.close()
   
   print "\n\tExtract .gro files from the 3 highest cc values."
-  command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py"
-  print "\t\ncommand: ", command_string
+  command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py " + str(this_is_test)
+  print "\n\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
-  print "\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
+  print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
   
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
 
   for extracted_gro in glob.glob("*gro"):
-    
-    ''' (obsolete now) # frizzled nucleosome and beta-galactosidase
-    command_string = "python replace_xyz_from_gro.py " + pdb_file_with_original_chains + " " + extracted_gro
-    print "\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-    '''
-    
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\tcommand: ", command_string

@@ -21,13 +21,18 @@ target_map_with_pathways = args[4]
 output_file_format = args[5]
 starting_dir = args[6]
 output_file_name_prefix = args[7]
+this_is_test = args[8]
 
 if (__name__ == "__main__") :
   #remove_former_files() #needed for development only
-  command_string = "cp ../7_make_tpr_with_disre2/for_cryo_fit.tpr . "
-  #color_print ("\tcommand: ", 'green')
-  print "\tcommad:", command_string, "\n"
-  libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors()
+  
+  cp_command_string = ''
+  if (str(this_is_test) == "0"):
+    cp_command_string = "cp ../7_make_tpr_with_disre2/for_cryo_fit.tpr . "
+  else:
+    cp_command_string = "cp ../../data/input_for_step_8/* ."
+  print "\n\tcp_command_string:", cp_command_string, "\n"
+  libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
   f_out = open('log.step_8', 'wt')
   bool_minimization = False
