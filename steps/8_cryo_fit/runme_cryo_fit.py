@@ -24,12 +24,12 @@ output_file_name_prefix = args[7]
 
 if (__name__ == "__main__") :
   #remove_former_files() #needed for development only
-  command_string = "cp ../6_make_tpr_with_disre2/for_cryo_fit.tpr . "
-  color_print ("\tcommand: ", 'green')
-  print "\t", command_string, "\n"
+  command_string = "cp ../7_make_tpr_with_disre2/for_cryo_fit.tpr . "
+  #color_print ("\tcommand: ", 'green')
+  print "\tcommad:", command_string, "\n"
   libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors()
   
-  f_out = open('log.step_7', 'wt')
+  f_out = open('log.step_8', 'wt')
   bool_minimization = False
   bool_just_get_input_command = True
   print "\ttarget_map_with_pathways:", target_map_with_pathways
@@ -60,7 +60,7 @@ if (__name__ == "__main__") :
   f_out.write("\n")
   f_out.close()
   
-  f_out = open('log.step_7_cryo_fit_real_command', 'wt')
+  f_out = open('log.step_8_cryo_fit_real_command', 'wt')
   f_out.write(write_this_input_command)
   f_out.close()
 #end of if (__name__ == "__main__")

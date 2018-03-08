@@ -1,14 +1,14 @@
-# run @steps/7_cryo_fit
+# run @steps/8_cryo_fit
 import os, subprocess, sys
 from os.path import expanduser # to find home_dir
 
 def extract_gro(target_step):
-    result = os.popen("grep dt ../6_make_tpr_with_disre2/for_cryo_fit.mdp | grep -v when").read()
+    result = os.popen("grep dt ../7_make_tpr_with_disre2/for_cryo_fit.mdp | grep -v when").read()
     splited = result.split()
     dt = splited[2]
     print "\tdt: ", dt
     
-    result = os.popen("grep nsteps ../6_make_tpr_with_disre2/for_cryo_fit.mdp | grep -v when").read()
+    result = os.popen("grep nsteps ../7_make_tpr_with_disre2/for_cryo_fit.mdp | grep -v when").read()
     splited = result.split()
     nsteps = splited[2]
     print "\tnsteps: ", nsteps

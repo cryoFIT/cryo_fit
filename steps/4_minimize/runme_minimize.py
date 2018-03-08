@@ -8,7 +8,7 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
     target_map = '' # no map for minimization
     output_file_format = '' # no map for minimization
     
-    f_out = open('log.step_3_2', 'wt')
+    f_out = open('log.step_4_1', 'wt')
     bool_just_get_input_command = True
     
     command_that_will_be_used = first_prepare_for_minimization_cryo_fit(bool_minimization, \
@@ -31,7 +31,7 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
                                                           number_of_available_cores, number_of_cores_to_use,\
                                                           target_map, output_file_format, "bogus_output_file_name_prefix")
     
-    f_out = open('log.step_3_2_minimization_real_command', 'wt')
+    f_out = open('log.step_4_1_minimization_real_command', 'wt')
     f_out.write(str(command_used))
     f_out.close()
 # end of minimize function

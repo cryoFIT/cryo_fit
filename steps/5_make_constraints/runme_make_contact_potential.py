@@ -19,7 +19,7 @@ def make_contact_potential(input_gro_file_name):
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     
-    f_out = open('log.step_4', 'wt')
+    f_out = open('log.step_5', 'wt')
     command_used = home_cryo_fit_bin_dir + "/genrestr -f " + input_gro_file_name + " -fc 500 500 500 -disre \
                    -cutoff 0.4 -o disre1.itp < pre_selected"
     # gmx genrestr produces an #include file for a topology containing a list of atom numbers and three force constants for thhe x-, y-, and z-direction based on the contents of the -f file. A single isotropic force constant may be given on the command line instead of three components.
