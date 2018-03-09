@@ -19,7 +19,6 @@ def extract_gro(target_step):
     
     grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
     result = os.popen(grep_nsteps_string).read()
-    #result = os.popen("grep nsteps ../7_make_tpr_with_disre2/for_cryo_fit.mdp | grep -v when").read()
     splited = result.split()
     nsteps = splited[2]
     print "\tnsteps: ", nsteps

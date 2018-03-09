@@ -144,7 +144,7 @@ Options
   emweight_multiply_by = 7
     .type = int
     .short_caption = EM weight multiply by
-    .help = multiply by this number to the number of atoms for weight for cryo-EM map bias. \
+    .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 6) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
             If user's map has better resolution, higher number of emweight_multiply_by is recommended since map has much information. \
@@ -169,12 +169,12 @@ Options
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = time step for molecular dynamics simulation during cryo_fit
-    .help = default value is 0.002. Try 0.001 if you see this error during cryo_fit \
+    .help = Default value is 0.002. Try 0.001 if you see this error during cryo_fit \
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
   time_step_for_minimization = 0.001
     .type = float
-    .help = default value is 0.001. Try 0.0005 if you see this error during minimization
+    .help = Default value is 0.001. Try 0.0005 if you see this error during minimization
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
   # number_of_threads_to_use = *2 4 8 12 16 24 32
@@ -233,7 +233,7 @@ debug = False
   .type = bool
   .expert_level=3
   .short_caption = debug output
-  .help = debug output
+  .help = Debug output
 gui
   .help = "GUI-specific parameter required for output directory"
 {
