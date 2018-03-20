@@ -82,12 +82,13 @@ def clean ():
   color_print ("\nMake sure that there was no error", 'green')
 # end of clean function
 
-def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw):
+def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all):
   print "\ncommand: cd ", GMX_MD_SRC
   os.chdir(GMX_MD_SRC)
 
-  color_print ("\nHit enter key to continue.", 'green')
-  raw_input()
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to continue.", 'green')
+    raw_input()
   
   start_time_configure = time.time()
   if (enable_mpi == "Y" and enable_fftw == "Y"):
@@ -109,8 +110,10 @@ def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable
     command_string = "./configure --prefix=" + GMX_MD_INSTALL + " --enable-float --with-fft=fftpack"
     color_print ("command: ", 'green')
     print command_string
-    color_print ("\nHit enter key to configure.", 'green')
-    raw_input()
+    
+    if (enter_all != "1"):
+      color_print ("\nHit enter key to configure.", 'green')
+      raw_input()
     #libtbx.easy_run.call(command=command_string)
     os.system(command_string)
   
@@ -125,9 +128,13 @@ def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable
     color_print ("      There are known problems with some MPI implementations:", 'green')
     color_print ("      OpenMPI version < 1.4.1", 'green')
     color_print ("      MVAPICH2 version <= 1.4.1", 'green')
-  color_print ("Press Y or N and hit enter", 'green')
   
-  configure_result = raw_input()
+  if (enter_all != "1"):
+    color_print ("Press Y or N and hit enter", 'green')
+    configure_result = raw_input()
+  else:
+    configure_result = "Y"
+    
   if (configure_result != "Y" and configure_result != "y"):
     color_print ("I'm sorry to hear that your configuration didn't go well", 'red')
     color_print ("\nWhen Doonam saw this error", 'red')
@@ -144,8 +151,9 @@ def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable
     
   end_time_configure = time.time()
   color_print ((show_time("configuration", start_time_configure, end_time_configure)), 'green')
-  color_print ("\nHit enter key to continue.", 'green')
-  raw_input()
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to continue.", 'green')
+    raw_input()
 # end of configure_cryo_fit function
 
 def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
@@ -186,6 +194,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   # (like 32 cores) anyway, and runs with same speed as with enable_mpi=Y
   enable_mpi = "N"
   
+  ''' #deprecated
   if (enable_mpi == "Y"):
     color_print ("mpi will be enabled during configuration. Threads will not be used.", 'green')
   else:
@@ -193,6 +202,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   
   color_print ("\nHit enter key to continue.", 'green')
   raw_input()
+  '''
   
   ''' # for development purpose only
   color_print ("\nDo you want to install with FFTW enabled? (Hi Nigel, please type N)", 'green')
@@ -259,8 +269,11 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\nIf you see", 'green')
   print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
   color_print ("Doonam recommends to press A\n", 'green')
-  color_print ("\nHit enter key to continue.", 'green')
-  raw_input()
+  
+  print "enter_all:", enter_all
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to continue.", 'green')
+    raw_input()
   #libtbx.easy_run.call(command=command_string)
   os.system(command_string)
   
@@ -268,17 +281,24 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   message = "unzipping " + zipped_file
   color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
   
-  configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw)
+  configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
   # Make
-  core_numbers_to_use = decide_number_of_cores_to_use(1)
-  
+  core_numbers_to_use = ''
+  if (enter_all != "1"):
+    core_numbers_to_use = decide_number_of_cores_to_use(1)
+  else:
+    core_numbers_to_use = 4
+    
   command_script = "make -j " + str(core_numbers_to_use)
   
   color_print ("\ncommand: ", 'green')
   print command_script
-  color_print ("\nHit enter key to do \"Make\"", 'green')
-  raw_input()
+  
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to do \"Make\"", 'green')
+    raw_input()
+  
   start_time_make = time.time()
   os.system(command_script)
   end_time_make = time.time()
@@ -288,9 +308,14 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("The \"Make\" should have been ended with this kind of message.", 'green')
   color_print ("\t...make[2]: Nothing to be done for `all-am'.", 'green')
   color_print ("\t   make[1]: Nothing to be done for `all-am'.\n", 'green')
-  color_print ("Press Y or N and enter key.", 'green')
   
-  make_result = raw_input()
+  make_result = ''
+  if (enter_all != "1"):
+    color_print ("Press Y or N and enter key.", 'green')
+    make_result = raw_input()
+  else:
+    make_result = "Y"
+  
   if (make_result != "Y" and make_result != "y"):
     color_print ("I'm sorry to hear that your Make didn't go well", 'red')
     if (enable_mpi == "Y"):
@@ -309,17 +334,20 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("OK, I'm glad to hear that your Make went well.", 'green')
     
   color_print ((show_time ("Make", start_time_make, end_time_make)), 'green')
-
-  color_print ("\nHit enter key to continue.", 'green')
-  raw_input()
+  
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to continue.", 'green')
+    raw_input()
 
   # Installation of cryo_fit (all gromacs executables)
   start_time_install = time.time()
   command_string = "make install"
   color_print ("command: ", 'green')
   print command_string
-  color_print ("\nHit enter key to install cryo_fit.", 'green')
-  raw_input()
+  
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to install cryo_fit.", 'green')
+    raw_input()
   #libtbx.easy_run.call(command=command_string)
   os.system(command_string)
   print '#'*105
@@ -330,9 +358,13 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\t...\"If you want links to the executables in /usr/local/bin,", 'green')  
   color_print ("\t   you can issue \"make links\" now.", 'green')   
   color_print ("\t   make[2]: Nothing to be done for `install-data-am'.\"\n\n", 'green')
-  color_print ("Press Y or N and enter key.", 'green')
   
-  install_result = raw_input()
+  if (enter_all != "1"):
+    color_print ("Press Y or N and enter key.", 'green')
+    install_result = raw_input()
+  else:
+    install_result = "Y"
+    
   if (install_result != "Y" and install_result != "y"):
     color_print ("I'm sorry to hear that your Installation didn't go well", 'red')
     color_print ("The installation SHOULD NOT have been ended with this kind of message", 'red')
@@ -357,33 +389,39 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("\nThis command was needed to avoid a unexpected error", 'green')
     color_print ("\t\"PMIx has detected a temporary directory name that results in a path that is too long for the Unix domain socket:\"", 'green')
     color_print ("when running cryo_fit in mpi mode", 'green')
+    
     color_print ("\nHit enter key to export like this (Edition of ~/.bashrc or ~/.bash_profile is recommended for better convenience).", 'green')
 ######## Doonam needs to code to edit .bashrc automatically
     raw_input()
     
-  color_print ("\nHit enter key to finish", 'green')
-  raw_input()
+  if (enter_all != "1"):
+    color_print ("\nHit enter key to finish", 'green')
+    raw_input()
 # end of install_gromacs_cryo_fit function
 
 if (__name__ == "__main__") :
   total_start_time = time.time()
-  color_print ("If you need troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
-  color_print ("Hit enter key to continue.", 'green')
-  raw_input()
   
   args=sys.argv[1:]
   if len(args) < 1:
       print "Please specify your downloaded gromacs_cryo_fit zip file"
-      print "Usage: python 3_runme_to_install_gromacs_cryo_fit.py <gromacs_cryo_fit.zip>"
-      print "Example usage: python 3_runme_to_install_gromacs_cryo_fit.py ~/gromacs_cryo_fit.zip"
-      sys.exit("runme_to_install_gromacs_cryo_fit.py exits now.")
+      print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <enter_all>"
+      print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip 0"
+      print "If \"enter_all\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
+      print "On 2013, macbook pro, the installation took 9.6 minutes"
+      sys.exit("install_cryo_fit.py exits now.")
   else: # len(args) >= 1:
       zipped_file = args[0] # input cryo_fit zip file
+      enter_all = args[1] # enter to all Y/N questions
+      color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
+      if (enter_all != "1"):
+        color_print ("Hit enter key to continue.", 'green')
+        raw_input()
       color_print ("input gromacs_cryo_fit.zip file: ", 'green')
       print zipped_file
       if zipped_file.find("openmpi") != -1:
         color_print ("\nPlease provide cryo_fit installation file, not openmpi installation file.", 'green')
         exit(1)
-      install_gromacs_cryo_fit(zipped_file)
+      install_gromacs_cryo_fit(zipped_file, enter_all)
   total_end_time = time.time()
   color_print ((show_time("Total cryo_fit installation", total_start_time, total_end_time)), 'green')
