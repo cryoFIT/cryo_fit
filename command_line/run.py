@@ -1194,6 +1194,11 @@ def run_cryo_fit(params):
   starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
   print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
+  print "\ttarget_map_with_pathways:", target_map_with_pathways
+  
+  if os.path.isfile(target_map_with_pathways) != True:
+    print "Please correct map file location correctly, cryo_fit can't find it"
+    exit(1)
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization

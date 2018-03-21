@@ -168,6 +168,7 @@ def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
   os.system(command_script)
     
 def install_gromacs_cryo_fit(zipped_file, *args):
+  color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
   starting_dir = os.getcwd()
   color_print ("\nCurrent working directory: ", 'green')
   print starting_dir
@@ -418,10 +419,6 @@ if (__name__ == "__main__") :
   elif len(args) == 1:
       zipped_file = args[0] # input cryo_fit zip file
       enter_all = "1" # enter to all Y/N questions
-      color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
-      if (enter_all != "1"):
-        color_print ("Hit enter key to continue.", 'green')
-        raw_input()
       color_print ("input gromacs_cryo_fit.zip file: ", 'green')
       print zipped_file
       if zipped_file.find("openmpi") != -1:
@@ -431,7 +428,6 @@ if (__name__ == "__main__") :
   else: # len(args) >= 2:
       zipped_file = args[0] # input cryo_fit zip file
       enter_all = args[1] # enter to all Y/N questions
-      color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
       if (enter_all != "1"):
         color_print ("Hit enter key to continue.", 'green')
         raw_input()
