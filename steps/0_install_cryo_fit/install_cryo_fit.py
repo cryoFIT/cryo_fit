@@ -172,6 +172,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\nCurrent working directory: ", 'green')
   print starting_dir
 
+#  bypass_unzipping = 0
+#  if zipped_file[:-4] != ".zip":
+#    bypass_unzipping = 1
+    
   splited = zipped_file.split("/")
   wo_ext = str(splited[len(splited)-1])
   splited = wo_ext.split(".zip")
@@ -248,9 +252,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
 
   print "\n", GMX_MD_INSTALL
   color_print ("was made", 'green')
-
-  check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"
-  
+    
+  check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"  
   if (exists(check_this_zip_file) == False):
     command_string = "cp " + zipped_file + " ~/src"
     color_print ("command: ", 'green')
@@ -280,6 +283,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   end_time_unzip = time.time()
   message = "unzipping " + zipped_file
   color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
+  
+  
   
   configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
@@ -408,9 +413,22 @@ if (__name__ == "__main__") :
       print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <enter_all>"
       print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip 0"
       print "If \"enter_all\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
-      print "On 2013, macbook pro, the installation took 9.6 minutes"
+      print "With 2013 macbook pro, the installation took 9.6 minutes"
       sys.exit("install_cryo_fit.py exits now.")
-  else: # len(args) >= 1:
+  elif len(args) == 1:
+      zipped_file = args[0] # input cryo_fit zip file
+      enter_all = "1" # enter to all Y/N questions
+      color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
+      if (enter_all != "1"):
+        color_print ("Hit enter key to continue.", 'green')
+        raw_input()
+      color_print ("input gromacs_cryo_fit.zip file: ", 'green')
+      print zipped_file
+      if zipped_file.find("openmpi") != -1:
+        color_print ("\nPlease provide cryo_fit installation file, not openmpi installation file.", 'green')
+        exit(1)
+      install_gromacs_cryo_fit(zipped_file, enter_all)
+  else: # len(args) >= 2:
       zipped_file = args[0] # input cryo_fit zip file
       enter_all = args[1] # enter to all Y/N questions
       color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')

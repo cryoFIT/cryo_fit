@@ -1353,7 +1353,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
     if arg.endswith('.pdb') or arg.endswith('.cif'):
       if arg.find('=')==-1:
         args[i]='model=%s' % arg
-    elif arg.endswith('.sit'):
+    elif arg.endswith('.map') or arg.endswith('.sit'):
       if arg.find('=')==-1:
         args[i]='map=%s' % arg
   
