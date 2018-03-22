@@ -1,4 +1,4 @@
-# LIBTBX_SET_DISPATCHER_NAME phenix.cryoFIT
+# LIBTBX_SET_DISPATCHER_NAME phenix.cryo_fit
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
@@ -8,10 +8,10 @@ import libtbx.phil.command_line
 from subprocess import check_output
 import libtbx.load_env
 
-cryoFIT_repository_dir = libtbx.env.dist_path("cryofit")
+cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 
 def run ():
-    # running this test_cryoFIT is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
+    # running this test_cryo_fit is not recommended to be ran at /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit to avoid \
     #git related changes
     
     # copy input files to a current folder (although it may take longer time by copying these files, it is more organized \
@@ -21,11 +21,11 @@ def run ():
         print "remove former result file"
         os.remove("minimized_c_term_renamed_by_resnum_oc.gro")
         
-    command_string = "cp " + cryoFIT_repository_dir + "/steps/2_clean_gro/*rename*.py ."
+    command_string = "cp " + cryo_fit_repository_dir + "/steps/2_clean_gro/*rename*.py ."
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
   
-    command_string = "cp " + cryoFIT_repository_dir + "/regression/input_file/minimized.gro ."
+    command_string = "cp " + cryo_fit_repository_dir + "/regression/input_file/minimized.gro ."
     print "\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
     
@@ -35,7 +35,7 @@ def run ():
     if (os.path.isfile("minimized_c_term_renamed_by_resnum_oc.gro")):
         print "OK\n"
     else:
-        print "regression for cryoFIT didn't run successfully, exit now.\n"
+        print "regression for cryo_fit didn't run successfully, exit now.\n"
         exit(1)
 
 if __name__=="__main__":
