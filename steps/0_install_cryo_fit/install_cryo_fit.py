@@ -173,9 +173,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\nCurrent working directory: ", 'green')
   print starting_dir
 
-#  bypass_unzipping = 0
-#  if zipped_file[:-4] != ".zip":
-#    bypass_unzipping = 1
+  bypass_unzipping = 0
+  print "zipped_file[len(zipped_file)-4:len(zipped_file)]:", zipped_file[len(zipped_file)-4:len(zipped_file)]
+  if zipped_file[len(zipped_file)-4:len(zipped_file)] != ".zip":
+    bypass_unzipping = 1
     
   splited = zipped_file.split("/")
   wo_ext = str(splited[len(splited)-1])
@@ -242,50 +243,62 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   GMX_MD_SRC = home_dir + "/src/" + gromacs_cryo_fit_file_name
   color_print ("gromacs source code path: ", 'green')
   print GMX_MD_SRC, "\n"
-  if os.path.isdir(GMX_MD_SRC):
-    print GMX_MD_SRC
-    color_print ("exists, so remove it\n", 'green')
-    command_string = "rm -rf " + GMX_MD_SRC
-    color_print ("command: ", 'green')
-    print command_string, "\n"
-#    libtbx.easy_run.call(command=command_string)
-    os.system(command_string)
+  
+  print "bypass_unzipping:", bypass_unzipping
+  if bypass_unzipping == "0":
+    if os.path.isdir(GMX_MD_SRC):
+      print GMX_MD_SRC
+      color_print ("exists, so remove it\n", 'green')
+      command_string = "rm -rf " + GMX_MD_SRC
+      color_print ("command: ", 'green')
+      print command_string, "\n"
+  #    libtbx.easy_run.call(command=command_string)
+      os.system(command_string)
 
-  print "\n", GMX_MD_INSTALL
-  color_print ("was made", 'green')
-    
-  check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"  
-  if (exists(check_this_zip_file) == False):
-    command_string = "cp " + zipped_file + " ~/src"
+      print "\n", GMX_MD_INSTALL
+      color_print ("was made", 'green')
+  
+  if bypass_unzipping == "1":
+    # "zipped_file" is a cryo_fit_src_folder
+    cp_cryo_fit_src_folder_to_root_src = "cp -r " + zipped_file + " ~/src"
     color_print ("command: ", 'green')
+    print cp_cryo_fit_src_folder_to_root_src
+    os.system(cp_cryo_fit_src_folder_to_root_src)
+    
+    color_print ("\ncommand:  cd ~/src", 'green')
+    os.chdir(src_dir)
+  
+  else:
+    check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"  
+    if (exists(check_this_zip_file) == False):
+      command_string = "cp " + zipped_file + " ~/src"
+      color_print ("command: ", 'green')
+      print command_string
+      #libtbx.easy_run.call(command=command_string)
+      os.system(command_string)
+  
+    start_time_unzip = time.time()
+    color_print ("\ncommand:  cd ~/src", 'green')
+    os.chdir(src_dir)
+  
+    command_string = "unzip " + zipped_file
+    color_print ("\ncommand: ", 'green')
     print command_string
+  
+    color_print ("\nIf you see", 'green')
+    print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
+    color_print ("Doonam recommends to press A\n", 'green')
+    
+    print "enter_all:", enter_all
+    if (enter_all != "1"):
+      color_print ("\nHit enter key to continue.", 'green')
+      raw_input()
     #libtbx.easy_run.call(command=command_string)
     os.system(command_string)
-
-  start_time_unzip = time.time()
-  color_print ("\ncommand:  cd ~/src", 'green')
-  os.chdir(src_dir)
-
-  command_string = "unzip " + zipped_file
-  color_print ("\ncommand: ", 'green')
-  print command_string
-
-  color_print ("\nIf you see", 'green')
-  print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
-  color_print ("Doonam recommends to press A\n", 'green')
-  
-  print "enter_all:", enter_all
-  if (enter_all != "1"):
-    color_print ("\nHit enter key to continue.", 'green')
-    raw_input()
-  #libtbx.easy_run.call(command=command_string)
-  os.system(command_string)
-  
-  end_time_unzip = time.time()
-  message = "unzipping " + zipped_file
-  color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
-  
-  
+    
+    end_time_unzip = time.time()
+    message = "unzipping " + zipped_file
+    color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
   
   configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
@@ -295,18 +308,25 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     core_numbers_to_use = decide_number_of_cores_to_use(1)
   else:
     core_numbers_to_use = 4
-    
-  command_script = "make -j " + str(core_numbers_to_use)
   
-  color_print ("\ncommand: ", 'green')
-  print command_script
+  make_command_string = ''
+  try:
+    debug
+  except:
+    debug = 0
+  if (debug == "1"):
+    make_command_string = "make --debug -j " + str(core_numbers_to_use)
+  else:
+    make_command_string = "make -j " + str(core_numbers_to_use)
+  color_print ("make command: ", 'green')
+  print make_command_string
   
   if (enter_all != "1"):
     color_print ("\nHit enter key to do \"Make\"", 'green')
     raw_input()
   
   start_time_make = time.time()
-  os.system(command_script)
+  os.system(make_command_string)
   end_time_make = time.time()
   
   print '#'*105
@@ -347,15 +367,20 @@ def install_gromacs_cryo_fit(zipped_file, *args):
 
   # Installation of cryo_fit (all gromacs executables)
   start_time_install = time.time()
-  command_string = "make install"
-  color_print ("command: ", 'green')
-  print command_string
+  make_install_command_string = ''
+  
+  if (debug == "1"):
+    make_install_command_string = "make install -g" # this command inflates only, doesn't make executables
+  else:
+    make_install_command_string = "make install"
+  color_print ("make_install_command_string: ", 'green')
+  print make_install_command_string
   
   if (enter_all != "1"):
     color_print ("\nHit enter key to install cryo_fit.", 'green')
     raw_input()
-  #libtbx.easy_run.call(command=command_string)
-  os.system(command_string)
+  #libtbx.easy_run.call(command=make_install_command_string)
+  os.system(make_install_command_string)
   print '#'*105
   color_print ("\n\nCheck whether the installation was done without any error.\n", 'green')
   color_print ("Was your installation ended with this kind of message?", 'green')
@@ -411,10 +436,11 @@ if (__name__ == "__main__") :
   args=sys.argv[1:]
   if len(args) < 1:
       print "Please specify your downloaded gromacs_cryo_fit zip file"
-      print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <enter_all>"
-      print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip 0"
-      print "If \"enter_all\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
-      print "With 2013 macbook pro, the installation took 9.6 minutes"
+      print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <automatic> <debug>"
+      print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip"
+      print "If \"automatic\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
+      print "If \"debug\" equals 1, then cryo_fit will be compiled with debug mode, so that gdb can be ran"
+      print "With 2013 macbook pro, the installation took 9 minutes"
       sys.exit("install_cryo_fit.py exits now.")
   elif len(args) == 1:
       zipped_file = args[0] # input cryo_fit zip file
@@ -425,9 +451,22 @@ if (__name__ == "__main__") :
         color_print ("\nPlease provide cryo_fit installation file, not openmpi installation file.", 'green')
         exit(1)
       install_gromacs_cryo_fit(zipped_file, enter_all)
+  elif len(args) == 3: # for development
+      zipped_file = args[0] # input cryo_fit zip file
+      enter_all = args[1] # enter to all Y/N questions, it can be either 0 or 1
+      debug = args[2] # if it is 1, -g will be added
+      if (enter_all != "1"):
+        color_print ("Hit enter key to continue.", 'green')
+        raw_input()
+      color_print ("input gromacs_cryo_fit.zip file: ", 'green')
+      print zipped_file
+      if zipped_file.find("openmpi") != -1:
+        color_print ("\nPlease provide cryo_fit installation file, not openmpi installation file.", 'green')
+        exit(1)
+      install_gromacs_cryo_fit(zipped_file, enter_all, debug)
   else: # len(args) >= 2:
       zipped_file = args[0] # input cryo_fit zip file
-      enter_all = args[1] # enter to all Y/N questions
+      enter_all = args[1] # enter to all Y/N questions, it can be either 0 or 1
       if (enter_all != "1"):
         color_print ("Hit enter key to continue.", 'green')
         raw_input()
