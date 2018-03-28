@@ -58,7 +58,8 @@ def clean_pdb_for_gromacs(input_pdb_file_name):
     f_out.close()
     return output_pdb_file_name
     # using construct_hierarchy() will be great, but my own code would be much faster to develop
-    '''pdb_input = iotbx.pdb.input(file_name=file)
+    '''
+    pdb_input = iotbx.pdb.input(file_name=file)
     pdb_hierarchy = pdb_input.construct_hierarchy()
     for model in pdb_hierarchy.models():
       chains = model.chains()
