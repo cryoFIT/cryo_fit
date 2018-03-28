@@ -44,11 +44,13 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   output_pdb_file_name = clean_RNA_atoms_for_amber03 (output_pdb_file_name)
   output_pdb_file_name = remove_the_fourth_character(output_pdb_file_name)
   
-  output_pdb_file_name = no_more_100k_atom_num(output_pdb_file_name)
+  output_pdb_file_name = no_more_100k_atom_num (output_pdb_file_name)
   
   output_pdb_file_name = put_TER_between_chains (output_pdb_file_name)
   output_pdb_file_name = clean_HETATM_7C4 (output_pdb_file_name)
-  output_pdb_file_name = clean_RNA_OP1(output_pdb_file_name, bool_remove_MIA, bool_MIA_to_A)
+  output_pdb_file_name = clean_RNA_OP1 (output_pdb_file_name, bool_remove_MIA, bool_MIA_to_A)
+  
+  output_pdb_file_name = remove_water (output_pdb_file_name) # gromacs cannot handle water
   
   final_output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_gromacs.pdb"
   cmd = "mv " + output_pdb_file_name + " " + final_output_pdb_file_name
@@ -316,19 +318,25 @@ def clean_HETATM_7C4(input_pdb_file_name):
   for line in f_in:
     residue = line[17:20]
     if residue == "7C4":
-      print "7C4 removed"
+      print residue, " removed"
       continue
     elif residue == "BMA":
-      print "BMA removed"
+      print residue, " removed"
       continue
     elif residue == "GDP":
-      print "GDP removed"
+      print residue, " removed"
+      continue
+    elif residue == "ILX":
+      print residue, " removed"
       continue
     elif residue == "NAG":
-      print "NAG removed"
+      print residue, " removed"
       continue
     elif residue == "SEP":
-      print "SEP removed"
+      print residue, " removed"
+      continue
+    elif residue == "TRX":
+      print residue, " removed"
       continue
     else:
       f_out.write(line)
@@ -338,6 +346,26 @@ def clean_HETATM_7C4(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 # end of clean_HETATM_7C4 function
+
+
+def remove_water(input_pdb_file_name):
+  f_in = open(input_pdb_file_name)
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
+  f_out = open(output_pdb_file_name, 'wt')
+          
+  for line in f_in:
+    residue = line[17:20]
+    if residue == "HOH":
+      print residue, " removed"
+      continue
+    else:
+      f_out.write(line)
+  f_in.close()
+  f_out.close()
+  cmd = "rm " + input_pdb_file_name
+  os.system(cmd)
+  return output_pdb_file_name
+# end of remove_water function
 
 def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
   bool_MIA_to_A_done = 0

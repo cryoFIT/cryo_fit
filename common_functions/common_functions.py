@@ -47,7 +47,7 @@ def cif_as_pdb(file_name):
       print " ", str(e)
 # end of cif_as_pdb()
 
-def clean_pdb_for_gromacs(input_pdb_file_name):
+def remove_water_for_gromacs(input_pdb_file_name):
     f_in = open(input_pdb_file_name)
     output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
     f_out = open(output_pdb_file_name, 'wt')

@@ -1193,8 +1193,6 @@ def run_cryo_fit(params):
   # Input
   starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
   print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  
-  starting_pdb_with_pathways = clean_pdb_for_gromacs(starting_pdb_with_pathways) # now starting_pdb_with_pathways lacks HOH
     
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
   print "\ttarget_map_with_pathways:", target_map_with_pathways
