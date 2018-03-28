@@ -9,8 +9,8 @@
 # 4_Minimize
 # 5_Make_constraints
 # 6_Make_0_charge
-# 7_Make_tpr_for_cryo_fit
-# 8_cryo_fit_itself
+# 7_Make_tpr_for_EM_map_fitting
+# 8_EM_map_fitting_itself
 # 9_Draw_a_figure_of_cc
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
@@ -71,7 +71,7 @@ Most useful options (GUI has more explanation about these):
     - emweight_multiply_by
 """
 
-#master_params_str seems to be used for default values/options in GUI
+#master_params_str are used for default values of options in GUI
 master_params_str = """
 cryo_fit {
 include scope libtbx.phil.interface.tracking_params
@@ -1193,6 +1193,9 @@ def run_cryo_fit(params):
   # Input
   starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
   print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  
+  starting_pdb_with_pathways = clean_pdb_for_gromacs(starting_pdb_with_pathways) # now starting_pdb_with_pathways lacks HOH
+    
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
   print "\ttarget_map_with_pathways:", target_map_with_pathways
   
@@ -1208,8 +1211,8 @@ def run_cryo_fit(params):
   #number_of_threads_to_use = params.cryo_fit.Options.number_of_threads_to_use
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
-  user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
+  user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
   print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value \
         that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization

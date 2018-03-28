@@ -23,10 +23,8 @@ except Exception:
     print "\t2. Extract termcolor-1.1.0.tar.gz (for example, tar -xvf termcolor-1.1.0.tar.gz)"
     print "\t3. Run \"python setup.py install\" at the extracted folder"
     print "Press any key to continue"
-    '''
-    #raw_input() # disable this for now, so that Phenix GUI will work
+    ''' #raw_input() # disable this for now, so that Phenix GUI will work
 
-# copied from /Users/doonam/bin/phenix-1.13rc1-2961/modules/cctbx_project/iotbx/command_line/cif_as_pdb.py
 def cif_as_pdb(file_name):  
     try:
       assert os.path.exists(file_name)
@@ -48,7 +46,31 @@ def cif_as_pdb(file_name):
       print "Error converting %s to PDB format:" %file_name
       print " ", str(e)
 # end of cif_as_pdb()
-    
+
+def clean_pdb_for_gromacs(input_pdb_file_name):
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    for line in f_in:
+      if line[17:20] != "HOH":
+        f_out.write(line)
+    f_in.close()
+    f_out.close()
+    return output_pdb_file_name
+    # using construct_hierarchy() will be great, but my own code would be much faster to develop
+    '''pdb_input = iotbx.pdb.input(file_name=file)
+    pdb_hierarchy = pdb_input.construct_hierarchy()
+    for model in pdb_hierarchy.models():
+      chains = model.chains()
+      for chain in chains:
+        conformers = chain.conformers()
+        for conformer in conformers:
+          residues = conformer.residues()
+          for residue in residues:
+            print "residue.resname:", residue.resname
+    '''
+#end of clean_pdb_for_gromacs fn
+
 def color_print(text, color):
     if (termcolor_installed == True):
         print colored (text, color)
@@ -96,19 +118,10 @@ def final_prepare_for_minimization_cryo_fit(bool_just_get_input_command, bool_mi
             command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
                                                      bool_minimization, 12, \
                                                      ns_type, common_command_string)
-        else:
+        else: # ribosome benchmark showed that maximum useful number of cores is 16
             command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
                                                      bool_minimization, 16, \
                                                      ns_type, common_command_string)
-        # based on ribosome benchmark result, maximum number of cores to use is 16
-        # elif (number_of_available_cores <= 32):
-        #     command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-        #                                              bool_minimization, 24, \
-        #                                              ns_type, common_command_string)
-        # else:
-        #     command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-        #                                              bool_minimization, 32, \
-        #                                              ns_type, common_command_string)
     else:
         command_used = minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, \
                                                  int(number_of_cores_to_use), ns_type, common_command_string)
@@ -125,12 +138,10 @@ def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_inp
     if (bool_minimization == True):
         common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "
     else:
-        #print "\toutput_file_name_prefix:", output_file_name_prefix
         if (output_file_name_prefix == "None"):
             output_file_name = "cryo_fitted." + output_file_format
         else:
             output_file_name = output_file_name_prefix + "_cryo_fitted." + output_file_format
-        #print "\toutput_file_name: ", output_file_name
         common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                                 target_map + " -c " + output_file_name + " -nosum  -noddcheck "
         

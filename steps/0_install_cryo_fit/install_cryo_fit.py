@@ -243,32 +243,32 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   GMX_MD_SRC = home_dir + "/src/" + gromacs_cryo_fit_file_name
   color_print ("gromacs source code path: ", 'green')
   print GMX_MD_SRC, "\n"
-  
+      
   print "bypass_unzipping:", bypass_unzipping
-  if bypass_unzipping == "0":
-    if os.path.isdir(GMX_MD_SRC):
-      print GMX_MD_SRC
-      color_print ("exists, so remove it\n", 'green')
-      command_string = "rm -rf " + GMX_MD_SRC
-      color_print ("command: ", 'green')
-      print command_string, "\n"
-  #    libtbx.easy_run.call(command=command_string)
-      os.system(command_string)
-
-      print "\n", GMX_MD_INSTALL
-      color_print ("was made", 'green')
-  
-  if bypass_unzipping == "1":
+  if bypass_unzipping == 1:
     # "zipped_file" is a cryo_fit_src_folder
-    cp_cryo_fit_src_folder_to_root_src = "cp -r " + zipped_file + " ~/src"
-    color_print ("command: ", 'green')
-    print cp_cryo_fit_src_folder_to_root_src
-    os.system(cp_cryo_fit_src_folder_to_root_src)
+    #cp_cryo_fit_src_folder_to_root_src = "cp -r " + zipped_file + " ~/src"
+    #color_print ("command: ", 'green')
+    #print cp_cryo_fit_src_folder_to_root_src
+    #os.system(cp_cryo_fit_src_folder_to_root_src)
     
     color_print ("\ncommand:  cd ~/src", 'green')
     os.chdir(src_dir)
   
-  else:
+  else: #unzip please
+    print "remove a former src folder"
+    if os.path.isdir(GMX_MD_SRC):
+      print GMX_MD_SRC
+      color_print ("exists, so remove it\n", 'green')
+      
+      command_string = "rm -rf " + GMX_MD_SRC
+      color_print ("command: ", 'green')
+      print command_string, "\n"
+      os.system(command_string)
+
+      print "\n", GMX_MD_INSTALL
+      color_print ("was made", 'green')
+      
     check_this_zip_file = home_dir + "/src/" + gromacs_cryo_fit_file_name + ".zip"  
     if (exists(check_this_zip_file) == False):
       command_string = "cp " + zipped_file + " ~/src"
@@ -440,7 +440,7 @@ if (__name__ == "__main__") :
       print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip"
       print "If \"automatic\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
       print "If \"debug\" equals 1, then cryo_fit will be compiled with debug mode, so that gdb can be ran"
-      print "With 2013 macbook pro, the installation took 9 minutes"
+      print "With 2013 macbook pro, the installation took 4 ~ 11 minutes"
       sys.exit("install_cryo_fit.py exits now.")
   elif len(args) == 1:
       zipped_file = args[0] # input cryo_fit zip file
