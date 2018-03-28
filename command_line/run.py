@@ -1356,7 +1356,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
 
   # very simple parsing of model and map
   for i, arg in enumerate(args):
-    if arg.endswith('.pdb') or arg.endswith('.cif'):
+    if arg.endswith('.cif') or arg.endswith('.ent') or arg.endswith('.pdb'): # EMD-3981 has 6exv.ent instead of .pdb
       if arg.find('=')==-1:
         args[i]='model=%s' % arg
     elif arg.endswith('.map') or arg.endswith('.sit'):

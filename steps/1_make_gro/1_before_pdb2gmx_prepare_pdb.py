@@ -323,7 +323,13 @@ def clean_HETATM_7C4(input_pdb_file_name):
     elif residue == "BMA":
       print residue, " removed"
       continue
+    elif residue == "CSX":
+      print residue, " removed"
+      continue
     elif residue == "GDP":
+      print residue, " removed"
+      continue
+    elif residue == "HYP": # needed to run emd_3981
       print residue, " removed"
       continue
     elif residue == "ILX":
