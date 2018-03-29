@@ -1153,6 +1153,7 @@ def run_cryo_fit(params):
     starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
   print "\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
+  params.cryo_fit.Input.map_file_name = mrc_to_sit(params.cryo_fit.Input.map_file_name)
   splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
   target_map_without_pathways = ''
   print "\tlen(splited_map_file_name):", len(splited_map_file_name)
