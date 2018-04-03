@@ -1357,7 +1357,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
     if arg.endswith('.cif') or arg.endswith('.ent') or arg.endswith('.pdb'): # EMD-3981 has 6exv.ent instead of .pdb
       if arg.find('=')==-1:
         args[i]='model=%s' % arg
-    elif arg.endswith('.map') or arg.endswith('.sit'):
+    elif arg.endswith('.ccp4') or arg.endswith('.map') or arg.endswith('.sit'):
       if arg.find('=')==-1:
         args[i]='map=%s' % arg
   

@@ -381,7 +381,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 def mrc_to_sit(map_file_name):
     print "\tConvert mrc format map to situs format map"
     new_map_file_name = ''
-    if (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".ccp4" or \
+    if (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4" or \
         map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map"):
         new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
         f_out = open(new_map_file_name, 'wt')
