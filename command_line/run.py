@@ -47,10 +47,7 @@ Input:
     - A .cif or .pdb file
          A template/starting structure that is aligned to a target cryo EM 
          density map structurally (for example by USCF chimera)
-    - A .sit file, a cryo EM density map 
-         For example, you may generate the sit file by Situs 
-         (http://situs.biomachina.org)'s map2map
-         Example usage of this map2map: map2map H40-H44_0.5A.map H40-H44_0.5A.sit
+    - A .ccp4 (MRC) or .map (MRC) or .sit (Situs) file, a cryo EM density map 
     
 Output:
     - cryo_fitted.pdb (or .gro) in steps/8_cryo_fit folder: Fitted biomolecule structure to a target cryo-EM map
@@ -78,14 +75,14 @@ include scope libtbx.phil.interface.tracking_params
 Input{
   model_file_name = None
     .type = path
-    .short_caption = Starting model file (.pdb)
+    .short_caption = Starting model file (.cif/.pdb)
     .multiple = False
     .help = Such as a homology model or a model from different organism/experimental method.
     .style = file_type:pdb bold input_file
   map_file_name = None
     .type = path
-    .short_caption = Target map file (.sit)
-    .help = Cryo-EM map file (available format: .sit).
+    .short_caption = Target map file (.ccp4/.map/.sit)
+    .help = Cryo-EM map file
     .style = bold input_file
 }
 Steps

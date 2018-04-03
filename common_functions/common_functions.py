@@ -379,6 +379,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 
 
 def mrc_to_sit(map_file_name):
+    print "\tConvert mrc format map to situs format map"
     new_map_file_name = ''
     if (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".ccp4" or \
         map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map"):
@@ -388,17 +389,17 @@ def mrc_to_sit(map_file_name):
         # Compute a target map
         from iotbx import ccp4_map
         ccp4_map = ccp4_map.map_reader(user_input_map)
-        print "Map read from %s" %(user_input_map)
+        print "\tMap read from %s" %(user_input_map)
         target_map_data = ccp4_map.map_data()
         
-        print "dir(): ", dir(ccp4_map)
-        print "ccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
+        print "\tdir(): ", dir(ccp4_map)
+        print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
         a,b,c = ccp4_map.unit_cell_parameters[:3]
         widthx = a/target_map_data.all()[0]
-        print "widthx:", widthx
+        print "\twidthx:", widthx
   
         # acc = target_map_data.accessor() # not used, but keep for now
-        print "target_map_data.origin():",target_map_data.origin()
+        print "\ttarget_map_data.origin():",target_map_data.origin()
     
         counter = 0
         total_counter = 0
