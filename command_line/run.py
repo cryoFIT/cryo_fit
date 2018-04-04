@@ -1062,6 +1062,10 @@ def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map
 
 def run_cryo_fit(params):
   
+  #f_out_all = open('log.cryo_fit', 'at+') -> seems appending
+  f_out_all = open('log.cryo_fit', 'w+')
+  f_out_all.write("Overall report of cryo_fit\n\n")
+  
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
   # works well at macOS commandline and GUI
   # works well at CentOS commandline
@@ -1271,24 +1275,31 @@ def run_cryo_fit(params):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
     step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
-  
+    f_out_all.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
+    
   if (steps_list[1] == True):
     step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
+    f_out_all.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
   
   if str(constraint_algorithm_minimization) != "none_default":
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
              time_step_for_minimization)
+      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
+      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   else:
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
              time_step_for_minimization)
+      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
+      
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
-    
+      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
+      
     cp_command_string = "cp steps/4_minimize/minimized_c_term_renamed_by_resnum_oc.gro . "
     libtbx.easy_run.fully_buffered(cp_command_string)
     
@@ -1298,23 +1309,31 @@ def run_cryo_fit(params):
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
              time_step_for_minimization)
+      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
+      
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
-      
+      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
+    
   if (steps_list[4] == True):
     step_5(command_path, starting_dir)
+    f_out_all.write("Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n")
   
   if (steps_list[5] == True):
     step_6(command_path, starting_dir)
+    f_out_all.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
   if (steps_list[6] == True):
     step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
            emwritefrequency, lincs_order, time_step_for_cryo_fit)
+    f_out_all.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
   
   if (steps_list[7] == True):
     results = step_8(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
            target_map_with_pathways, output_file_format, output_file_name_prefix)
     
+    f_out_all.write("Step 8 (Run cryo_fit) is successfully ran\n")
+    f_out_all.close()
     return results
   return "bogus"
   
