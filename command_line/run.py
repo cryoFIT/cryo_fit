@@ -75,14 +75,14 @@ include scope libtbx.phil.interface.tracking_params
 Input{
   model_file_name = None
     .type = path
-    .short_caption = Starting model file (.cif/.pdb)
+    .short_caption = Starting model file 
     .multiple = False
-    .help = Such as a homology model or a model from different organism/experimental method.
+    .help = (.cif/.pdb) Either a homology model or a model from different organism/experimental method.
     .style = file_type:pdb bold input_file
   map_file_name = None
     .type = path
-    .short_caption = Target map file (.ccp4/.map/.sit)
-    .help = Cryo-EM map file
+    .short_caption = Target map file 
+    .help = Cryo-EM map file (.ccp4/.map/.sit)
     .style = bold input_file
 }
 Steps
@@ -137,22 +137,22 @@ Options
     .short_caption = EM steps
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
-            If it is left blank, the cryo_fit will automatically determine the emsteps.
+            If it is left blank, the cryo_fit will automatically determine the emsteps
   emweight_multiply_by = 7
     .type = int
     .short_caption = EM weight multiply by
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 6) \
+            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 7) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
             If user's map has better resolution, higher number of emweight_multiply_by is recommended since map has much information. \
             If user's map has have worse resolution, lower number of emweight_multiply_by is recommended for more likely geometry. \
-            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended for speedup.
+            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended for speedup
   emwritefrequency = None
     .type = int
     .short_caption = EM write frequency
     .help = Frequency with which the simulated maps are written to file. \
             If this frequency is too small, it can cause extremely large amounts of data to be written.\
-            If it is left blank, the cryo_fit will automatically determine the emwritefrequency.
+            If it is left blank, the cryo_fit will automatically determine the emwritefrequency
   number_of_steps_for_minimization = None
     .type = int
     .short_caption = Number of steps for minimization
@@ -165,7 +165,7 @@ Options
            If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
   time_step_for_cryo_fit = 0.002
     .type = float
-    .short_caption = time step for molecular dynamics simulation during cryo_fit
+    .short_caption = time step for MD simulation during cryo_fit
     .help = Default value is 0.002. Try 0.001 if you see this error during cryo_fit \
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
@@ -333,7 +333,7 @@ def print_author():
   print """\
  %s
   cryo_fit %s 
-    - Doo Nam Kim (doonam@lanl.gov), Serdal Kirmizialtin, Nigel Moriarty, Billy Poon
+    - Doo Nam Kim (doonam@lanl.gov), Serdal Kirmizialtin, Nigel Moriarty, Tom Terwilliger, Billy Poon
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
 
@@ -1023,7 +1023,7 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   results = dict()
   results['cc_record'] = cc_record
   
-  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/7_cryo_fit"
+  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/8_cryo_fit"
   print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
   print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/8_cryo_fit as well."
   
@@ -1420,7 +1420,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\nTotal cryo_fit", show_time(time_total_start, time_total_end)
   
   return results
-  #return os.path.abspath(os.path.join('steps', '7_cryo_fit', output_file_name))
+  #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name))
   # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function
 
