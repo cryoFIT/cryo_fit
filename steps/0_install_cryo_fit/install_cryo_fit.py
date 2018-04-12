@@ -444,7 +444,8 @@ if (__name__ == "__main__") :
       sys.exit("install_cryo_fit.py exits now.")
   elif len(args) == 1:
       zipped_file = args[0] # input cryo_fit zip file
-      enter_all = "1" # enter to all Y/N questions
+      #enter_all = "1" # enter to all Y/N questions
+      enter_all = "0" # Since there is a report that cryofit can't be installed at linux, turn on error message
       color_print ("input gromacs_cryo_fit.zip file: ", 'green')
       print zipped_file
       if zipped_file.find("openmpi") != -1:
