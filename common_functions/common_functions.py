@@ -403,13 +403,14 @@ def mrc_to_sit(map_file_name):
     
         counter = 0
         total_counter = 0
-        emmap_z0 = target_map_data.origin()[2] #0
-        emmap_y0 = target_map_data.origin()[1] #0
-        emmap_x0 = target_map_data.origin()[0] #0
+        emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
+        emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
+        emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
         
-        emmap_nz = target_map_data.all()[2] # for H40 -> 109
-        emmap_ny = target_map_data.all()[1] # for H40 -> 104
-        emmap_nx = target_map_data.all()[0] # for H40 -> 169
+        print "\ttarget_map_data.all():", target_map_data.all()
+        emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
+        emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
+        emmap_nx = target_map_data.all()[0] # for H40 -> 169, nucleosome: 196
         
         #line = "0.945000 " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
         line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
@@ -420,19 +421,26 @@ def mrc_to_sit(map_file_name):
         for k in xrange(emmap_z0, emmap_nz):
           for j in xrange(emmap_y0, emmap_ny):
             for i in xrange(emmap_x0, emmap_nx):
-              total_counter = total_counter + 1
-              x=i/target_map_data.all()[0]
-              y=j/target_map_data.all()[1]
-              z=k/target_map_data.all()[2]
-              value = target_map_data.value_at_closest_grid_point((x,y,z))
-              #print "%10.6f" %value,
-              line = " " + str(value)
-              f_out.write(line)
-              counter = counter + 1
-              if (counter==10):
-                counter=0
-                f_out.write("\n")
-                #print "\n",
+              #  print "\tk,j,i:", k,j,i
+                total_counter = total_counter + 1
+                # x=i/target_map_data.all()[0]
+                # y=j/target_map_data.all()[1]
+                # z=k/target_map_data.all()[2]
+                x=i/emmap_nx
+                y=j/emmap_ny
+                z=k/emmap_nz
+               # print "\tx,y,z:", x,y,z
+                value = target_map_data.value_at_closest_grid_point((x,y,z))
+                # it seems that target_map_data.value_at_closest_grid_point((x,y,z)) doesn't work
+                # when x,y,z < 0
+                # print "value: %10.6f" %value,
+                line = " " + str(value)
+                f_out.write(line)
+                counter = counter + 1
+                if (counter==10):
+                  counter=0
+                  f_out.write("\n")
+                  #print "\n",
         f_out.write("\n")
         #print "total_counter:", total_counter,
         f_out.close()
