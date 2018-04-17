@@ -44,7 +44,7 @@ How to use
     - Don't run at a phenix folder such as /Users/<user>/bin/phenix-dev-2906/modules/cryo_fit
 
 Input:
-    - A .cif or .pdb file
+    - A .cif or .ent or .pdb file
          A template/starting structure that is aligned to a target cryo EM 
          density map structurally (for example by USCF chimera)
     - A .ccp4 (MRC) or .map (MRC) or .sit (Situs) file, a cryo EM density map 
@@ -77,7 +77,7 @@ Input{
     .type = path
     .short_caption = Starting model file 
     .multiple = False
-    .help = (.cif/.pdb) Either a homology model or a model from different organism/experimental method.
+    .help = (.cif/.ent/.pdb) Either a homology model or a model from different organism/experimental method.
     .style = file_type:pdb bold input_file
   map_file_name = None
     .type = path
@@ -412,6 +412,7 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   command_script = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
+  print "starting_pdb_without_path:", starting_pdb_without_path
   if (starting_pdb_without_path.find("_cleaned_for_gromacs") == -1):
     run_this = "python 1_before_pdb2gmx_prepare_pdb.py " + starting_pdb_without_path + " 0 0 0 " + \
                str(remove_metals)
@@ -1060,55 +1061,37 @@ def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map
 #end of step_9 (cc draw) function
 
 
-def run_cryo_fit(params, inputs):
+def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_file_name):
+  print "assign_model_map_names"
+  params.cryo_fit.Input.model_file_name = model_file_name
+  params.cryo_fit.Input.map_file_name = map_file_name
   
-  #f_out_all = open('log.cryo_fit', 'at+') -> seems appending
-  f_out_all = open('log.cryo_fit', 'w+')
-  f_out_all.write("Overall report of cryo_fit\n\n")
+  temp_map_file_name = params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
-  # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
-  # works well at macOS commandline and GUI
-  # works well at CentOS commandline
-  # not works at CentOS GUI
-  home_dir = expanduser("~")
-  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
+  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
+    
+     returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
+     params.cryo_fit.Input.map_file_name = returned[0]
+     params.cryo_fit.Input.model_file_name = returned[1]
   
-  print "home_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
-  #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
+  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.model_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.model_file_name
   
-  if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\nPlease install cryo_fit first."
-      print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-      print "Exit now."
-      exit(1)
-  # (end) check whether cryo_fit is installed to exit early for users who didn't install cryofit yet
-  
-  show_header("Step 0: Prepare to run cryo_fit")
-
-  starting_dir = os.getcwd()
-  print "\tCurrent working directory: %s" % starting_dir
-
-  bool_step_1 = params.cryo_fit.Steps.step_1
-  bool_step_2 = params.cryo_fit.Steps.step_2
-  bool_step_3 = params.cryo_fit.Steps.step_3
-  bool_step_4 = params.cryo_fit.Steps.step_4
-  bool_step_5 = params.cryo_fit.Steps.step_5
-  bool_step_6 = params.cryo_fit.Steps.step_6
-  bool_step_7 = params.cryo_fit.Steps.step_7
-  bool_step_8 = params.cryo_fit.Steps.step_8
-  bool_step_9 = params.cryo_fit.Steps.step_9
-  
-  print "\tparams.cryo_fit.model_file_name: ", params.cryo_fit.Input.model_file_name
   cif_provided = 0 
   if params.cryo_fit.Input.model_file_name.endswith('.cif'):
     print "\tUser provided .cif file, let's turn into .pdb"
-    cif_provided = 1
+    cif_provided = 1 # needed for later
     cif_as_pdb(params.cryo_fit.Input.model_file_name)
   elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
     print "\tUser provided .ent file, let's simply change extension into .pdb"
     params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
     
+    
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  
+  # assign starting_pdb_without_pathways
   starting_pdb_without_pathways = ''
   print "\tlen(splited_model_file_name):", len(splited_model_file_name)
   if (cif_provided == 1):
@@ -1156,16 +1139,8 @@ def run_cryo_fit(params, inputs):
   else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
     starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
-  temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
-  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
-    
-    params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
-  
-  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
-  
+  #STOP()
   splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
   target_map_without_pathways = ''
   print "\tlen(splited_map_file_name):", len(splited_map_file_name)
@@ -1209,9 +1184,185 @@ def run_cryo_fit(params, inputs):
     
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
   print "\ttarget_map_with_pathways:", target_map_with_pathways
+  return starting_pdb_with_pathways, starting_pdb_without_pathways, target_map_with_pathways, target_map_without_pathways
+# end of assign_model_map_names()
+
+  
+def run_cryo_fit(params, inputs):
+  
+  #f_out_all = open('log.cryo_fit', 'at+') -> seems appending
+  f_out_all = open('log.cryo_fit', 'w+')
+  f_out_all.write("Overall report of cryo_fit\n\n")
+  
+  # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
+  # works well at macOS commandline and GUI
+  # works well at CentOS commandline
+  # not works at CentOS GUI
+  home_dir = expanduser("~")
+  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
+  
+  print "home_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
+  #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
+  
+  if (os.path.exists(home_cryo_fit_bin_dir) != True):
+      print "\nPlease install cryo_fit first."
+      print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+      print "Exit now."
+      exit(1)
+  # (end) check whether cryo_fit is installed to exit early for users who didn't install cryofit yet
+  
+  show_header("Step 0: Prepare to run cryo_fit")
+
+  starting_dir = os.getcwd()
+  print "\tCurrent working directory: %s" % starting_dir
+
+  bool_step_1 = params.cryo_fit.Steps.step_1
+  bool_step_2 = params.cryo_fit.Steps.step_2
+  bool_step_3 = params.cryo_fit.Steps.step_3
+  bool_step_4 = params.cryo_fit.Steps.step_4
+  bool_step_5 = params.cryo_fit.Steps.step_5
+  bool_step_6 = params.cryo_fit.Steps.step_6
+  bool_step_7 = params.cryo_fit.Steps.step_7
+  bool_step_8 = params.cryo_fit.Steps.step_8
+  bool_step_9 = params.cryo_fit.Steps.step_9
+  
+  #'''
+  returned = assign_model_map_names(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name, params.cryo_fit.Input.map_file_name)
+  
+  starting_pdb_with_pathways = returned[0]
+  starting_pdb_without_pathways = returned[1]
+  target_map_with_pathways = returned[2]
+  target_map_without_pathways = returned[3]
+  #'''
+
+  ''' # (begin) assign_model_map_names
+  
+  # (begin) cif check
+  print "\tparams.cryo_fit.model_file_name: ", params.cryo_fit.Input.model_file_name
+  cif_provided = 0 
+  if params.cryo_fit.Input.model_file_name.endswith('.cif'):
+    print "\tUser provided .cif file, let's turn into .pdb"
+    cif_provided = 1 # needed for later
+    cif_as_pdb(params.cryo_fit.Input.model_file_name)
+  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
+    print "\tUser provided .ent file, let's simply change extension into .pdb"
+    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
+  # (end) cif check  
+  
+  # (begin) mrc_to_sit if needed
+  temp_map_file_name = params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  
+  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
+    
+     returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
+     params.cryo_fit.Input.map_file_name = returned[0]
+     params.cryo_fit.Input.model_file_name = returned[1]
+  
+  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.model_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.model_file_name
+  # (end) mrc_to_sit if needed
+  
+    
+  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  
+  # assign starting_pdb_without_pathways
+  starting_pdb_without_pathways = ''
+  print "\tlen(splited_model_file_name):", len(splited_model_file_name)
+  if (cif_provided == 1):
+    params.cryo_fit.Input.model_file_name = splited_model_file_name[len(splited_model_file_name)-1]
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
+    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
+    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
+    # Doonam knows that this is just a superhack way of adding absolute path. 
+    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
+    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
+  elif (len(splited_model_file_name) == 1):
+    # when running cryo_fit at a same folder with a pdb file
+    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
+    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
+    # Doonam knows that this is just a superhack way of adding absolute path. 
+    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
+    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
+  elif len(splited_model_file_name) == 2:  
+    dot_dot = params.cryo_fit.Input.model_file_name.split("..")
+    if len(dot_dot) == 2: #when ../devel.pdb
+      os.chdir("..")
+      current_dir = os.getcwd()
+      print "\tCurrent working directory: %s" % current_dir
+      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+      params.cryo_fit.Input.model_file_name = current_dir + "/" + starting_pdb_without_pathways
+      os.chdir(starting_dir)
+    else: # len(dot_dot) = 1 when data/devel.pdb
+      current_dir = os.getcwd()
+      print "\tCurrent working directory: %s" % current_dir
+      print "\tsplited_model_file_name:", splited_model_file_name
+      new_dir = current_dir + "/" + splited_model_file_name[0]
+      os.chdir(new_dir)
+      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+      params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
+      os.chdir(starting_dir)
+  elif len(splited_model_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
+    current_dir = os.getcwd()
+    print "\tCurrent working directory: %s" % current_dir
+    print "\tsplited_model_file_name:", splited_model_file_name
+    new_dir = current_dir + "/" + splited_model_file_name[0] + "/" + splited_model_file_name[1]
+    os.chdir(new_dir)
+    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+    params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
+    os.chdir(starting_dir)
+  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
+    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  
+  
+  splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
+  target_map_without_pathways = ''
+  print "\tlen(splited_map_file_name):", len(splited_map_file_name)
+  if len(splited_map_file_name) == 1: # a case of running cryo_fit at a same folder with a map file
+    target_map_without_pathways = params.cryo_fit.Input.map_file_name
+    params.cryo_fit.Input.map_file_name = starting_dir + "/" + params.cryo_fit.Input.map_file_name
+    # Doonam thinks that this could be just a superhack way of adding absolute path. 
+    # But it works fine in both commandline and GUI
+    print "\tparams.cryo_fit.Input.map_file_name (after adding absolute path): ", params.cryo_fit.Input.map_file_name
+  elif len(splited_map_file_name) == 2:  # a case of running cryo_fit at a same folder with a ../sit file
+    dot_dot = params.cryo_fit.Input.map_file_name.split("..")
+    if len(dot_dot) == 2: #when ../devel.sit
+      os.chdir("..")
+      current_dir = os.getcwd()
+      print "\tCurrent working directory: %s" % current_dir
+      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+      params.cryo_fit.Input.map_file_name = current_dir + "/" + target_map_without_pathways
+      os.chdir(starting_dir)
+    else: # len(dot_dot) = 1 when data/devel.sit
+      current_dir = os.getcwd()
+      print "\tCurrent working directory: %s" % current_dir
+      new_dir = current_dir + "/" + splited_map_file_name[0]
+      os.chdir(new_dir)
+      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+      params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
+      os.chdir(starting_dir)
+  elif len(splited_map_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
+    current_dir = os.getcwd()
+    print "\tCurrent working directory: %s" % current_dir
+    new_dir = current_dir + "/" + splited_map_file_name[0] + "/" + splited_map_file_name[1]
+    os.chdir(new_dir)
+    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+    params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
+    os.chdir(starting_dir)
+  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.sit, len(splited) could be 4
+    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+  
+  starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+    
+  target_map_with_pathways = params.cryo_fit.Input.map_file_name
+  print "\ttarget_map_with_pathways:", target_map_with_pathways
+  ''' #(end) assign_model_map_names
+  
   
   if os.path.isfile(target_map_with_pathways) != True:
-    print "Please correct map file location correctly, cryo_fit can't find it"
+    print "Please correct map file location, cryo_fit can't find it"
     exit(1)
   
   # Options  
@@ -1219,7 +1370,6 @@ def run_cryo_fit(params, inputs):
   emsteps = params.cryo_fit.Options.emsteps
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
-  #number_of_threads_to_use = params.cryo_fit.Options.number_of_threads_to_use
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit

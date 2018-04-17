@@ -411,6 +411,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
     emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
     
+    print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
+    a,b,c = ccp4_map.unit_cell_parameters[:3]
+    widthx = a/target_map_data.all()[0]
+    print "\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
+    
     #'''
     ### (begin) shift map origin if current map origin < 0
     if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0):
@@ -432,13 +437,10 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
         print "\ttarget_map_data.origin() after shifting:",target_map_data.origin()
     ### (end) shift map origin
-        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z)
+        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx)
     #'''
     
-    print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
-    a,b,c = ccp4_map.unit_cell_parameters[:3]
-    widthx = a/target_map_data.all()[0]
-    print "\twidthx:", widthx
+    
     
     print "\ttarget_map_data.all():", target_map_data.all()
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
@@ -454,15 +456,12 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     for k in xrange(emmap_z0, emmap_nz):
       for j in xrange(emmap_y0, emmap_ny):
         for i in xrange(emmap_x0, emmap_nx):
-            #print "\tk,j,i:", k,j,i
             total_counter = total_counter + 1
             x=i/emmap_nx
             y=j/emmap_ny
             z=k/emmap_nz
-            #print "\tx,y,z:", x,y,z
-            #STOP()
+            
             value = target_map_data.value_at_closest_grid_point((x,y,z))
-          
             # it seems that target_map_data.value_at_closest_grid_point((x,y,z)) doesn't work
             # when x,y,z < 0
             
@@ -477,7 +476,8 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     f_out.write("\n")
     #print "total_counter:", total_counter,
     f_out.close()
-    return new_map_file_name
+    #STOP()
+    return new_map_file_name, pdb_file_name
 # end of mrc_to_sit(map_file_name)
 
 
@@ -494,32 +494,49 @@ def remove_former_files():
 
 def shift_origin_of_mrc_map_if_needed(map_data, model):
     print "\tShift_origin_of_mrc_map_if_needed"
+    #soin = maptbx.shift_origin_if_needed(map_data=map_data,
+    #    sites_cart=model.get_sites_cart(), crystal_symmetry=model.crystal_symmetry())
     soin = maptbx.shift_origin_if_needed(map_data=map_data,
-    sites_cart=model.get_sites_cart(), crystal_symmetry=model.crystal_symmetry())
+        crystal_symmetry=model.crystal_symmetry())
     map_data = soin.map_data
     return map_data
 # end of shift_origin_of_mrc_map_if_needed ()
 
 
-def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by):
+def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx):
     print "\tshift_origin_of_pdb_file"
-    move_x_by = move_x_by*2 # multiplication by 2 seems needed for nucleosome
-    move_y_by = move_y_by*2
-    move_z_by = move_z_by*2
+    # multiplication by "more" seems needed for nucleosome and 8249
+    #widthx = 1
+    move_x_by = move_x_by*widthx
+    move_y_by = move_y_by*widthx
+    move_z_by = move_z_by*widthx
     f_in = open(input_pdb_file_name)
     output_pdb_file_name = input_pdb_file_name[:-4] + "_translated" + ".pdb"
     f_out = open(output_pdb_file_name, "w")
     for line in f_in:
       if line[0:4] == "ATOM" or line[0:6] == "HETATM":
         x_coor_former = line[30:38]
+      #  print "\nx_coor_former:", x_coor_former
+        
         new_x_coor = str(float(x_coor_former) + float(move_x_by))
+       # print "new_x_coor:", new_x_coor
+       # print "round(float(new_x_coor), 3):", round(float(new_x_coor), 3)
+        
+        new_x_coor = str(round(float(new_x_coor), 3))
+        
         splited = new_x_coor.split(".")
         multi_before_period = 4-len(splited[0])
+        #print ("multi_before_period:"),multi_before_period
         multi_after_period = 3-len(splited[1])
+       # print ("multi_after_period:"),multi_after_period
+       # STOP()
         new_line = line[:30] + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
         
         y_coor_former = line[38:46]
         new_y_coor = str(float(y_coor_former) + float(move_y_by))
+        
+        new_y_coor = str(round(float(new_y_coor), 3))
+        
         splited = new_y_coor.split(".")
         multi_before_period = 4-len(splited[0])
         multi_after_period = 3-len(splited[1])
@@ -527,6 +544,9 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
         
         z_coor_former = line[46:54]
         new_z_coor = str(float(z_coor_former) + float(move_z_by))
+        
+        new_z_coor = str(round(float(new_z_coor), 3))
+        
         splited = new_z_coor.split(".")
         multi_before_period = 4-len(splited[0])
         multi_after_period = 3-len(splited[1])
