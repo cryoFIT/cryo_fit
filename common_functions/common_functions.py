@@ -1,3 +1,4 @@
+from cctbx import maptbx
 import glob, os, platform, subprocess
 import iotbx.pdb
 import iotbx.pdb.mmcif
@@ -5,6 +6,7 @@ from libtbx import phil
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from libtbx.utils import multi_out
+import mmtbx.model
 import mmtbx.utils
 from os.path import expanduser # to find home_dir
 from subprocess import check_output, Popen, PIPE
@@ -47,6 +49,14 @@ def cif_as_pdb(file_name):
       print " ", str(e)
 # end of cif_as_pdb()
 
+def ent_as_pdb(file_name):
+    new_file_name = file_name[:-4] + ".pdb"
+    cp_command_string = "cp " + file_name + " " + new_file_name
+    print "cp_command_string:", cp_command_string
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    return new_file_name
+# end of ent_as_pdb()
+
 def remove_water_for_gromacs(input_pdb_file_name):
     f_in = open(input_pdb_file_name)
     output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
@@ -70,7 +80,7 @@ def remove_water_for_gromacs(input_pdb_file_name):
           for residue in residues:
             print "residue.resname:", residue.resname
     '''
-#end of clean_pdb_for_gromacs fn
+#end of clean_pdb_for_gromacs ()
 
 def color_print(text, color):
     if (termcolor_installed == True):
@@ -378,76 +388,98 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 # end of minimize_or_cryo_fit function
 
 
-def mrc_to_sit(map_file_name):
+def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\tConvert mrc format map to situs format map"
-    new_map_file_name = ''
-    if (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4" or \
-        map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map"):
-        new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
-        f_out = open(new_map_file_name, 'wt')
-        user_input_map = map_file_name
-        # Compute a target map
-        from iotbx import ccp4_map
-        ccp4_map = ccp4_map.map_reader(user_input_map)
-        print "\tMap read from %s" %(user_input_map)
-        target_map_data = ccp4_map.map_data()
-        
-        print "\tdir(): ", dir(ccp4_map)
-        print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
-        a,b,c = ccp4_map.unit_cell_parameters[:3]
-        widthx = a/target_map_data.all()[0]
-        print "\twidthx:", widthx
-  
-        # acc = target_map_data.accessor() # not used, but keep for now
-        print "\ttarget_map_data.origin():",target_map_data.origin()
+    print "\tWorks for all mrc maps whose origins are 0,0,0"
+    print "\tWhen the mrc map has origins which are negative values like nucleosome, this mrc_to_sit doesn't work"
     
-        counter = 0
-        total_counter = 0
+    new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
+    f_out = open(new_map_file_name, 'wt')
+    user_input_map = map_file_name
+    # Compute a target map
+    from iotbx import ccp4_map
+    ccp4_map = ccp4_map.map_reader(user_input_map)
+    print "\tMap read from %s" %(user_input_map)
+    target_map_data = ccp4_map.map_data()
+    
+    #print "\tdir(): ", dir(ccp4_map)
+
+    # acc = target_map_data.accessor() # not used, but keep for now
+    print "\ttarget_map_data.origin():",target_map_data.origin()
+
+    emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
+    emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
+    emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
+    
+    #'''
+    ### (begin) shift map origin if current map origin < 0
+    if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0):
+        pdb_inp = iotbx.pdb.input(file_name=pdb_file_name)
+        model = mmtbx.model.manager(
+            model_input = pdb_inp,
+            crystal_symmetry=inputs.crystal_symmetry,
+            build_grm=True)
+        target_map_data = shift_origin_of_mrc_map_if_needed(target_map_data, model)
+        # this shifted nucleosome map's origin into 0,0,0 successfully
+    
+        shifted_in_z = target_map_data.origin()[2] - emmap_z0
+        shifted_in_y = target_map_data.origin()[1] - emmap_y0
+        shifted_in_x = target_map_data.origin()[0] - emmap_x0
+        
+        # origin is shifted, so reassign emmap_z0,y0,x0
         emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
         emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
         emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
-        
-        print "\ttarget_map_data.all():", target_map_data.all()
-        emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
-        emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
-        emmap_nx = target_map_data.all()[0] # for H40 -> 169, nucleosome: 196
-        
-        #line = "0.945000 " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
-        line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
-        f_out.write(line)
-        
-        #print "",
-        
-        for k in xrange(emmap_z0, emmap_nz):
-          for j in xrange(emmap_y0, emmap_ny):
-            for i in xrange(emmap_x0, emmap_nx):
-              #  print "\tk,j,i:", k,j,i
-                total_counter = total_counter + 1
-                # x=i/target_map_data.all()[0]
-                # y=j/target_map_data.all()[1]
-                # z=k/target_map_data.all()[2]
-                x=i/emmap_nx
-                y=j/emmap_ny
-                z=k/emmap_nz
-               # print "\tx,y,z:", x,y,z
-                value = target_map_data.value_at_closest_grid_point((x,y,z))
-                # it seems that target_map_data.value_at_closest_grid_point((x,y,z)) doesn't work
-                # when x,y,z < 0
-                # print "value: %10.6f" %value,
-                line = " " + str(value)
-                f_out.write(line)
-                counter = counter + 1
-                if (counter==10):
-                  counter=0
-                  f_out.write("\n")
-                  #print "\n",
-        f_out.write("\n")
-        #print "total_counter:", total_counter,
-        f_out.close()
-    else:
-        new_map_file_name = map_file_name
+        print "\ttarget_map_data.origin() after shifting:",target_map_data.origin()
+    ### (end) shift map origin
+        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z)
+    #'''
+    
+    print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
+    a,b,c = ccp4_map.unit_cell_parameters[:3]
+    widthx = a/target_map_data.all()[0]
+    print "\twidthx:", widthx
+    
+    print "\ttarget_map_data.all():", target_map_data.all()
+    emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
+    emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
+    emmap_nx = target_map_data.all()[0] # for H40 -> 169, nucleosome: 196
+    
+    line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    f_out.write(line)
+    
+    counter = 0
+    total_counter = 0
+    
+    for k in xrange(emmap_z0, emmap_nz):
+      for j in xrange(emmap_y0, emmap_ny):
+        for i in xrange(emmap_x0, emmap_nx):
+            #print "\tk,j,i:", k,j,i
+            total_counter = total_counter + 1
+            x=i/emmap_nx
+            y=j/emmap_ny
+            z=k/emmap_nz
+            #print "\tx,y,z:", x,y,z
+            #STOP()
+            value = target_map_data.value_at_closest_grid_point((x,y,z))
+          
+            # it seems that target_map_data.value_at_closest_grid_point((x,y,z)) doesn't work
+            # when x,y,z < 0
+            
+            # print "value: %10.6f" %value,
+            line = " " + str(value)
+            f_out.write(line)
+            counter = counter + 1
+            if (counter==10):
+              counter=0
+              f_out.write("\n")
+              #print "\n",
+    f_out.write("\n")
+    #print "total_counter:", total_counter,
+    f_out.close()
     return new_map_file_name
 # end of mrc_to_sit(map_file_name)
+
 
 def remove_former_files():
     current_directory = os.getcwd()
@@ -457,8 +489,57 @@ def remove_former_files():
         or (each_file == "cryo_fit_log") or (each_file[-4:] == ".log") or (each_file == "md.log") \
         or (each_file[-4:] == ".trr") or (each_file[-4:] == ".xtc") or (each_file == "md.out"):
           subprocess.call(["rm", each_file])
-# end of remove_former_files function
+# end of remove_former_files function 
 
+
+def shift_origin_of_mrc_map_if_needed(map_data, model):
+    print "\tShift_origin_of_mrc_map_if_needed"
+    soin = maptbx.shift_origin_if_needed(map_data=map_data,
+    sites_cart=model.get_sites_cart(), crystal_symmetry=model.crystal_symmetry())
+    map_data = soin.map_data
+    return map_data
+# end of shift_origin_of_mrc_map_if_needed ()
+
+
+def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by):
+    print "\tshift_origin_of_pdb_file"
+    move_x_by = move_x_by*2 # multiplication by 2 seems needed for nucleosome
+    move_y_by = move_y_by*2
+    move_z_by = move_z_by*2
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_translated" + ".pdb"
+    f_out = open(output_pdb_file_name, "w")
+    for line in f_in:
+      if line[0:4] == "ATOM" or line[0:6] == "HETATM":
+        x_coor_former = line[30:38]
+        new_x_coor = str(float(x_coor_former) + float(move_x_by))
+        splited = new_x_coor.split(".")
+        multi_before_period = 4-len(splited[0])
+        multi_after_period = 3-len(splited[1])
+        new_line = line[:30] + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+        
+        y_coor_former = line[38:46]
+        new_y_coor = str(float(y_coor_former) + float(move_y_by))
+        splited = new_y_coor.split(".")
+        multi_before_period = 4-len(splited[0])
+        multi_after_period = 3-len(splited[1])
+        new_line = new_line + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+        
+        z_coor_former = line[46:54]
+        new_z_coor = str(float(z_coor_former) + float(move_z_by))
+        splited = new_z_coor.split(".")
+        multi_before_period = 4-len(splited[0])
+        multi_after_period = 3-len(splited[1])
+        new_line = new_line + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" " \
+              + line[54:]
+        f_out.write(new_line)
+        
+      elif line[0:3] == "TER":
+        f_out.write(line)
+    f_in.close()
+    f_out.close()
+    return output_pdb_file_name   
+# end of translate_pdb_file_by_xyz ()
 
 
 def show_time(time_start, time_end):

@@ -1060,7 +1060,7 @@ def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map
 #end of step_9 (cc draw) function
 
 
-def run_cryo_fit(params):
+def run_cryo_fit(params, inputs):
   
   #f_out_all = open('log.cryo_fit', 'at+') -> seems appending
   f_out_all = open('log.cryo_fit', 'w+')
@@ -1104,6 +1104,9 @@ def run_cryo_fit(params):
     print "\tUser provided .cif file, let's turn into .pdb"
     cif_provided = 1
     cif_as_pdb(params.cryo_fit.Input.model_file_name)
+  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
+    print "\tUser provided .ent file, let's simply change extension into .pdb"
+    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
     
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
   starting_pdb_without_pathways = ''
@@ -1153,8 +1156,16 @@ def run_cryo_fit(params):
   else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
     starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
-  print "\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
-  params.cryo_fit.Input.map_file_name = mrc_to_sit(params.cryo_fit.Input.map_file_name)
+  temp_map_file_name = params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  
+  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
+    
+    params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
+  
+  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
+  
   splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
   target_map_without_pathways = ''
   print "\tlen(splited_map_file_name):", len(splited_map_file_name)
@@ -1380,6 +1391,12 @@ def cmd_run(args, validated=False, out=sys.stdout):
       if arg.find('=')==-1:
         args[i]='map=%s' % arg
   
+  # for mrc_to_sit
+  crystal_symmetry=None
+  inputs = mmtbx.utils.process_command_line_args(args = args,
+        cmd_cs=crystal_symmetry,
+        master_params = master_phil)
+  
   time_process_command_line_args_start = time.time()
   argument_interpreter = libtbx.phil.command_line.argument_interpreter(
     master_phil=master_phil,
@@ -1414,7 +1431,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
     validate_params(working_params)
   time_process_command_line_args_end = time.time()
   print "Processing command_line_args", show_time(time_process_command_line_args_start, time_process_command_line_args_end)
-  results = run_cryo_fit(working_params)
+  results = run_cryo_fit(working_params, inputs)
     
   time_total_end = time.time()
   print "\nTotal cryo_fit", show_time(time_total_start, time_total_end)

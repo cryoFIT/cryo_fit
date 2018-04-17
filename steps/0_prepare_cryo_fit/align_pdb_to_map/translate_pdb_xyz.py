@@ -33,7 +33,7 @@ def translate_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by):
       f_out.write(line)
   f_in.close()
   f_out.close()
-        
+# end of translate_xyz()
 
 if (__name__ == "__main__") :
   print "Input format: python translate_pdb_xyz.py input_pdb_file_name x y z\n"
