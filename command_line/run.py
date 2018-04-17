@@ -1062,10 +1062,20 @@ def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map
 
 
 def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_file_name):
-  print "assign_model_map_names"
+  print "\tassign_model_map_names"
   params.cryo_fit.Input.model_file_name = model_file_name
   params.cryo_fit.Input.map_file_name = map_file_name
+  print "len(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
   
+  if len(params.cryo_fit.Input.model_file_name) > 50:
+    print "length of params.cryo_fit.Input.model_file_name is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
+    print "so cryo_fit will copy another short named file"
+    extension = params.cryo_fit.Input.model_file_name[len(params.cryo_fit.Input.model_file_name)-4:len(params.cryo_fit.Input.model_file_name)]
+    cp_command_string = "cp " + params.cryo_fit.Input.model_file_name + " " + params.cryo_fit.Input.model_file_name[:48] + extension
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:48]
+  
+    
   temp_map_file_name = params.cryo_fit.Input.map_file_name
   print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
@@ -1140,7 +1150,6 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
     starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
   
-  #STOP()
   splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
   target_map_without_pathways = ''
   print "\tlen(splited_map_file_name):", len(splited_map_file_name)
@@ -1178,12 +1187,15 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.sit, len(splited) could be 4
     target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
   
-  # Input
-  starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-    
+  starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name 
   target_map_with_pathways = params.cryo_fit.Input.map_file_name
-  print "\ttarget_map_with_pathways:", target_map_with_pathways
+  
+  if os.path.isfile(target_map_with_pathways) != True:
+    print "Please correct map file location, cryo_fit can't find it"
+    exit(1)
+  
+  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  print "\ttarget_map_with_pathways:", target_map_with_pathways  
   return starting_pdb_with_pathways, starting_pdb_without_pathways, target_map_with_pathways, target_map_without_pathways
 # end of assign_model_map_names()
 
@@ -1226,144 +1238,14 @@ def run_cryo_fit(params, inputs):
   bool_step_8 = params.cryo_fit.Steps.step_8
   bool_step_9 = params.cryo_fit.Steps.step_9
   
-  #'''
+  
   returned = assign_model_map_names(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name, params.cryo_fit.Input.map_file_name)
   
   starting_pdb_with_pathways = returned[0]
   starting_pdb_without_pathways = returned[1]
   target_map_with_pathways = returned[2]
   target_map_without_pathways = returned[3]
-  #'''
-
-  ''' # (begin) assign_model_map_names
   
-  # (begin) cif check
-  print "\tparams.cryo_fit.model_file_name: ", params.cryo_fit.Input.model_file_name
-  cif_provided = 0 
-  if params.cryo_fit.Input.model_file_name.endswith('.cif'):
-    print "\tUser provided .cif file, let's turn into .pdb"
-    cif_provided = 1 # needed for later
-    cif_as_pdb(params.cryo_fit.Input.model_file_name)
-  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\tUser provided .ent file, let's simply change extension into .pdb"
-    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
-  # (end) cif check  
-  
-  # (begin) mrc_to_sit if needed
-  temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
-  
-  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
-    
-     returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
-     params.cryo_fit.Input.map_file_name = returned[0]
-     params.cryo_fit.Input.model_file_name = returned[1]
-  
-  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.model_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.model_file_name
-  # (end) mrc_to_sit if needed
-  
-    
-  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
-  
-  # assign starting_pdb_without_pathways
-  starting_pdb_without_pathways = ''
-  print "\tlen(splited_model_file_name):", len(splited_model_file_name)
-  if (cif_provided == 1):
-    params.cryo_fit.Input.model_file_name = splited_model_file_name[len(splited_model_file_name)-1]
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
-    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
-    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
-    # Doonam knows that this is just a superhack way of adding absolute path. 
-    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
-    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
-  elif (len(splited_model_file_name) == 1):
-    # when running cryo_fit at a same folder with a pdb file
-    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
-    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
-    # Doonam knows that this is just a superhack way of adding absolute path. 
-    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
-    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
-  elif len(splited_model_file_name) == 2:  
-    dot_dot = params.cryo_fit.Input.model_file_name.split("..")
-    if len(dot_dot) == 2: #when ../devel.pdb
-      os.chdir("..")
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-      params.cryo_fit.Input.model_file_name = current_dir + "/" + starting_pdb_without_pathways
-      os.chdir(starting_dir)
-    else: # len(dot_dot) = 1 when data/devel.pdb
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      print "\tsplited_model_file_name:", splited_model_file_name
-      new_dir = current_dir + "/" + splited_model_file_name[0]
-      os.chdir(new_dir)
-      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-      params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
-      os.chdir(starting_dir)
-  elif len(splited_model_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
-    current_dir = os.getcwd()
-    print "\tCurrent working directory: %s" % current_dir
-    print "\tsplited_model_file_name:", splited_model_file_name
-    new_dir = current_dir + "/" + splited_model_file_name[0] + "/" + splited_model_file_name[1]
-    os.chdir(new_dir)
-    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-    params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
-    os.chdir(starting_dir)
-  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
-    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  
-  
-  splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
-  target_map_without_pathways = ''
-  print "\tlen(splited_map_file_name):", len(splited_map_file_name)
-  if len(splited_map_file_name) == 1: # a case of running cryo_fit at a same folder with a map file
-    target_map_without_pathways = params.cryo_fit.Input.map_file_name
-    params.cryo_fit.Input.map_file_name = starting_dir + "/" + params.cryo_fit.Input.map_file_name
-    # Doonam thinks that this could be just a superhack way of adding absolute path. 
-    # But it works fine in both commandline and GUI
-    print "\tparams.cryo_fit.Input.map_file_name (after adding absolute path): ", params.cryo_fit.Input.map_file_name
-  elif len(splited_map_file_name) == 2:  # a case of running cryo_fit at a same folder with a ../sit file
-    dot_dot = params.cryo_fit.Input.map_file_name.split("..")
-    if len(dot_dot) == 2: #when ../devel.sit
-      os.chdir("..")
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-      params.cryo_fit.Input.map_file_name = current_dir + "/" + target_map_without_pathways
-      os.chdir(starting_dir)
-    else: # len(dot_dot) = 1 when data/devel.sit
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      new_dir = current_dir + "/" + splited_map_file_name[0]
-      os.chdir(new_dir)
-      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-      params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
-      os.chdir(starting_dir)
-  elif len(splited_map_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
-    current_dir = os.getcwd()
-    print "\tCurrent working directory: %s" % current_dir
-    new_dir = current_dir + "/" + splited_map_file_name[0] + "/" + splited_map_file_name[1]
-    os.chdir(new_dir)
-    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-    params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
-    os.chdir(starting_dir)
-  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.sit, len(splited) could be 4
-    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-  
-  starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-    
-  target_map_with_pathways = params.cryo_fit.Input.map_file_name
-  print "\ttarget_map_with_pathways:", target_map_with_pathways
-  ''' #(end) assign_model_map_names
-  
-  
-  if os.path.isfile(target_map_with_pathways) != True:
-    print "Please correct map file location, cryo_fit can't find it"
-    exit(1)
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
