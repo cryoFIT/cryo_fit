@@ -394,7 +394,7 @@ def validate_params(params): # validation for GUI
 # end of validate_params function
 
 
-def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
+def step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
            force_field, ignh, missing, remove_metals):
   show_header("Step 1: Make gro and topology file by regular gromacs")
   remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
@@ -412,7 +412,6 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   command_script = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
-  print "starting_pdb_without_path:", starting_pdb_without_path
   if (starting_pdb_without_path.find("_cleaned_for_gromacs") == -1):
     run_this = "python 1_before_pdb2gmx_prepare_pdb.py " + starting_pdb_without_path + " 0 0 0 " + \
                str(remove_metals)
@@ -457,6 +456,8 @@ def step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   for check_this_file in glob.glob("*_by_pdb2gmx.gro"): # there will be only one *_by_pdb2gmx.gro file
     this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file)
   if (this_step_was_successfully_ran == 0):
+    f_out_all.write("Step 1 didn't run successfully")
+    f_out_all.close()
     color_print (("Step 1 didn't run successfully"), 'red')
     color_print (("\nUser's command "), 'red')
     f_in = open('../../cryo_fit.input_command')
@@ -899,7 +900,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   os.chdir( starting_dir )
 # end of step_7 (make tpr for cryo_fit) function
 
-def step_8(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
+def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
            target_map_with_pathways, output_file_format, output_file_name_prefix):
   show_header("Step 8: Run cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
@@ -953,7 +954,9 @@ def step_8(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   time_end_cryo_fit = time.time()
   
   if (returned != 1):
-    color_print ("Step 8 didn't run successfully", 'red')
+    f_out_all.write("Step 8 (Run cryo_fit) didn't run successfully\n")
+    f_out_all.close()
+    color_print ("Step 8 (Run cryo_fit) didn't run successfully", 'red')
     exit(1)
   
   f_out = open('log.step_8', 'at+')
@@ -1065,7 +1068,7 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   print "\tassign_model_map_names"
   params.cryo_fit.Input.model_file_name = model_file_name
   params.cryo_fit.Input.map_file_name = map_file_name
-  print "len(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
+  print "\tlen(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
   
   if len(params.cryo_fit.Input.model_file_name) > 50:
     print "length of params.cryo_fit.Input.model_file_name is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
@@ -1217,7 +1220,8 @@ def run_cryo_fit(params, inputs):
   #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\nPlease install cryo_fit first."
+      print "\ncryo_fit can't find ", home_cryo_fit_bin_dir
+      print "Please install cryo_fit first."
       print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
       print "Exit now."
       exit(1)
@@ -1238,14 +1242,12 @@ def run_cryo_fit(params, inputs):
   bool_step_8 = params.cryo_fit.Steps.step_8
   bool_step_9 = params.cryo_fit.Steps.step_9
   
-  
   returned = assign_model_map_names(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name, params.cryo_fit.Input.map_file_name)
   
   starting_pdb_with_pathways = returned[0]
   starting_pdb_without_pathways = returned[1]
   target_map_with_pathways = returned[2]
   target_map_without_pathways = returned[3]
-  
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1277,7 +1279,6 @@ def run_cryo_fit(params, inputs):
   
   # Output
   # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
-  #output_file_format = params.cryo_fit.Output.output_file_format
   output_file_format = "gro"
   output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix
   
@@ -1317,7 +1318,7 @@ def run_cryo_fit(params, inputs):
   if ((platform.system() == "Linux") and (kill_mdrun_mpirun_in_linux == True)):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
-    step_1(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
+    step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
     f_out_all.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     
   if (steps_list[1] == True):
@@ -1372,7 +1373,7 @@ def run_cryo_fit(params, inputs):
     f_out_all.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
   
   if (steps_list[7] == True):
-    results = step_8(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
+    results = step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
            target_map_with_pathways, output_file_format, output_file_name_prefix)
     
     f_out_all.write("Step 8 (Run cryo_fit) is successfully ran\n")
