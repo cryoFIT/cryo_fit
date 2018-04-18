@@ -900,6 +900,19 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   os.chdir( starting_dir )
 # end of step_7 (make tpr for cryo_fit) function
 
+def search_charge_in_md_log():
+  print "\tSearch \"A charge group moved too far between two domain decomposition steps\" in md.log"
+  command_string = "grep \"A charge group moved too far between two domain decomposition steps\" md.log > grepped"
+  print "\n\tcommand: ", command_string
+  libtbx.easy_run.fully_buffered(command_string)
+  returned_file_size = file_size("grepped")
+  if (returned_file_size > 0):
+    print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
+    print "\tTherefore, cryo_fit will re-run with time_step_for_cryo_fit=0.001"
+    return 1 # found "charge group..."
+  return 0 # not found "charge group..."
+# end of search_charge_in_md_log function
+           
 def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
            target_map_with_pathways, output_file_format, output_file_name_prefix):
   show_header("Step 8: Run cryo_fit")
@@ -954,10 +967,13 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
   time_end_cryo_fit = time.time()
   
   if (returned != 1):
-    f_out_all.write("Step 8 (Run cryo_fit) didn't run successfully\n")
-    f_out_all.close()
     color_print ("Step 8 (Run cryo_fit) didn't run successfully", 'red')
-    exit(1)
+    f_out_all.write("Step 8 (Run cryo_fit) didn't run successfully\n")
+    searched = search_charge_in_md_log()
+    if searched == 0: # no "charge group... " message in md.log
+      return 0
+    else:
+      return "re-run"
   
   f_out = open('log.step_8', 'at+')
   command_string = "cat md.log | grep correlation > cc_record"
@@ -1068,6 +1084,7 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   print "\tassign_model_map_names"
   params.cryo_fit.Input.model_file_name = model_file_name
   params.cryo_fit.Input.map_file_name = map_file_name
+  print "\tparams.cryo_fit.Input.model_file_name:", params.cryo_fit.Input.model_file_name
   print "\tlen(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
   
   if len(params.cryo_fit.Input.model_file_name) > 50:
@@ -1078,7 +1095,6 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
     libtbx.easy_run.fully_buffered(cp_command_string)
     params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:48]
   
-    
   temp_map_file_name = params.cryo_fit.Input.map_file_name
   print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
@@ -1203,10 +1219,8 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
 # end of assign_model_map_names()
 
   
-def run_cryo_fit(params, inputs):
+def run_cryo_fit(f_out_all, params, inputs):
   
-  #f_out_all = open('log.cryo_fit', 'at+') -> seems appending
-  f_out_all = open('log.cryo_fit', 'w+')
   f_out_all.write("Overall report of cryo_fit\n\n")
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
@@ -1216,7 +1230,7 @@ def run_cryo_fit(params, inputs):
   home_dir = expanduser("~")
   home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
   
-  print "home_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
+  print "\thome_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
   #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
@@ -1375,9 +1389,12 @@ def run_cryo_fit(params, inputs):
   if (steps_list[7] == True):
     results = step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
            target_map_with_pathways, output_file_format, output_file_name_prefix)
-    
+    if results == 0:
+      return 0 # failed
+    elif results == "re-run":
+      return "re-run"
+      
     f_out_all.write("Step 8 (Run cryo_fit) is successfully ran\n")
-    f_out_all.close()
     return results
   return "bogus"
   
@@ -1463,12 +1480,37 @@ def cmd_run(args, validated=False, out=sys.stdout):
   if (not validated):
     validate_params(working_params)
   time_process_command_line_args_end = time.time()
-  print "Processing command_line_args", show_time(time_process_command_line_args_start, time_process_command_line_args_end)
-  results = run_cryo_fit(working_params, inputs)
+  print "\tProcessing command_line_args", show_time(time_process_command_line_args_start, time_process_command_line_args_end)
+  
+  original_model_file = working_params.cryo_fit.Input.model_file_name
+  original_map_file = working_params.cryo_fit.Input.map_file_name
+  starting_dir = os.getcwd()
+  print "\tCurrent working directory: %s" % starting_dir
+  
+  f_out_all = open('log.cryo_fit', 'w+')
+  results = run_cryo_fit(f_out_all, working_params, inputs)
+  if results == "re-run":
+    f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n")
+    working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
+    working_params.cryo_fit.Input.model_file_name = original_model_file
+    working_params.cryo_fit.Input.map_file_name = original_map_file
+    os.chdir( starting_dir )
+    
+    results = run_cryo_fit(f_out_all, working_params, inputs)
     
   time_total_end = time.time()
-  print "\nTotal cryo_fit", show_time(time_total_start, time_total_end)
+  time_took = show_time(time_total_start, time_total_end)
+  print "\nTotal cryo_fit", time_took
   
+  if results == 0: # errored
+    write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
+    f_out_all.write(write_this)
+    f_out_all.close()
+    exit(1)
+  else: # normal execution
+    write_this = "\nTotal cryo_fit " + time_took + "\n"
+    f_out_all.write(write_this)
+    f_out_all.close()
   return results
   #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name))
   # Billy doesn't need this anymore for pdb file opening by coot  

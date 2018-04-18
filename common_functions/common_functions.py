@@ -390,8 +390,6 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\tConvert mrc format map to situs format map"
-    print "\tWorks for all mrc maps whose origins are 0,0,0"
-    print "\tWhen the mrc map has origins which are negative values like nucleosome, this mrc_to_sit doesn't work"
     
     new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
     f_out = open(new_map_file_name, 'wt')
