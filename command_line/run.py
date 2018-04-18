@@ -1000,6 +1000,7 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
   for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
 
+  # .gro -> .pdb
   for extracted_gro in glob.glob("*gro"):
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
