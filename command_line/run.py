@@ -908,7 +908,6 @@ def search_charge_in_md_log():
   returned_file_size = file_size("grepped")
   if (returned_file_size > 0):
     print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
-    print "\tTherefore, cryo_fit will re-run with time_step_for_cryo_fit=0.001"
     return 1 # found "charge group..."
   return 0 # not found "charge group..."
 # end of search_charge_in_md_log function
@@ -1088,12 +1087,13 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   print "\tlen(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
   
   if len(params.cryo_fit.Input.model_file_name) > 50:
-    print "length of params.cryo_fit.Input.model_file_name is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
-    print "so cryo_fit will copy another short named file"
+    print "\tThe length of params.cryo_fit.Input.model_file_name is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
+    print "\tTherefore, cryo_fit will copy another short named file."
     extension = params.cryo_fit.Input.model_file_name[len(params.cryo_fit.Input.model_file_name)-4:len(params.cryo_fit.Input.model_file_name)]
     cp_command_string = "cp " + params.cryo_fit.Input.model_file_name + " " + params.cryo_fit.Input.model_file_name[:48] + extension
     libtbx.easy_run.fully_buffered(cp_command_string)
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:48]
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:48] + extension
+    print "\tparams.cryo_fit.Input.model_file_name after shortening: ", params.cryo_fit.Input.model_file_name
   
   temp_map_file_name = params.cryo_fit.Input.map_file_name
   print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
@@ -1220,8 +1220,6 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
 
   
 def run_cryo_fit(f_out_all, params, inputs):
-  
-  f_out_all.write("Overall report of cryo_fit\n\n")
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
   # works well at macOS commandline and GUI
@@ -1487,22 +1485,23 @@ def cmd_run(args, validated=False, out=sys.stdout):
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
   
-  f_out_all = open('log.cryo_fit', 'w+')
+  f_out_all = open('overall_log.cryo_fit', 'w+')
+  f_out_all.write("Overall report of cryo_fit\n\n")
   results = run_cryo_fit(f_out_all, working_params, inputs)
   if results == "re-run":
-    f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n")
+    print "\tCryo_fit will re-run with time_step_for_cryo_fit=0.001\n\n"
+    f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
     working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
     working_params.cryo_fit.Input.model_file_name = original_model_file
     working_params.cryo_fit.Input.map_file_name = original_map_file
     os.chdir( starting_dir )
-    
     results = run_cryo_fit(f_out_all, working_params, inputs)
     
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
   print "\nTotal cryo_fit", time_took
   
-  if results == 0: # errored
+  if (results == 0) or (results == "re-run"): # errored
     write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
     f_out_all.write(write_this)
     f_out_all.close()
