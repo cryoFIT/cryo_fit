@@ -376,20 +376,20 @@ def show_header(title):
 # end of show_header function
 
 def validate_params(params): # validation for GUI
+  # check if file type is OK
   if (params.cryo_fit.Input.model_file_name is None):
     raise Sorry("Model file should be given")
   if (params.cryo_fit.Input.map_file_name is None):
     raise Sorry("Map file should be given")
-  # check if file type is OK
-
+  
   file_reader.any_file(
     file_name = params.cryo_fit.Input.model_file_name).check_file_type(expected_type = 'pdb')
 
-#  file_reader.any_file(
- #   file_name = params.cryo_fit.map_file_name).check_file_type(expected_type = 'sit')
-  # Doonam commented this for now since it resulted in "Sorry: This file format ('Text') is not supported as input for this field; only files of type 'Unknown' are allowed."
+  #file_reader.any_file(
+  #  file_name = params.cryo_fit.map_file_name).check_file_type(expected_type = 'map')
+  # Doonam commented this for now since it resulted in "AttributeError: 'scope_extract' object has no attribute 'map_file_name'"
 
-  print "validate_params pass"
+  print "\tvalidate_params pass"
   return True
 # end of validate_params function
 
@@ -626,14 +626,9 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   if (this_is_test == 0):
     cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   
-  #copy step_3 output
-  print "\tcp_command_string: ", cp_command_string
+  print "\tcp command: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
   
-  # command_script = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
-  # print "\tcommand: ", command_script
-  # libtbx.easy_run.fully_buffered(command_script)
-
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
   command_string = "python runme_minimize.py to_minimize.tpr " + str(command_path) + " " + \
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2)
@@ -642,9 +637,9 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   start = time.time()
   libtbx.easy_run.call(command_string)
   
+  '''
   f_in = open('log.step_4_1_minimization_real_command')
   
-  #'''
   # progress is shown to both commandline & GUI
   # I thank https://stackoverflow.com/questions/42553481/check-on-the-stdout-of-a-running-subprocess-in-python
   
@@ -659,15 +654,15 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
               double_splited[9]], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     for line in p.stdout:
       print(line)
-  #'''  
+
     #libtbx.easy_run.call(splited[1]) # progress was not shown to GUI
-  '''
-  for line in f_in:
-    splited = line.split('\'')
-    os.system(splited[1]) # progress was shown to commandline
-  '''
-  f_in.close()
   
+  #for line in f_in:
+  #  splited = line.split('\'')
+  #  os.system(splited[1]) # progress was shown to commandline
+  
+  f_in.close()
+  '''
   end = time.time()
   
   final_gro_file_name = ''
@@ -938,7 +933,7 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   
-  f_in = open('log.step_8_cryo_fit_real_command')
+  f_in = open('log.step_8_cryo_fit_used_command')
   for line in f_in:
     # progress is shown to monitor in GUI (but slow, so I shortened emsteps)
     from subprocess import Popen, PIPE, STDOUT
@@ -1110,13 +1105,12 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   
   cif_provided = 0 
   if params.cryo_fit.Input.model_file_name.endswith('.cif'):
-    print "\tUser provided .cif file, let's turn into .pdb"
+    print "\tSince user provided .cif file, let's turn it into .pdb"
     cif_provided = 1 # needed for later
     cif_as_pdb(params.cryo_fit.Input.model_file_name)
   elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\tUser provided .ent file, let's simply change extension into .pdb"
+    print "\tSince user provided .ent file, let's simply change its extension into .pdb"
     params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
-    
     
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
   
@@ -1219,7 +1213,8 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
 # end of assign_model_map_names()
 
   
-def run_cryo_fit(f_out_all, params, inputs):
+#def run_cryo_fit(f_out_all, params, inputs):
+def run_cryo_fit(logfile, params, inputs):  
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
   # works well at macOS commandline and GUI
@@ -1330,31 +1325,34 @@ def run_cryo_fit(f_out_all, params, inputs):
   if ((platform.system() == "Linux") and (kill_mdrun_mpirun_in_linux == True)):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
-    step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
-    f_out_all.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
+    #step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
+    step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
+    #f_out_all.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
+    logfile.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     
   if (steps_list[1] == True):
     step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
-    f_out_all.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
+    #f_out_all.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
+    logfile.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
   
   if str(constraint_algorithm_minimization) != "none_default":
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
              time_step_for_minimization)
-      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
+      logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
-      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
+      logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   else:
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
              time_step_for_minimization)
-      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
+      logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
-      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
+      logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
       
     cp_command_string = "cp steps/4_minimize/minimized_c_term_renamed_by_resnum_oc.gro . "
     libtbx.easy_run.fully_buffered(cp_command_string)
@@ -1365,34 +1363,34 @@ def run_cryo_fit(f_out_all, params, inputs):
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
              time_step_for_minimization)
-      f_out_all.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
+      logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
       step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
-      f_out_all.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
+      logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
     
   if (steps_list[4] == True):
     step_5(command_path, starting_dir)
-    f_out_all.write("Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n")
+    logfile.write("Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n")
   
   if (steps_list[5] == True):
     step_6(command_path, starting_dir)
-    f_out_all.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
+    logfile.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
   if (steps_list[6] == True):
     step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
            emwritefrequency, lincs_order, time_step_for_cryo_fit)
-    f_out_all.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
+    logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
   
   if (steps_list[7] == True):
-    results = step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
+    results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
            target_map_with_pathways, output_file_format, output_file_name_prefix)
     if results == 0:
       return 0 # failed
     elif results == "re-run":
       return "re-run"
       
-    f_out_all.write("Step 8 (Run cryo_fit) is successfully ran\n")
+    logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
     return results
   return "bogus"
   
@@ -1417,17 +1415,23 @@ def cmd_run(args, validated=False, out=sys.stdout):
     
   log = multi_out()
   log.register("stdout", out)
-  # log_file_name = "cryo_fit.input_parameters"
-  # logfile = open(log_file_name, "w")
-  # log.register("logfile", logfile)
-  print >> log, "input parameters:", args
-  # logfile.close()
+  
+  log_file_name = "cryo_fit.overall_log"
+  logfile = open(log_file_name, "w")
+  logfile.write("Overall report of cryo_fit\n\n")
+  log.register("logfile", logfile)
+  
+  print >> log, "Input parameters:", args
+  
 
   input_command_file = open("cryo_fit.input_command", "w")
+  logfile.write("Input command: phenix.cryo_fit ")
   input_command_file.write("phenix.cryo_fit ")
   for i in range(len(args)):
     input_command_file.write(args[i] + " ")
+    logfile.write(args[i] + " ")
   input_command_file.write("\n")
+  logfile.write("\n\n")
   input_command_file.close()
 
   # very simple parsing of model and map
@@ -1459,7 +1463,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
     if os.path.isfile(arg) :
       if iotbx.pdb.is_pdb_file(arg):
         pdbs.append(arg)
-      elif arg.endswith('.sit'): # not the smartest
+      elif arg.endswith('.map'): # not the smartest
         sits.append(arg)
       else:
         try :
@@ -1485,12 +1489,14 @@ def cmd_run(args, validated=False, out=sys.stdout):
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
   
-  f_out_all = open('overall_log.cryo_fit', 'w+')
-  f_out_all.write("Overall report of cryo_fit\n\n")
-  results = run_cryo_fit(f_out_all, working_params, inputs)
+  # f_out_all = open('overall_log.cryo_fit', 'w+')
+  # f_out_all.write("Overall report of cryo_fit\n\n")
+  #results = run_cryo_fit(f_out_all, working_params, inputs)
+  results = run_cryo_fit(logfile, working_params, inputs)
   if results == "re-run":
     print "\tCryo_fit will re-run with time_step_for_cryo_fit=0.001\n\n"
-    f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
+    #f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
+    logfile.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
     working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
     working_params.cryo_fit.Input.model_file_name = original_model_file
     working_params.cryo_fit.Input.map_file_name = original_map_file
@@ -1503,13 +1509,17 @@ def cmd_run(args, validated=False, out=sys.stdout):
   
   if (results == 0) or (results == "re-run"): # errored
     write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
-    f_out_all.write(write_this)
-    f_out_all.close()
+    #f_out_all.write(write_this)
+    logfile.write(write_this)
+    #f_out_all.close()
+    logfile.close()
     exit(1)
   else: # normal execution
     write_this = "\nTotal cryo_fit " + time_took + "\n"
-    f_out_all.write(write_this)
-    f_out_all.close()
+    #f_out_all.write(write_this)
+    logfile.write(write_this)
+    #f_out_all.close()
+    logfile.close()
   return results
   #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name))
   # Billy doesn't need this anymore for pdb file opening by coot  

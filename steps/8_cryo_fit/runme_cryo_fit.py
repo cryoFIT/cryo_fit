@@ -34,11 +34,13 @@ if (__name__ == "__main__") :
   print "\n\tcp_command_string:", cp_command_string, "\n"
   libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
-  f_out = open('log.step_8', 'wt')
   bool_minimization = False
-  bool_just_get_input_command = True
-  print "\ttarget_map_with_pathways:", target_map_with_pathways
   home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+  
+  #f_out = open('log.step_8', 'wt')
+  
+  ''' # seems not needed
+  bool_just_get_input_command = True
   command_that_will_be_used, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, \
                                                               bool_just_get_input_command, \
                                                               home_bin_cryo_fit_bin_dir, \
@@ -50,6 +52,7 @@ if (__name__ == "__main__") :
   f_out.write("will_be_used_input_command\n")
   f_out.write(write_this_input_command)
   f_out.write("\n")
+  '''
   
   bool_just_get_input_command = False
   command_used, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
@@ -59,13 +62,13 @@ if (__name__ == "__main__") :
                                                          target_map_with_pathways, output_file_format,
                                                          output_file_name_prefix)
   
-  write_this_input_command = str(command_used) + "\n"
-  f_out.write("really_used_input_command\n")
-  f_out.write(write_this_input_command)
-  f_out.write("\n")
-  f_out.close()
+  # write_this_input_command = str(command_used) + "\n"
+  # f_out.write("really_used_input_command\n")
+  # f_out.write(write_this_input_command)
+  # f_out.write("\n")
+  # f_out.close()
   
-  f_out = open('log.step_8_cryo_fit_real_command', 'wt')
+  f_out = open('log.step_8_cryo_fit_used_command', 'wt')
   f_out.write(write_this_input_command)
   f_out.close()
 #end of if (__name__ == "__main__")

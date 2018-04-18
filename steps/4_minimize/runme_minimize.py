@@ -8,6 +8,7 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
     target_map = '' # no map for minimization
     output_file_format = '' # no map for minimization
     
+    ''' # seems not needed
     f_out = open('log.step_4_1', 'wt')
     bool_just_get_input_command = True
     
@@ -21,9 +22,9 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
     write_this_input_command = str(command_that_will_be_used) + "\n\n"
     f_out.write(write_this_input_command)
     f_out.close()
+    '''
     
     bool_just_get_input_command = False
-    
     command_used = first_prepare_for_minimization_cryo_fit(bool_minimization,\
                                                            bool_just_get_input_command, \
                                                            home_bin_cryo_fit_bin_dir,\
@@ -31,8 +32,9 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
                                                           number_of_available_cores, number_of_cores_to_use,\
                                                           target_map, output_file_format, "bogus_output_file_name_prefix")
     
-    f_out = open('log.step_4_1_minimization_real_command', 'wt')
-    f_out.write(str(command_used))
+    f_out = open('log.step_4_1_minimization_used_command', 'wt')
+    f_out.write(str(command_used[0]))
+    f_out.write("\n")
     f_out.close()
 # end of minimize function
 

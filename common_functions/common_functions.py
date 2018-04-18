@@ -107,6 +107,10 @@ def decide_number_of_cores_to_use(check_at_each_step):
     return cores
 # end of decide_number_of_cores_to_use function
 
+def file_size(fname):
+    statinfo = os.stat(fname)
+    return statinfo.st_size
+# end of file_size(fname)
 
 def final_prepare_for_minimization_cryo_fit(bool_just_get_input_command, bool_minimization, \
                                          ns_type, number_of_available_cores, \
@@ -177,9 +181,6 @@ def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_inp
     return command_used, output_file_name
 # end of first_prepare_for_minimization_cryo_fit function
 
-def file_size(fname):
-    statinfo = os.stat(fname)
-    return statinfo.st_size
 
 def get_fc(complete_set, xray_structure):
   f_calc = complete_set.structure_factors_from_scatterers(
@@ -371,19 +372,33 @@ def locate_Phenix_executable():
 def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_to_use, \
                               ns_type, common_command_string):
     command_string = '' # just initial
+    print "cores_to_use:", cores_to_use
     if (bool_minimization == True and ns_type == "simple"):
         if (bool_enable_mpi == True):
             command_string = "mpirun -np 1 " + common_command_string + " -dd 1 1 1 "
         else:
             command_string = common_command_string + " -nt 1 -dd 1 1 1 "
-    else:
-        command_string = common_command_string + " -nt " + str(cores_to_use) + " -dd 0 "
-        # [keep this comment] for -nt 12, -dd 3 2 2 is needed instead of 2 2 3
+    elif (cores_to_use == 2):
+        print "cores_to_use in elif:", cores_to_use
+        command_string = common_command_string + " -nt 2 -dd 2 1 1 "
+    elif (cores_to_use == 4):
+        print "cores_to_use in elif:", cores_to_use
+        command_string = common_command_string + " -nt 4 -dd 2 2 1 "
+    elif (cores_to_use == 8):
+        command_string = common_command_string + " -nt 8 -dd 2 2 2 "
+    elif (cores_to_use == 12):
+        command_string = common_command_string + " -nt 12 -dd 3 2 2 " # [keep this comment] for -nt 12, -dd 3 2 2 is needed instead of 2 2 3
+    else: #elif (cores_to_use == 16):
+        command_string = common_command_string + " -nt 16 -dd 4 2 2 "
+    #else:
+        # [keep this comment 4/27/2018]
+        # command_string = common_command_string + " -nt " + str(cores_to_use) + " -dd 0 "
+        # Major Warning: this resulted in "charge group moved" error in nuclesome with all emweights, although looks simpler and convinient
     
     if bool_just_get_input_command == False:
-        color_print ("\tcommand: ", 'green')
+        color_print ("\treally running mi/cryo_fit NOW with this command: ", 'green')
         print "\t", command_string
-    #    libtbx.easy_run.call(command=command_string)
+        libtbx.easy_run.call(command=command_string)
     return command_string
 # end of minimize_or_cryo_fit function
 
@@ -436,9 +451,6 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         print "\ttarget_map_data.origin() after shifting:",target_map_data.origin()
     ### (end) shift map origin
         pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx)
-    #'''
-    
-    
     
     print "\ttarget_map_data.all():", target_map_data.all()
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
