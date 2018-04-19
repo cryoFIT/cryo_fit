@@ -26,8 +26,7 @@ KeyError: 'cryo_fit'
 Step 3  didn't successfully ran
 '''
 
-#cryo_fit_repository_dir = libtbx.env.dist_path("phenix.cryo_fit")
-
+#cryo_fit_repository_dir = libtbx.env.dist_path("phenix.cryo_fit") # should work, but work now
 path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
 command_path = ''
@@ -35,8 +34,8 @@ for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
 cryo_fit_repository_dir = command_path + "modules/cryo_fit/"
 
-common_functions_path = cryo_fit_repository_dir + "/common_functions/"
-print "\tcommon_functions_path:", common_functions_path
+common_functions_path = cryo_fit_repository_dir + "common_functions/"
+#print "\tcommon_functions_path:", common_functions_path
 
 sys.path.insert(0, common_functions_path)
 from common_functions import *

@@ -244,16 +244,58 @@ master_params = master_params_str
 master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
+def check_whether_cc_has_been_increased(cc_record):
+  print "\tcheck_whether_cc_has_been_increased"
+  
+  f_in = open(cc_record)
+  former_cc = -99
+  cc_has_been_increased_array = []
+  cc_array = []
+  for line in f_in:
+    splited = line.split(" ")
+    cc = splited[4]
+    cc_array.append(cc)
+    if cc > former_cc:
+      cc_has_been_increased_array.append(True)
+    else:
+      cc_has_been_increased_array.append(False)
+    former_cc = cc
+  f_in.close()
+
+  if (len(cc_has_been_increased_array) < 6):
+    return True # consider as if the most 3 cc have been increased, so re-run
+  
+  cc_has_been_increased = 0
+  cc_has_been_decreased = 0
+  
+  cc_last = cc_array[len(cc_array)-1]
+  cc_5th_last = cc_array[len(cc_array)-6]
+  
+  if (cc_5th_last > cc_last):
+    return False # no need to re-run with longer steps
+    
+  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-6, -1):
+    if cc_has_been_increased_array[i] == False:
+      cc_has_been_decreased = cc_has_been_decreased + 1
+    else:
+      cc_has_been_increased = cc_has_been_increased + 1
+  
+  if (cc_has_been_increased >= cc_has_been_decreased):
+    return True # the most 5 cc tend to be increased, so re-run
+  else:
+    return False # the most 5 cc tend to be increased
+# end of check_whether_cc_has_been_increased function
+
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   if (os.path.isfile(check_this_file)):
     returned_file_size = file_size(check_this_file)
     if (returned_file_size > 0):
       if (step_name != "Step 9"): # for step_9 (drawing a graph), determining a success now is early
         print step_name, " successfully ran"
-      return 1
+      return "success"
   print step_name, " didn't successfully ran"
   if (step_name == "Step 4" or step_name == "Step 8"):
-    return 0
+    return "failed"
   exit(1)
 # end of check_whether_the_step_was_successfully_ran function
 
@@ -267,7 +309,7 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", \
         user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   if (starting_pdb_without_pathways == "devel.pdb"):
     number_of_steps_for_cryo_fit = 10
     return number_of_steps_for_cryo_fit
@@ -295,7 +337,7 @@ def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
     print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", \
             user_entered_number_of_steps_for_minimization
     return user_entered_number_of_steps_for_minimization
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   if (starting_pdb_without_pathways == "devel.pdb"):
     number_of_steps_for_minimization = 10
     return number_of_steps_for_minimization
@@ -340,7 +382,7 @@ def print_author():
 def return_number_of_atoms_in_gro():
   for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
     command_string = "wc -l " + check_this_file
-    print "\tcommand: ", command_string
+    #print "\tcommand: ", command_string
     wc_result = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     splited = wc_result[0].split()
     print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
@@ -384,15 +426,16 @@ def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, star
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
   
-  command_string = "cp " + starting_pdb_with_pathways + " ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + starting_pdb_with_pathways + " ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
   start = time.time()
 
-  command_script = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  cp_command_string = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
   if (starting_pdb_without_path.find("_cleaned_for_gromacs") == -1):
     run_this = "python 1_before_pdb2gmx_prepare_pdb.py " + starting_pdb_without_path + " 0 0 0 " + \
                str(remove_metals)
@@ -403,15 +446,15 @@ def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, star
     f_out.close()
     libtbx.easy_run.fully_buffered(run_this)
 
-  command_script = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  cp_command_string = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
   
   os.chdir (starting_dir)
   
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)  
   if (number_of_atoms_in_input_pdb < 7000): # tRNA for development (transmin1_gro.pdb). This is just for short test purpose only
@@ -433,10 +476,10 @@ def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, star
   print "\tcommand: ", command_script
   libtbx.easy_run.call(command_script)
   end = time.time()
-  this_step_was_successfully_ran = 0
+  this_step_was_successfully_ran = "success" # just an initial value
   for check_this_file in glob.glob("*_by_pdb2gmx.gro"): # there will be only one *_by_pdb2gmx.gro file
     this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file)
-  if (this_step_was_successfully_ran == 0):
+  if (this_step_was_successfully_ran == "failed"):
     logfile.write("Step 1 didn't run successfully")
     logfile.close()
     color_print (("Step 1 didn't run successfully"), 'red')
@@ -460,26 +503,26 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   os.chdir (starting_dir)
   remake_and_move_to_this_folder(starting_dir, "steps/2_clean_gro")
 
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
 
-  if (this_is_test == 0):
+  if (this_is_test == False):
     cp_command_string = "cp ../1_make_gro/*.gro ."
   
   #copy step_1 output
-  print "\tcp_command_string: ", cp_command_string
+  #print "\tcp_command_string: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   start_time_renaming = time.time()
   
   print "\nStep 2: Add C prefix to terminal amino acid/nucleic acid for minimization by gromacs"
   command_script = "cp " + command_path + "steps/2_clean_gro/*.py ."
-  print "\tcommand: ", command_script
+  #print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
 
   command_script = "python 1_rename_term_res_to_Cres.py " # there will be only 1 gro file, so it is ok
@@ -491,11 +534,11 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
     print "\tcommand: ", command_string 
     libtbx.easy_run.call(command_string)
   
-  the_step_was_successfully_ran = 0 # initial value
+  the_step_was_successfully_ran = "success" # just an initial value
   for check_this_file in glob.glob("*.gro"): # there will be only "will_be_minimized_cleaned.gro"
     the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 2", check_this_file)
 
-  if (the_step_was_successfully_ran == 0):
+  if (the_step_was_successfully_ran == "failed"):
     color_print (("Step 2 didn't run successfully"), 'red')
     exit(1)
   
@@ -503,12 +546,11 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   for check_this_file in glob.glob("*.gro"): # there will be only one file like this
     #command_string = "mv " + check_this_file + " minimized_cleaned.gro" # this is not minimized yet
     command_string = "mv " + check_this_file + " will_be_minimized_cleaned.gro"
-    print "\tcommand: ", command_string 
+    #print "\tcommand: ", command_string 
     libtbx.easy_run.call(command_string)
     
   end_time_renaming = time.time()
   print "Step 2", (show_time(start_time_renaming, end_time_renaming))
-  #color_print ((show_time("Step 2", start_time_renaming, end_time_renaming)), 'green')
 # end of step_2 (clean gro) function
 
 def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
@@ -519,9 +561,9 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
   remake_this_folder("steps/3_make_tpr_to_minimize")
   remake_and_move_to_this_folder(starting_dir, "steps/3_make_tpr_to_minimize")
 
-  command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/minimization_template.mdp ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/minimization_template.mdp ."
+  #print "\cp_command_script: ", cp_command_script
+  libtbx.easy_run.fully_buffered(cp_command_script)
   
   print "\tBe number_of_steps_for_minimization as ", number_of_steps_for_minimization
   with open("minimization_template.mdp", "rt") as fin:
@@ -550,29 +592,29 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
     fout.close()
   fin.close()
   
-  command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
+  #print "\cp_command_script: ", cp_command_script
+  libtbx.easy_run.fully_buffered(cp_command_script)
   
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp1_command_string = ''
   cp2_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp1_command_string = "cp ../../data/input_for_step_3/* ."
-  if (this_is_test == 0):
+  if (this_is_test == False):
     if str(constraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "
     else:
       cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
     cp2_command_string = "cp ../1_make_gro/*.top . "
-    print "\tcp2_command_string: ", cp2_command_string
+    #print "\tcp2_command_string: ", cp2_command_string
     libtbx.easy_run.fully_buffered(cp2_command_string)
   
   #copy step_2 output
-  print "\tcp1_command_string: ", cp1_command_string
+  #print "\tcp1_command_string: ", cp1_command_string
   libtbx.easy_run.fully_buffered(cp1_command_string)
 
   command_string = "python runme_make_tpr.py"
@@ -593,21 +635,21 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   print "\nStep 4-1: Minimization itself"
   remake_and_move_to_this_folder(starting_dir, "steps/4_minimize")
 
-  command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
-  print "\tcommand: ", command_script
-  libtbx.easy_run.fully_buffered(command_script)
+  cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
+  #print "\tcp_command_script: ", cp_command_script
+  libtbx.easy_run.fully_buffered(cp_command_script)
 
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp_command_string = "cp ../../data/input_for_step_4/* ."
-  if (this_is_test == 0):
+  if (this_is_test == False):
     cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   
-  print "\tcp command: ", cp_command_string
+  #print "\tcp_command_string: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
@@ -654,7 +696,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
     final_gro_file_name = gro_file_name
     
   returned = check_whether_the_step_was_successfully_ran("Step 4-1", final_gro_file_name)
-  if returned == 0:
+  if returned == "failed":
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     if bool_enable_mpi == True:
       color_print ("\n<Case 1> When Doonam encountered this error message", 'red')
@@ -694,9 +736,9 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   print "Step 4-1", (show_time(start, end))
   
   print "\nStep 4-2: Add C prefix to terminal amino acids to minimized.gro for grompp by gromacs"
-  command_string = "cp " + command_path + "steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
   command_string = "python 1_rename_term_res_to_Cres.py "
   print "\tcommand: ", command_string
@@ -711,23 +753,23 @@ def step_5(command_path, starting_dir):
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_constraints")
   
   start = time.time()
-  command_string = "cp " + command_path + "steps/5_make_constraints/runme_make_contact_potential.py ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/5_make_constraints/runme_make_contact_potential.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp_command_string = "cp ../../data/input_for_step_5/* ."
-  if (this_is_test == 0):
+  if (this_is_test == False):
     cp_command_string = "cp ../4_minimize/*.gro ."
     # there will be minimized_c_term_renamed_by_resnum_oc.gro
   
   #copy step_4 output
-  print "\tcp_command_string: ", cp_command_string
+  #print "\tcp_command_string: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   command_string = "python runme_make_contact_potential.py *.gro " + str(command_path)
@@ -748,28 +790,28 @@ def step_6(command_path, starting_dir):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
 
-  command_string = "cp " + command_path + "steps/6_make_0_charge/changetop.awk ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/6_make_0_charge/changetop.awk ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
       
-  command_string = "cp " + command_path + "steps/6_make_0_charge/runme_make_0_charge.py ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/6_make_0_charge/runme_make_0_charge.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
 
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp_command_string = "cp ../../data/input_for_step_6/* ."
-  if (this_is_test == 0):
+  if (this_is_test == False):
     cp_command_string = "cp ../5_make_constraints/*including_disre2_itp.top ."
   # In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
   
   #copy step_5 output
-  print "\tcp_command_string: ", cp_command_string
+  #print "\tcp_command_string: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   
@@ -792,30 +834,30 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
-  command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
   
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp1_command_string = ''
   cp2_command_string = ''
   cp3_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
       cp1_command_string = "cp ../../data/input_for_step_7/* ."
-  if (this_is_test == 0):
+  if (this_is_test == False):
     cp1_command_string = "cp ../5_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
     cp2_command_string = "cp ../5_make_constraints/disre2.itp ."
-    print "\tcp2_command_string: ", cp2_command_string
+    #print "\tcp2_command_string: ", cp2_command_string
     libtbx.easy_run.fully_buffered(cp2_command_string)
     cp3_command_string = "cp ../6_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
-    print "\tcp3_command_string: ", cp3_command_string
+    #print "\tcp3_command_string: ", cp3_command_string
     libtbx.easy_run.fully_buffered(cp3_command_string)
     
   #copy step_5 output
-  print "\tcp1_command_string: ", cp1_command_string
+  #print "\tcp1_command_string: ", cp1_command_string
   libtbx.easy_run.fully_buffered(cp1_command_string)
   
   print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
@@ -828,13 +870,16 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
-            #if (int(number_of_steps_for_cryo_fit/5) < 5000):
-            if (int(number_of_steps_for_cryo_fit) < 25000):
               new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/10)) + "\n"
               fout.write(new_line)
-            else:
-              new_line = "emsteps = " + str(5000) + "\n"
-              fout.write(new_line)
+              '''
+              if (int(number_of_steps_for_cryo_fit) < 25000):
+                new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/10)) + "\n"
+                fout.write(new_line)
+              else:
+                new_line = "emsteps = " + str(5000) + "\n"
+                fout.write(new_line)
+              '''
           else:
             new_line = "emsteps = " + str(emsteps) + "\n"
             fout.write(new_line)
@@ -864,9 +909,9 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
     fout.close()
   fin.close()
   
-  command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
-  print "\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
+  cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
+  #print "\tcp_command_string: ", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
 
   start_make_tpr = time.time()
   command_string = "python runme_make_tpr_with_disre2.py " + str(command_path)
@@ -897,14 +942,14 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
-  print "\n\tcp_command: ", command_string
+  #print "\n\tcp_command: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
   
   print "\tthis_is_test:", this_is_test
   
@@ -955,14 +1000,14 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       returned = check_whether_the_step_was_successfully_ran("Step 8", output_file_name)
   time_end_cryo_fit = time.time()
   
-  if (returned != 1):
+  if (returned != "success"):
     color_print ("Step 8 (Run cryo_fit) didn't run successfully", 'red')
     logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
     searched = search_charge_in_md_log()
     if searched == 0: # no "charge group... " message in md.log
-      return 0
+      return "failed"
     else:
-      return "re-run"
+      return "re_run_w_smaller_MD_time_step"
   
   f_out = open('log.step_8', 'at+')
   command_string = "cat md.log | grep correlation > cc_record"
@@ -970,7 +1015,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   libtbx.easy_run.fully_buffered(command_string)
   
   command_string = "cat md.log | grep correlation"
-  print "\n\tcommand: ", command_string
+  #print "\n\tcommand: ", command_string
   correlation_coefficients_change = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
   
   print "\n\tCorrelation coefficient change during cryo_fit\n"
@@ -979,6 +1024,13 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
     f_out.write("\n")
     f_out.write(correlation_coefficients_change[i])
   print "\n"
+  
+  cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
+  print "\tcc_has_been_increased in the last 5 steps:", cc_has_been_increased
+  if cc_has_been_increased == True:
+    return "re_run_with_longer_steps"
+  
+  print "\tcc has been saturated, so go ahead to the next step"
   
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
@@ -1006,14 +1058,14 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\t\t(.pdb file is for chimera/pymol/vmd)"
   print "\t\t(.gro file is for gromacs/vmd)"
   
-  this_is_test = 0
+  this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = 1
+      this_is_test = True
   
-  if (this_is_test == 0):
+  if (this_is_test == False):
     # recover chain information
     for pdb_in_step8 in glob.glob("*.pdb"):
         # worked perfectly with tRNA and Dieter's molecule
@@ -1032,6 +1084,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   results = dict()
   results['cc_record'] = cc_record
+  results['cc_has_been_increased'] = cc_has_been_increased
   
   print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/8_cryo_fit"
   print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
@@ -1061,7 +1114,7 @@ def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map
   libtbx.easy_run.fully_buffered(command_string)
   
   returned = check_whether_the_step_was_successfully_ran("Step 9", cc_record)
-  if returned == 0:
+  if returned == "failed":
     exit(1)
     
   command_string = "python draw_cc.py " + cc_record
@@ -1368,22 +1421,47 @@ def run_cryo_fit(logfile, params, inputs):
     step_6(command_path, starting_dir)
     logfile.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
-  if (steps_list[6] == True):
-    step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-           emwritefrequency, lincs_order, time_step_for_cryo_fit)
-    logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
-  
-  if (steps_list[7] == True):
-    results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-           target_map_with_pathways, output_file_format, output_file_name_prefix)
-    if results == 0:
-      return 0 # failed
-    elif results == "re-run":
-      return "re-run"
+  cc_has_been_increased = True # just an initial value
+  charge_group_moved = True # just an initial value
+  while (cc_has_been_increased == True or charge_group_moved == True):
+    
+    if (steps_list[6] == True):
+      step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
+             emwritefrequency, lincs_order, time_step_for_cryo_fit)
+      logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
+    
+    if (steps_list[7] == True):
+      results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
+             target_map_with_pathways, output_file_format, output_file_name_prefix)
+      if (starting_pdb_without_pathways == "devel.pdb"): # for regression purpose
+        logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
+        return results
+      if results == "failed":
+        return "failed" # flat failed
+      elif results == "re_run_w_smaller_MD_time_step":
+        charge_group_moved = True
+        print "\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n"
+        logfile.write("\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n")
+        if (time_step_for_cryo_fit < 0.0001): # to avoid infinite loop
+          break
+        os.chdir( starting_dir )
+      elif results == "re_run_with_longer_steps":
+        charge_group_moved = False
+        print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n"
+        print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n"
+        logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n")
+        logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n")
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 4
+        if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
+          break
+        os.chdir( starting_dir )
+      elif results['cc_has_been_increased'] == False: # normal ending of cryo_fit
+        charge_group_moved = False
+        cc_has_been_increased = False
       
-    logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
-    return results
-  return "bogus"
+      
+  logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
+  return results
   
   # keep for now for this cc draw
   #if (steps_list[8] == True):
@@ -1480,7 +1558,8 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\tCurrent working directory: %s" % starting_dir
   
   results = run_cryo_fit(logfile, working_params, inputs)
-  if results == "re-run":
+  '''
+  if results == "re_run_w_smaller_MD_time_step":
     print "\tCryo_fit will re-run with time_step_for_cryo_fit=0.001\n\n"
     logfile.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
     working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
@@ -1488,12 +1567,12 @@ def cmd_run(args, validated=False, out=sys.stdout):
     working_params.cryo_fit.Input.map_file_name = original_map_file
     os.chdir( starting_dir )
     results = run_cryo_fit(logfile, working_params, inputs)
-    
+  '''  
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
   print "\nTotal cryo_fit", time_took
   
-  if (results == 0) or (results == "re-run"): # errored
+  if (results == "failed") or (results == "re_run_w_smaller_MD_time_step"): # errored
     write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
     logfile.write(write_this)
     logfile.close()

@@ -27,18 +27,18 @@ if (__name__ == "__main__") :
   #remove_former_files() #needed for development only
   
   cp_command_string = ''
-  if (str(this_is_test) == "0"):
+  if (str(this_is_test) == "False"):
     cp_command_string = "cp ../7_make_tpr_with_disre2/for_cryo_fit.tpr . "
   else:
     cp_command_string = "cp ../../data/input_for_step_8/* ."
-  print "\n\tcp_command_string:", cp_command_string, "\n"
+  #print "\n\tcp_command_string:", cp_command_string, "\n"
   libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
   bool_minimization = False
   home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
   
   bool_just_get_input_command = False
-  command_used, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
+  write_this_input_command, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
                                                          home_bin_cryo_fit_bin_dir, \
                                                          ns_type, number_of_available_cores, \
                                                          number_of_cores_to_use,\

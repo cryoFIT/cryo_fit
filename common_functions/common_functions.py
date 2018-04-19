@@ -239,12 +239,12 @@ def kill_mdrun_mpirun_in_linux():
 
 def know_number_of_atoms_in_input_pdb(starting_pdb):
     command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
-    print "\tcommand: ", command_string
+    #print "\tcommand: ", command_string
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_atoms_in_input_pdb = int(num_ATOMs[0])
     print "\n\tUser's input pdb file, ", starting_pdb, ", has ", number_of_atoms_in_input_pdb, " atoms"
     return number_of_atoms_in_input_pdb
-  
+# end of know_number_of_atoms_in_input_pdb()
 
 def know_output_bool_enable_mpi_by_ls():
     # used exit early for users who didn't install cryofit yet as well
@@ -284,24 +284,13 @@ def know_output_bool_enable_mpi_by_ls():
     '''
 # end of know_output_bool_enable_mpi_by_ls function
 
-'''
-def know_cryo_fit_bin_dir_by_options(home_dir, bool_enable_mpi, bool_enable_fftw):
-    cryo_fit_bin_dir = '' # initial value
-    if (bool_enable_mpi == "True" and bool_enable_fftw == "True"):
-      cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added_mpi_fftw/bin"
-    elif (bool_enable_mpi == "True" and bool_enable_fftw == "False"):
-      cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added_mpi/bin"
-    else:
-      cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added/bin"
-    return cryo_fit_bin_dir
-# end of know_cryo_fit_bin_dir function
-'''
 
+'''
 def know_home_cryo_fit_bin_dir_by_ls():
     home_dir = expanduser("~")
     home_cryo_fit_bin_dir = ''
     command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
-    print "\n\tcommand: ", command_string
+    #print "\n\tcommand: ", command_string
     folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     #print "\tfolder_of_cryo_fit[0]:", folder_of_cryo_fit[0]
     
@@ -319,12 +308,13 @@ def know_home_cryo_fit_bin_dir_by_ls():
         print "Install cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
     return home_cryo_fit_bin_dir
 # end of know_output_bool_enable_mpi_by_ls function
+'''
 
-def know_home_cryo_fit_bin_dir_by_ls_find():
+def know_home_cryo_fit_bin_dir_by_ls_find(): # really used
     home_dir = expanduser("~")
     home_cryo_fit_bin_dir = ''
     command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
-    print "\n\tcommand: ", command_string
+    #print "\n\tcommand: ", command_string
     folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     
     if folder_of_cryo_fit[0].find("mpi") == -1:
@@ -353,8 +343,7 @@ def know_total_number_of_cores():
         number_of_total_cores = 2
     
     #color_print ("\tUser's computer's operating system: ", 'green')
-    print "\tUser's computer's operating system: "
-    print "\t", platform.system(), "\n"
+    print "\tUser's computer's operating system: " + platform.system(), "\n"
     return number_of_total_cores
 # end of know_total_number_of_cores function
 
@@ -490,9 +479,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
-      print "\tRemove a former " + this_folder + " folder"
+      #print "\tRemove a former " + this_folder + " folder"
       shutil.rmtree(this_folder)
-  print "\tMake a new " + this_folder + " folder"
+  #print "\tMake a new " + this_folder + " folder"
   os.mkdir(this_folder)
   
   new_path = starting_dir + "/" + this_folder
@@ -501,9 +490,9 @@ def remake_and_move_to_this_folder(starting_dir, this_folder):
 
 def remake_this_folder(this_folder):
   if (os.path.isdir(this_folder) == True):
-      print "\tRemove a former " + this_folder + " folder"
+      #print "\tRemove a former " + this_folder + " folder"
       shutil.rmtree(this_folder)
-  print "\tMake a new " + this_folder + " folder"
+  #print "\tMake a new " + this_folder + " folder"
   os.mkdir(this_folder)
 # end of remake_this_folder function
 
