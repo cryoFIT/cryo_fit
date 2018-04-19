@@ -923,19 +923,27 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
       this_is_test = 1
   
   print "\tthis_is_test:", this_is_test
-  print "\n\ttarget_map_with_pathways:", target_map_with_pathways
+  
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + target_map_with_pathways\
               + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
               + str(this_is_test)
   print "\n\tcommand: ", command_string
-  
+  print "\nYou can check progress at ", starting_dir, "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   
-  f_in = open('log.step_8_cryo_fit_used_command')
+  # progress is shown to monitor in GUI (but not super-fast), but after run is done
+  f_in = open('md.log')
   for line in f_in:
-    # progress is shown to monitor in GUI (but slow, so I shortened emsteps)
+    print(line)
+  f_in.close()
+  
+  '''
+  # 04/18/2018, this doesn't show progress to GUI, but keep for now
+  f_in = open('log.step_8_cryo_fit_used_command') 
+  for line in f_in:
+    # progress is shown to monitor in GUI (but not super-fast)
     from subprocess import Popen, PIPE, STDOUT
     splited = line.split()
     p_cryo_fit = Popen([splited[0], splited[1], splited[2], \
@@ -949,6 +957,7 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
     #os.system(line) # progress is shown to commandline, not shown to GUI
     #libtbx.easy_run.call(line) # progress is shown to commandline, not shown to GUI
   f_in.close()
+  '''
   
   returned = '' # initial value
   output_file_name = '' # initial value
@@ -1267,8 +1276,7 @@ def run_cryo_fit(logfile, params, inputs):
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
-  print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value \
-        that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization
+  print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization
   number_of_steps_for_minimization = determine_number_of_steps_for_minimization(starting_pdb_without_pathways,\
                                                                             starting_pdb_with_pathways, \
                                                                             user_entered_number_of_steps_for_minimization)
