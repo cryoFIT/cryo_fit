@@ -634,10 +634,13 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2)
               # set number_of_cores_to_use = 2 to minimize a possibility of having cell size error
   print "\tcommand: ", command_string
+  print "\n\tYou can check progress at ", starting_dir + "/steps/4_minimize\n"
   start = time.time()
+  
   libtbx.easy_run.call(command_string)
   
-  '''
+  
+  ''' # seems not working
   f_in = open('log.step_4_1_minimization_real_command')
   
   # progress is shown to both commandline & GUI
@@ -929,7 +932,7 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
               + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
               + str(this_is_test)
   print "\n\tcommand: ", command_string
-  print "\nYou can check progress at ", starting_dir, "/steps/8_cryo_fit\n"
+  print "\n\tYou can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   

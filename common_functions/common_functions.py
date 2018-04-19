@@ -372,17 +372,14 @@ def locate_Phenix_executable():
 def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_to_use, \
                               ns_type, common_command_string):
     command_string = '' # just initial
-    print "cores_to_use:", cores_to_use
     if (bool_minimization == True and ns_type == "simple"):
         if (bool_enable_mpi == True):
             command_string = "mpirun -np 1 " + common_command_string + " -dd 1 1 1 "
         else:
             command_string = common_command_string + " -nt 1 -dd 1 1 1 "
     elif (cores_to_use == 2):
-        print "cores_to_use in elif:", cores_to_use
         command_string = common_command_string + " -nt 2 -dd 2 1 1 "
     elif (cores_to_use == 4):
-        print "cores_to_use in elif:", cores_to_use
         command_string = common_command_string + " -nt 4 -dd 2 2 1 "
     elif (cores_to_use == 8):
         command_string = common_command_string + " -nt 8 -dd 2 2 2 "
@@ -396,7 +393,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
         # Major Warning: this resulted in "charge group moved" error in nuclesome with all emweights, although looks simpler and convinient
     
     if bool_just_get_input_command == False:
-        color_print ("\treally running mi/cryo_fit NOW with this command: ", 'green')
+        color_print ("\treally running minimization/cryo_fit NOW with this command: ", 'green')
         print "\t", command_string
         libtbx.easy_run.call(command=command_string)
     return command_string
