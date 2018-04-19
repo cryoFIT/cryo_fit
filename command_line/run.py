@@ -337,25 +337,6 @@ def print_author():
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
 
-def remake_and_move_to_this_folder(starting_dir, this_folder):
-  if (os.path.isdir(this_folder) == True):
-      print "\tRemove a former " + this_folder + " folder"
-      shutil.rmtree(this_folder)
-  print "\tMake a new " + this_folder + " folder"
-  os.mkdir(this_folder)
-  
-  new_path = starting_dir + "/" + this_folder
-  os.chdir( new_path )
-# end of remake_and_move_to_this_folder function
-
-def remake_this_folder(this_folder):
-  if (os.path.isdir(this_folder) == True):
-      print "\tRemove a former " + this_folder + " folder"
-      shutil.rmtree(this_folder)
-  print "\tMake a new " + this_folder + " folder"
-  os.mkdir(this_folder)
-# end of remake_this_folder function
-
 def return_number_of_atoms_in_gro():
   for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
     command_string = "wc -l " + check_this_file
@@ -394,7 +375,7 @@ def validate_params(params): # validation for GUI
 # end of validate_params function
 
 
-def step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
+def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
            force_field, ignh, missing, remove_metals):
   show_header("Step 1: Make gro and topology file by regular gromacs")
   remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
@@ -456,8 +437,8 @@ def step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, st
   for check_this_file in glob.glob("*_by_pdb2gmx.gro"): # there will be only one *_by_pdb2gmx.gro file
     this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file)
   if (this_step_was_successfully_ran == 0):
-    f_out_all.write("Step 1 didn't run successfully")
-    f_out_all.close()
+    logfile.write("Step 1 didn't run successfully")
+    logfile.close()
     color_print (("Step 1 didn't run successfully"), 'red')
     color_print (("\nUser's command "), 'red')
     f_in = open('../../cryo_fit.input_command')
@@ -910,7 +891,7 @@ def search_charge_in_md_log():
   return 0 # not found "charge group..."
 # end of search_charge_in_md_log function
            
-def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
+def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
            target_map_with_pathways, output_file_format, output_file_name_prefix):
   show_header("Step 8: Run cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
@@ -937,10 +918,12 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
   libtbx.easy_run.call(command_string)
   
   # progress is shown to monitor in GUI (but not super-fast), but after run is done
+  '''
   f_in = open('md.log')
   for line in f_in:
     print(line)
   f_in.close()
+  '''
   
   '''
   # 04/18/2018, this doesn't show progress to GUI, but keep for now
@@ -974,7 +957,7 @@ def step_8(f_out_all, command_path, starting_dir, ns_type, number_of_available_c
   
   if (returned != 1):
     color_print ("Step 8 (Run cryo_fit) didn't run successfully", 'red')
-    f_out_all.write("Step 8 (Run cryo_fit) didn't run successfully\n")
+    logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
     searched = search_charge_in_md_log()
     if searched == 0: # no "charge group... " message in md.log
       return 0
@@ -1226,7 +1209,6 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
 # end of assign_model_map_names()
 
   
-#def run_cryo_fit(f_out_all, params, inputs):
 def run_cryo_fit(logfile, params, inputs):  
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
@@ -1337,15 +1319,12 @@ def run_cryo_fit(logfile, params, inputs):
   if ((platform.system() == "Linux") and (kill_mdrun_mpirun_in_linux == True)):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
-    #step_1(f_out_all, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
     step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
-    #f_out_all.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     logfile.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     
   if (steps_list[1] == True):
     step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
-    #f_out_all.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
     logfile.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
   
   if str(constraint_algorithm_minimization) != "none_default":
@@ -1434,7 +1413,6 @@ def cmd_run(args, validated=False, out=sys.stdout):
   log.register("logfile", logfile)
   
   print >> log, "Input parameters:", args
-  
 
   input_command_file = open("cryo_fit.input_command", "w")
   logfile.write("Input command: phenix.cryo_fit ")
@@ -1501,19 +1479,15 @@ def cmd_run(args, validated=False, out=sys.stdout):
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
   
-  # f_out_all = open('overall_log.cryo_fit', 'w+')
-  # f_out_all.write("Overall report of cryo_fit\n\n")
-  #results = run_cryo_fit(f_out_all, working_params, inputs)
   results = run_cryo_fit(logfile, working_params, inputs)
   if results == "re-run":
     print "\tCryo_fit will re-run with time_step_for_cryo_fit=0.001\n\n"
-    #f_out_all.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
     logfile.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
     working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
     working_params.cryo_fit.Input.model_file_name = original_model_file
     working_params.cryo_fit.Input.map_file_name = original_map_file
     os.chdir( starting_dir )
-    results = run_cryo_fit(f_out_all, working_params, inputs)
+    results = run_cryo_fit(logfile, working_params, inputs)
     
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
@@ -1521,16 +1495,12 @@ def cmd_run(args, validated=False, out=sys.stdout):
   
   if (results == 0) or (results == "re-run"): # errored
     write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
-    #f_out_all.write(write_this)
     logfile.write(write_this)
-    #f_out_all.close()
     logfile.close()
     exit(1)
   else: # normal execution
     write_this = "\nTotal cryo_fit " + time_took + "\n"
-    #f_out_all.write(write_this)
     logfile.write(write_this)
-    #f_out_all.close()
     logfile.close()
   return results
   #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name))

@@ -9,6 +9,7 @@ from libtbx.utils import multi_out
 import mmtbx.model
 import mmtbx.utils
 from os.path import expanduser # to find home_dir
+import shutil # for rmdir
 from subprocess import check_output, Popen, PIPE
 
 termcolor_installed = '' # just initial value
@@ -487,6 +488,24 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     return new_map_file_name, pdb_file_name
 # end of mrc_to_sit(map_file_name)
 
+def remake_and_move_to_this_folder(starting_dir, this_folder):
+  if (os.path.isdir(this_folder) == True):
+      print "\tRemove a former " + this_folder + " folder"
+      shutil.rmtree(this_folder)
+  print "\tMake a new " + this_folder + " folder"
+  os.mkdir(this_folder)
+  
+  new_path = starting_dir + "/" + this_folder
+  os.chdir( new_path )
+# end of remake_and_move_to_this_folder function
+
+def remake_this_folder(this_folder):
+  if (os.path.isdir(this_folder) == True):
+      print "\tRemove a former " + this_folder + " folder"
+      shutil.rmtree(this_folder)
+  print "\tMake a new " + this_folder + " folder"
+  os.mkdir(this_folder)
+# end of remake_this_folder function
 
 def remove_former_files():
     current_directory = os.getcwd()
