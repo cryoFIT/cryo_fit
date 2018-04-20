@@ -281,9 +281,9 @@ def check_whether_cc_has_been_increased(cc_record):
       cc_has_been_increased = cc_has_been_increased + 1
   
   if (cc_has_been_increased >= cc_has_been_decreased):
-    return True # the most 5 cc tend to be increased, so re-run
+    return True # the last 5 cc values tend to be increased, so re-run with longer steps
   else:
-    return False # the most 5 cc tend to be increased
+    return False # the last 5 cc values tend to be increased
 # end of check_whether_cc_has_been_increased function
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
@@ -870,6 +870,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
+              # to make cryo_fit step 8 faster
               new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/10)) + "\n"
               fout.write(new_line)
               '''
@@ -885,7 +886,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
             fout.write(new_line)
         elif splited[0] == "emweight":
           number_of_atoms_in_gro = return_number_of_atoms_in_gro()
-          print "\tnumber_of_atoms_in_gro:", number_of_atoms_in_gro
+          #print "\tnumber_of_atoms_in_gro:", number_of_atoms_in_gro
           print "\temweight_multiply_by:", emweight_multiply_by
           new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
           fout.write(new_line)
@@ -1026,7 +1027,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\n"
   
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
-  print "\tcc_has_been_increased in the last 5 steps:", cc_has_been_increased
+  print "\tcc_has_been_increased in the last 5 cc evaluations:", cc_has_been_increased
   if cc_has_been_increased == True:
     return "re_run_with_longer_steps"
   
@@ -1086,9 +1087,9 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   results['cc_record'] = cc_record
   results['cc_has_been_increased'] = cc_has_been_increased
   
-  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/8_cryo_fit"
-  print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
-  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/8_cryo_fit as well."
+  # print "\n\tA finally fitted bio-molecule to user's cryo-EM map is " + output_file_name + " (cryo_fitted_chain_recovered.pdb) in steps/8_cryo_fit"
+  # print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
+  # print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/8_cryo_fit as well."
   
   print "\nStep 8", (show_time(time_start_cryo_fit, time_end_cryo_fit))
   
@@ -1096,7 +1097,46 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   return results
 # end of step_8 (cryo_fit itself) function
 
-def step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map_without_pathways):
+
+def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
+  time_start = time.time()
+  show_header("Step 9: Arrange output")
+  remake_and_move_to_this_folder(starting_dir, "steps/9_output")
+  
+  cp_command_string = "cp ../8_cryo_fit/cc_record ."
+  print "cp_command_string:", cp_command_string
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
+  cp_command_string = "cp ../8_cryo_fit/*gro ."
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
+  cp_command_string = "cp ../8_cryo_fit/*_chain_recovered.pdb ."
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
+  if (origin_shifted_to_000 == True):
+    for pdb in glob.glob("*.pdb"):
+      translate_pdb_file_by_xyz(pdb, move_x_by, move_y_by, move_z_by, widthx, True)
+    trivial_command_string = "rm *_chain_recovered.pdb"
+    libtbx.easy_run.fully_buffered(trivial_command_string)
+  
+  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is cryo_fitted_chain_recovered.pdb in steps/9_output"
+  print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model with respect to stereochemistry."
+  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in steps/9_output as well."
+  
+  returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
+  
+  if (returned != "success"):
+    color_print ("Step final (arrange output) didn't run successfully", 'red')
+    logfile.write("Step final (arrange output) didn't run successfully\n")
+    exit(1)
+  
+  logfile.write("Step final (arrange output) is successfully ran\n")
+  time_end = time.time()
+  print "\nStep final", (show_time(time_start, time_end))
+  
+# end of step_final (arrange output) function
+
+def step_9(command_path, starting_dir):
   show_header("Step 9: Show Correlation Coefficient")
   remake_and_move_to_this_folder(starting_dir, "steps/9_draw_cc_commandline")
   
@@ -1142,13 +1182,25 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   temp_map_file_name = params.cryo_fit.Input.map_file_name
   print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
+  
+  origin_shifted_to_000 = False # just assume that it will not be shifted
+  shifted_in_x = 0 # just an initial value
+  shifted_in_y = 0 # just an initial value
+  shifted_in_z = 0 # just an initial value
+  widthx = 1 # just an initial value
+  
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
     
-     returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
-     params.cryo_fit.Input.map_file_name = returned[0]
-     params.cryo_fit.Input.model_file_name = returned[1]
-  
+    returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
+    params.cryo_fit.Input.map_file_name = returned[0]
+    params.cryo_fit.Input.model_file_name = returned[1]
+    origin_shifted_to_000 = returned[2]
+    shifted_in_x = returned[3]
+    shifted_in_y = returned[4]
+    shifted_in_z = returned[5]
+    widthx = returned[6]
+    
   print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
   print "\tparams.cryo_fit.Input.model_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.model_file_name
   
@@ -1258,7 +1310,7 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
   
   print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
   print "\ttarget_map_with_pathways:", target_map_with_pathways  
-  return starting_pdb_with_pathways, starting_pdb_without_pathways, target_map_with_pathways, target_map_without_pathways
+  return starting_pdb_with_pathways, starting_pdb_without_pathways, target_map_with_pathways, target_map_without_pathways, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
 # end of assign_model_map_names()
 
   
@@ -1303,6 +1355,11 @@ def run_cryo_fit(logfile, params, inputs):
   starting_pdb_without_pathways = returned[1]
   target_map_with_pathways = returned[2]
   target_map_without_pathways = returned[3]
+  origin_shifted_to_000 = returned[4]
+  shifted_in_x = returned[5]
+  shifted_in_y = returned[6]
+  shifted_in_z = returned[7]
+  widthx = returned[8]
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1443,6 +1500,7 @@ def run_cryo_fit(logfile, params, inputs):
         print "\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n"
         logfile.write("\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n")
         if (time_step_for_cryo_fit < 0.0001): # to avoid infinite loop
+          print "time_step_for_cryo_fit < 0.0001, exit now"
           break
         os.chdir( starting_dir )
       elif results == "re_run_with_longer_steps":
@@ -1453,14 +1511,18 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n")
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 4
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
+          print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
           break
         os.chdir( starting_dir )
       elif results['cc_has_been_increased'] == False: # normal ending of cryo_fit
         charge_group_moved = False
         cc_has_been_increased = False
-      
-      
+         
   logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
+  
+  # just to arrange final output
+  step_final(logfile, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx)
+  
   return results
   
   # keep for now for this cc draw
@@ -1558,16 +1620,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\tCurrent working directory: %s" % starting_dir
   
   results = run_cryo_fit(logfile, working_params, inputs)
-  '''
-  if results == "re_run_w_smaller_MD_time_step":
-    print "\tCryo_fit will re-run with time_step_for_cryo_fit=0.001\n\n"
-    logfile.write("cryo_fit will re-run with time_step_for_cryo_fit=0.001 \n\n")
-    working_params.cryo_fit.Options.time_step_for_cryo_fit = 0.001
-    working_params.cryo_fit.Input.model_file_name = original_model_file
-    working_params.cryo_fit.Input.map_file_name = original_map_file
-    os.chdir( starting_dir )
-    results = run_cryo_fit(logfile, working_params, inputs)
-  '''  
+   
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
   print "\nTotal cryo_fit", time_took
@@ -1577,13 +1630,12 @@ def cmd_run(args, validated=False, out=sys.stdout):
     logfile.write(write_this)
     logfile.close()
     exit(1)
-  else: # normal execution
+  else: # normal execution without error
     write_this = "\nTotal cryo_fit " + time_took + "\n"
     logfile.write(write_this)
     logfile.close()
   return results
-  #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name))
-  # Billy doesn't need this anymore for pdb file opening by coot  
+  #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name)) # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function
 
 # =============================================================================

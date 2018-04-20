@@ -383,7 +383,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
         # Major Warning: this resulted in "charge group moved" error in nuclesome with all emweights, although looks simpler and convinient
     
     if bool_just_get_input_command == False:
-        color_print ("\treally running minimization/cryo_fit NOW with this command: ", 'green')
+        color_print ("\tcommand: ", 'green')
         print "\t", command_string
         libtbx.easy_run.call(command=command_string)
     return command_string
@@ -403,7 +403,6 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     target_map_data = ccp4_map.map_data()
     
     #print "\tdir(): ", dir(ccp4_map)
-
     # acc = target_map_data.accessor() # not used, but keep for now
     print "\ttarget_map_data.origin():",target_map_data.origin()
 
@@ -416,16 +415,20 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     widthx = a/target_map_data.all()[0]
     print "\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
     
-    #'''
+    origin_shited_to_000 = False # just assume that it will not be shifted
+    shifted_in_x = 0
+    shifted_in_y = 0
+    shifted_in_z = 0 
+    
     ### (begin) shift map origin if current map origin < 0
     if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0):
+        origin_shited_to_000 = True
         pdb_inp = iotbx.pdb.input(file_name=pdb_file_name)
         model = mmtbx.model.manager(
             model_input = pdb_inp,
             crystal_symmetry=inputs.crystal_symmetry,
             build_grm=True)
         target_map_data = shift_origin_of_mrc_map_if_needed(target_map_data, model)
-        # this shifted nucleosome map's origin into 0,0,0 successfully
     
         shifted_in_z = target_map_data.origin()[2] - emmap_z0
         shifted_in_y = target_map_data.origin()[1] - emmap_y0
@@ -437,7 +440,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
         print "\ttarget_map_data.origin() after shifting:",target_map_data.origin()
     ### (end) shift map origin
-        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx)
+        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     
     print "\ttarget_map_data.all():", target_map_data.all()
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
@@ -448,19 +451,14 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     f_out.write(line)
     
     counter = 0
-    total_counter = 0
-    
     for k in xrange(emmap_z0, emmap_nz):
       for j in xrange(emmap_y0, emmap_ny):
         for i in xrange(emmap_x0, emmap_nx):
-            total_counter = total_counter + 1
             x=i/emmap_nx
             y=j/emmap_ny
             z=k/emmap_nz
             
-            value = target_map_data.value_at_closest_grid_point((x,y,z))
-            # it seems that target_map_data.value_at_closest_grid_point((x,y,z)) doesn't work
-            # when x,y,z < 0
+            value = target_map_data.value_at_closest_grid_point((x,y,z)) # doesn't work when x,y,z < 0
             
             # print "value: %10.6f" %value,
             line = " " + str(value)
@@ -469,12 +467,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
             if (counter==10):
               counter=0
               f_out.write("\n")
-              #print "\n",
     f_out.write("\n")
-    #print "total_counter:", total_counter,
     f_out.close()
-    #STOP()
-    return new_map_file_name, pdb_file_name
+    return new_map_file_name, pdb_file_name, origin_shited_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
 # end of mrc_to_sit(map_file_name)
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
@@ -518,22 +513,26 @@ def shift_origin_of_mrc_map_if_needed(map_data, model):
 # end of shift_origin_of_mrc_map_if_needed ()
 
 
-def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx):
-    print "\tshift_origin_of_pdb_file"
-    # multiplication by "more" seems needed for nucleosome and 8249
-    #widthx = 1
+def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx, retranslate_to_original):
+    print "\ttranslate_pdb_file_by_xyz"
     move_x_by = move_x_by*widthx
     move_y_by = move_y_by*widthx
     move_z_by = move_z_by*widthx
     f_in = open(input_pdb_file_name)
-    output_pdb_file_name = input_pdb_file_name[:-4] + "_translated" + ".pdb"
+    if (retranslate_to_original == False):
+        output_pdb_file_name = input_pdb_file_name[:-4] + "_translated" + ".pdb"
+    else:
+        output_pdb_file_name = input_pdb_file_name[:-4] + "_retranslated" + ".pdb"
     f_out = open(output_pdb_file_name, "w")
     for line in f_in:
       if line[0:4] == "ATOM" or line[0:6] == "HETATM":
         x_coor_former = line[30:38]
       #  print "\nx_coor_former:", x_coor_former
         
-        new_x_coor = str(float(x_coor_former) + float(move_x_by))
+        if (retranslate_to_original == False):
+            new_x_coor = str(float(x_coor_former) + float(move_x_by))
+        else:
+            new_x_coor = str(float(x_coor_former) - float(move_x_by))
        # print "new_x_coor:", new_x_coor
        # print "round(float(new_x_coor), 3):", round(float(new_x_coor), 3)
         
@@ -548,7 +547,13 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
         new_line = line[:30] + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
         
         y_coor_former = line[38:46]
-        new_y_coor = str(float(y_coor_former) + float(move_y_by))
+        
+        if (retranslate_to_original == False):
+            new_y_coor = str(float(y_coor_former) + float(move_y_by))
+        else:
+            new_y_coor = str(float(y_coor_former) - float(move_y_by))
+            
+        #new_y_coor = str(float(y_coor_former) + float(move_y_by))
         
         new_y_coor = str(round(float(new_y_coor), 3))
         
@@ -558,7 +563,12 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
         new_line = new_line + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
         
         z_coor_former = line[46:54]
-        new_z_coor = str(float(z_coor_former) + float(move_z_by))
+        
+        if (retranslate_to_original == False):
+            new_z_coor = str(float(z_coor_former) + float(move_z_by))
+        else:
+            new_z_coor = str(float(z_coor_former) - float(move_z_by))
+        #new_z_coor = str(float(z_coor_former) + float(move_z_by))
         
         new_z_coor = str(round(float(new_z_coor), 3))
         
