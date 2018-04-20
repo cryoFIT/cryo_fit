@@ -1509,7 +1509,7 @@ def run_cryo_fit(logfile, params, inputs):
         print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n"
         logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n")
         logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n")
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 4
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
           print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
           break
