@@ -139,15 +139,15 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 9
+  emweight_multiply_by = 10
     .type = int
     .short_caption = EM weight multiply by
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 7) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
-            If user's map has better resolution, higher number of emweight_multiply_by is recommended since map has much information. \
-            If user's map has have worse resolution, lower number of emweight_multiply_by is recommended for more likely geometry. \
-            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended for speedup
+            If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
+            If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
+            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended.
   emwritefrequency = None
     .type = int
     .short_caption = EM write frequency
@@ -294,12 +294,12 @@ def check_whether_cc_has_been_increased(cc_record):
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
-  print "\tcc_has_been_increased:",cc_has_been_increased,", cc_has_been_decreased:",cc_has_been_decreased
+  print "\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
   if (cc_has_been_increased > cc_has_been_decreased):
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
-      print "cc_last > cc_10th_last"
+      print "\tcc_last > cc_10th_last"
       return True # the last 10 cc values tend to be increased, so re-run with longer steps
     else:
       return False
@@ -947,7 +947,8 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
+              #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
+              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/30)) + "\n" # to make cryo_fit step 8 faster
               fout.write(new_line)
           else:
             new_line = "emsteps = " + str(emsteps) + "\n"
