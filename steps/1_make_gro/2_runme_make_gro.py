@@ -13,7 +13,7 @@ def remove_former_files():
       subprocess.call(["rm", each_file])  
 '''
 
-def make_top(input_pdb_file_name, force_field, *args):
+def make_gro_top(input_pdb_file_name, force_field, *args):
   print "\tMake gro and topology files from a given pdb file." 
   
   splited = input_pdb_file_name.split("/")
@@ -60,14 +60,12 @@ def make_top(input_pdb_file_name, force_field, *args):
   write_this_input_command = run_this + "\n"
   f_out.write(write_this_input_command)
   
-  #write_this_time = show_time("step_1_2_runme_make_gro", time_start, time_end)
-  
   write_this_time = show_time(time_start, time_end)
   write_this_time = "\n\nstep_1_2_runme_make_gro" + write_this_time + "\n"
   f_out.write(write_this_time)
   
   f_out.close()
-# end of make_top function
+# end of make_gro_top function
 
 if (__name__ == "__main__") :
   #remove_former_files() # only needed for development
@@ -101,7 +99,7 @@ if (__name__ == "__main__") :
       common_functions_path = command_path + "/common_functions/"
       sys.path.insert(0, common_functions_path)
       from common_functions import *
-      make_top(input_pdb_file_name, force_field, bool_ignh, bool_missing)
+      make_gro_top(input_pdb_file_name, force_field, bool_ignh, bool_missing)
   bool_gro = 0
   for gro_file in glob.glob("*.gro"):
       bool_gro = 1

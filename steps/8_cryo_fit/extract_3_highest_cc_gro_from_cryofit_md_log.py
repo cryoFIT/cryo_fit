@@ -6,14 +6,14 @@ this_is_test = args[0]
 
 def extract_gro(target_step):
     for_cryo_fit_mdp_location = ''
-    print "this_is_test in extrating:", this_is_test
+    print "\tthis_is_test in extrating:", this_is_test
     if this_is_test == "False":
         for_cryo_fit_mdp_location = "../7_make_tpr_with_disre2/for_cryo_fit.mdp"
     else:
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
         
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
-    print "grep_dt_string:", grep_dt_string
+    print "\tgrep_dt_string:", grep_dt_string
     result = os.popen(grep_dt_string).read()
     splited = result.split()
     dt = splited[2]

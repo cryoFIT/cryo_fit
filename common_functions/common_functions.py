@@ -342,7 +342,6 @@ def know_total_number_of_cores():
     else: # maybe Windows
         number_of_total_cores = 2
     
-    #color_print ("\tUser's computer's operating system: ", 'green')
     print "\tUser's computer's operating system: " + platform.system(), "\n"
     return number_of_total_cores
 # end of know_total_number_of_cores function
@@ -514,7 +513,7 @@ def shift_origin_of_mrc_map_if_needed(map_data, model):
 
 
 def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx, retranslate_to_original):
-    print "\ttranslate_pdb_file_by_xyz"
+    #print "\ttranslate_pdb_file_by_xyz"
     move_x_by = move_x_by*widthx
     move_y_by = move_y_by*widthx
     move_z_by = move_z_by*widthx
@@ -527,23 +526,17 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
     for line in f_in:
       if line[0:4] == "ATOM" or line[0:6] == "HETATM":
         x_coor_former = line[30:38]
-      #  print "\nx_coor_former:", x_coor_former
         
         if (retranslate_to_original == False):
             new_x_coor = str(float(x_coor_former) + float(move_x_by))
         else:
             new_x_coor = str(float(x_coor_former) - float(move_x_by))
-       # print "new_x_coor:", new_x_coor
-       # print "round(float(new_x_coor), 3):", round(float(new_x_coor), 3)
-        
+       
         new_x_coor = str(round(float(new_x_coor), 3))
         
         splited = new_x_coor.split(".")
         multi_before_period = 4-len(splited[0])
-        #print ("multi_before_period:"),multi_before_period
         multi_after_period = 3-len(splited[1])
-       # print ("multi_after_period:"),multi_after_period
-       # STOP()
         new_line = line[:30] + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
         
         y_coor_former = line[38:46]
@@ -553,8 +546,6 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
         else:
             new_y_coor = str(float(y_coor_former) - float(move_y_by))
             
-        #new_y_coor = str(float(y_coor_former) + float(move_y_by))
-        
         new_y_coor = str(round(float(new_y_coor), 3))
         
         splited = new_y_coor.split(".")
@@ -568,7 +559,6 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
             new_z_coor = str(float(z_coor_former) + float(move_z_by))
         else:
             new_z_coor = str(float(z_coor_former) - float(move_z_by))
-        #new_z_coor = str(float(z_coor_former) + float(move_z_by))
         
         new_z_coor = str(round(float(new_z_coor), 3))
         
