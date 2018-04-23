@@ -31,7 +31,7 @@ except Exception:
 def cif_as_pdb(file_name):  
     try:
       assert os.path.exists(file_name)
-      print "Converting %s to PDB format." %file_name
+      print "\tConverting %s to PDB format." %file_name
       cif_input = iotbx.pdb.mmcif.cif_input(file_name=file_name)
       hierarchy = cif_input.construct_hierarchy()
       basename = os.path.splitext(os.path.basename(file_name))[0]
@@ -148,16 +148,16 @@ def final_prepare_for_minimization_cryo_fit(bool_just_get_input_command, bool_mi
 def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
                                             home_bin_cryo_fit_bin_dir, ns_type, \
                                             number_of_available_cores, number_of_cores_to_use, target_map, \
-                                            output_file_format, output_file_name_prefix):
+                                            output_file_name_prefix):
     common_command_string = '' # initial value
     output_file_name = '' # initial value
     if (bool_minimization == True):
         common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "
     else:
         if (output_file_name_prefix == "None"):
-            output_file_name = "cryo_fitted." + output_file_format
+            output_file_name = "cryo_fitted.gro"
         else:
-            output_file_name = output_file_name_prefix + "_cryo_fitted." + output_file_format
+            output_file_name = output_file_name_prefix + "_cryo_fitted.gro"
         common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                                 target_map + " -c " + output_file_name + " -nosum  -noddcheck "
         

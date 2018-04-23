@@ -18,10 +18,9 @@ ns_type = args[1]
 number_of_available_cores = int(args[2])
 number_of_cores_to_use = args[3] # for mpi -> cores, for threads -> threads
 target_map_with_pathways = args[4]
-output_file_format = args[5]
-starting_dir = args[6]
-output_file_name_prefix = args[7]
-this_is_test = args[8]
+starting_dir = args[5]
+output_file_name_prefix = args[6]
+this_is_test = args[7]
 
 if (__name__ == "__main__") :
   #remove_former_files() #needed for development only
@@ -31,7 +30,7 @@ if (__name__ == "__main__") :
     cp_command_string = "cp ../7_make_tpr_with_disre2/for_cryo_fit.tpr . "
   else:
     cp_command_string = "cp ../../data/input_for_step_8/* ."
-  #print "\n\tcp_command_string:", cp_command_string, "\n"
+
   libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
   bool_minimization = False
@@ -42,8 +41,7 @@ if (__name__ == "__main__") :
                                                          home_bin_cryo_fit_bin_dir, \
                                                          ns_type, number_of_available_cores, \
                                                          number_of_cores_to_use,\
-                                                         target_map_with_pathways, output_file_format,
-                                                         output_file_name_prefix)
+                                                         target_map_with_pathways, output_file_name_prefix)
   
   f_out = open('log.step_8_cryo_fit_used_command', 'wt')
   f_out.write(write_this_input_command)

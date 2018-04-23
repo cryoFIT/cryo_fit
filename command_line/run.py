@@ -11,7 +11,8 @@
 # 6_Make_0_charge
 # 7_Make_tpr_for_EM_map_fitting
 # 8_EM_map_fitting_itself
-# 9_Draw_a_figure_of_cc
+# 9_Arrange_outputs
+# (not used now) # 9_Draw_a_figure_of_cc
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
 from iotbx import file_reader
@@ -303,7 +304,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
 # end of check_whether_the_step_was_successfully_ran function
 
 
-def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starting_pdb_with_pathways, \
+def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
                                           user_entered_number_of_steps_for_cryo_fit):
 # Determine the number of steps for cryo_fit
   print "\tDetermine number_of_steps_for cryo_fit"
@@ -312,11 +313,11 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", \
         user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
-  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  if (starting_pdb_without_pathways == "devel.pdb"):
+  #print "\tmodel_file_with_pathways:", model_file_with_pathways
+  if (model_file_without_pathways == "devel.pdb"):
     number_of_steps_for_cryo_fit = 10
     return number_of_steps_for_cryo_fit
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
     number_of_steps_for_cryo_fit = 15000
@@ -330,8 +331,8 @@ def determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways, starti
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
 
-def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
-                                               starting_pdb_with_pathways, \
+def determine_number_of_steps_for_minimization(model_file_without_pathways, \
+                                               model_file_with_pathways, \
                                                user_entered_number_of_steps_for_minimization):
 # Determine the number of steps for minimization
   print "\tDetermine number_of_steps for minimization"
@@ -340,11 +341,11 @@ def determine_number_of_steps_for_minimization(starting_pdb_without_pathways, \
     print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", \
             user_entered_number_of_steps_for_minimization
     return user_entered_number_of_steps_for_minimization
-  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  if (starting_pdb_without_pathways == "devel.pdb"):
+  #print "\tmodel_file_with_pathways:", model_file_with_pathways
+  if (model_file_without_pathways == "devel.pdb"):
     number_of_steps_for_minimization = 10
     return number_of_steps_for_minimization
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_minimization = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
     number_of_steps_for_minimization = 1000
@@ -421,29 +422,52 @@ def validate_params(params): # validation for GUI
 
 def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_file_name):
   print "\tassign_model_map_names"
+  
   params.cryo_fit.Input.model_file_name = model_file_name
   params.cryo_fit.Input.map_file_name = map_file_name
-  print "\tparams.cryo_fit.Input.model_file_name:", params.cryo_fit.Input.model_file_name
-  print "\tlen(params.cryo_fit.Input.model_file_name):", len(params.cryo_fit.Input.model_file_name)
   
-  if len(params.cryo_fit.Input.model_file_name) > 50:
-    print "\tThe length of params.cryo_fit.Input.model_file_name is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
-    print "\tTherefore, cryo_fit will copy another short named file."
-    extension = params.cryo_fit.Input.model_file_name[len(params.cryo_fit.Input.model_file_name)-4:len(params.cryo_fit.Input.model_file_name)]
-    cp_command_string = "cp " + params.cryo_fit.Input.model_file_name + " " + params.cryo_fit.Input.model_file_name[:48] + extension
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:48] + extension
-    print "\tparams.cryo_fit.Input.model_file_name after shortening: ", params.cryo_fit.Input.model_file_name
+  if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
+    print "Please correct model file location, cryo_fit can't find it"
+    exit(1)
   
-  temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
+    print "Please correct map file location, cryo_fit can't find it"
+    exit(1)
   
+  # assign model_file_without_pathways (not final)
+  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
+  if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
+    print "\tSince user provided .cif file, let's turn it into .pdb"
+    cif_as_pdb(params.cryo_fit.Input.model_file_name)
+    cw_dir = os.getcwd()
+    params.cryo_fit.Input.model_file_name = cw_dir + "/" + model_file_without_pathways
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
+  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
+    print "\tSince user provided .ent file, let's simply change its extension into .pdb"
+    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
+  
+  model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
+  print "\tmodel_file_with_pathways:",model_file_with_pathways
+  if os.path.isfile(model_file_with_pathways) != True:
+    print "model_file_with_pathways is wrong"
+    exit(1)
+    
+  # assign model_file_without_pathways (final)
+  splited_model_file_name = model_file_with_pathways.split("/")
+  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  print "\tmodel_file_without_pathways:",model_file_without_pathways
+  
+  # shift origin of map if needed
   origin_shifted_to_000 = False # just assume that it will not be shifted
   shifted_in_x = 0 # just an initial value
   shifted_in_y = 0 # just an initial value
   shifted_in_z = 0 # just an initial value
   widthx = 1 # just an initial value
+  
+  temp_map_file_name = params.cryo_fit.Input.map_file_name
+  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
@@ -457,136 +481,51 @@ def assign_model_map_names(params, starting_dir, inputs, model_file_name, map_fi
     shifted_in_z = returned[5]
     widthx = returned[6]
     
-  print "\tparams.cryo_fit.Input.map_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.model_file_name after possible mrc_to_sit: ", params.cryo_fit.Input.model_file_name
+  map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
+  print "\tmap_file_with_pathways:",map_file_with_pathways
+  if map_file_with_pathways[:-4] == ".map":
+    map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
   
-  cif_provided = 0 
-  if params.cryo_fit.Input.model_file_name.endswith('.cif'):
-    print "\tSince user provided .cif file, let's turn it into .pdb"
-    cif_provided = 1 # needed for later
-    cif_as_pdb(params.cryo_fit.Input.model_file_name)
-  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\tSince user provided .ent file, let's simply change its extension into .pdb"
-    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
-    
-  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  # assign map_file_without_pathways
+  splited_map_file_name = map_file_with_pathways.split("/")
+  map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+  print "\tmap_file_without_pathways:",map_file_without_pathways
   
-  # assign starting_pdb_without_pathways
-  starting_pdb_without_pathways = ''
-  print "\tlen(splited_model_file_name):", len(splited_model_file_name)
-  if (cif_provided == 1):
-    params.cryo_fit.Input.model_file_name = splited_model_file_name[len(splited_model_file_name)-1]
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
-    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
-    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
-    # Doonam knows that this is just a superhack way of adding absolute path. 
-    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
-    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
-  elif (len(splited_model_file_name) == 1):
-    # when running cryo_fit at a same folder with a pdb file
-    starting_pdb_without_pathways = params.cryo_fit.Input.model_file_name
-    params.cryo_fit.Input.model_file_name = starting_dir + "/" + params.cryo_fit.Input.model_file_name
-    # Doonam knows that this is just a superhack way of adding absolute path. 
-    # He may need to find a more efficient way of adding absolute path to be used for GUI's params usage
-    print "\tparams.cryo_fit.Input.model_file_name (after adding absolute path): ", params.cryo_fit.Input.model_file_name
-  elif len(splited_model_file_name) == 2:  
-    dot_dot = params.cryo_fit.Input.model_file_name.split("..")
-    if len(dot_dot) == 2: #when ../devel.pdb
-      os.chdir("..")
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-      params.cryo_fit.Input.model_file_name = current_dir + "/" + starting_pdb_without_pathways
-      os.chdir(starting_dir)
-    else: # len(dot_dot) = 1 when data/devel.pdb
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      print "\tsplited_model_file_name:", splited_model_file_name
-      new_dir = current_dir + "/" + splited_model_file_name[0]
-      os.chdir(new_dir)
-      starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-      params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
-      os.chdir(starting_dir)
-  elif len(splited_model_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
-    current_dir = os.getcwd()
-    print "\tCurrent working directory: %s" % current_dir
-    print "\tsplited_model_file_name:", splited_model_file_name
-    new_dir = current_dir + "/" + splited_model_file_name[0] + "/" + splited_model_file_name[1]
-    os.chdir(new_dir)
-    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-    params.cryo_fit.Input.model_file_name = new_dir + "/" + starting_pdb_without_pathways
-    os.chdir(starting_dir)
-  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.pdb
-    starting_pdb_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  
-  
-  splited_map_file_name = params.cryo_fit.Input.map_file_name.split("/")
-  target_map_without_pathways = ''
-  print "\tlen(splited_map_file_name):", len(splited_map_file_name)
-  if len(splited_map_file_name) == 1: # a case of running cryo_fit at a same folder with a map file
-    target_map_without_pathways = params.cryo_fit.Input.map_file_name
-    params.cryo_fit.Input.map_file_name = starting_dir + "/" + params.cryo_fit.Input.map_file_name
-    # Doonam thinks that this could be just a superhack way of adding absolute path. 
-    # But it works fine in both commandline and GUI
-    print "\tparams.cryo_fit.Input.map_file_name (after adding absolute path): ", params.cryo_fit.Input.map_file_name
-  elif len(splited_map_file_name) == 2:  # a case of running cryo_fit at a same folder with a ../sit file
-    dot_dot = params.cryo_fit.Input.map_file_name.split("..")
-    if len(dot_dot) == 2: #when ../devel.sit
-      os.chdir("..")
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-      params.cryo_fit.Input.map_file_name = current_dir + "/" + target_map_without_pathways
-      os.chdir(starting_dir)
-    else: # len(dot_dot) = 1 when data/devel.sit
-      current_dir = os.getcwd()
-      print "\tCurrent working directory: %s" % current_dir
-      new_dir = current_dir + "/" + splited_map_file_name[0]
-      os.chdir(new_dir)
-      target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-      params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
-      os.chdir(starting_dir)
-  elif len(splited_map_file_name) == 3:  # when running cryo_fit with a data/input/devel.pdb
-    current_dir = os.getcwd()
-    print "\tCurrent working directory: %s" % current_dir
-    new_dir = current_dir + "/" + splited_map_file_name[0] + "/" + splited_map_file_name[1]
-    os.chdir(new_dir)
-    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-    params.cryo_fit.Input.map_file_name = new_dir + "/" + target_map_without_pathways
-    os.chdir(starting_dir)
-  else: # len(splited) != 1, a user provided an input file with pathways like ~/bla.sit, len(splited) could be 4
-    target_map_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-  
-  starting_pdb_with_pathways = params.cryo_fit.Input.model_file_name 
-  target_map_with_pathways = params.cryo_fit.Input.map_file_name
-  
-  if os.path.isfile(target_map_with_pathways) != True:
-    print "Please correct map file location, cryo_fit can't find it"
+  if os.path.isfile(map_file_with_pathways) != True:
+    print "map_file_with_pathways is wrong"
     exit(1)
   
-  print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
-  print "\ttarget_map_with_pathways:", target_map_with_pathways  
-  return starting_pdb_with_pathways, starting_pdb_without_pathways, target_map_with_pathways, target_map_without_pathways, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
+  os.chdir(starting_dir)
+  return model_file_with_pathways, model_file_without_pathways, map_file_with_pathways, map_file_without_pathways, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
 # end of assign_model_map_names()
 
+def shorten_file_name_if_needed(model_file_without_pathways):
+  print "\tshorten_file_name_if_needed"
 
-def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_path, \
+  if len(model_file_without_pathways) > 50:
+    #print "\tThe length of model_file_without_pathways is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
+    #print "\tTherefore, cryo_fit will copy another short named file."
+    extension = model_file_without_pathways[len(model_file_without_pathways)-4:len(model_file_without_pathways)]
+    new_model_file_without_pathways = model_file_without_pathways[:40] + extension
+    
+    #print "\tmodel_file_without_pathways after shortening: ", new_model_file_without_pathways
+    return new_model_file_without_pathways
+  return model_file_without_pathways
+# end of shorten_file_name_if_needed
+
+def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starting_pdb_without_path, \
            force_field, ignh, missing, remove_metals):
   show_header("Step 1: Make gro and topology file by regular gromacs")
   remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
 
-  #os.chdir (starting_dir)
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
   
-  cp_command_string = "cp " + starting_pdb_with_pathways + " ."
-  #print "\tcp_command_string: ", cp_command_string
+  cp_command_string = "cp " + model_file_with_pathways + " ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   start = time.time()
-
   cp_command_string = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
-  #print "\tcp_command_string: ", cp_command_string
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   if (starting_pdb_without_path.find("_cleaned_for_gromacs") == -1):
@@ -607,9 +546,9 @@ def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, star
   
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
-  #print "\tstarting_pdb_with_pathways:", starting_pdb_with_pathways
+  #print "\tmodel_file_with_pathways:", model_file_with_pathways
   
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(starting_pdb_with_pathways)  
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)  
   if (number_of_atoms_in_input_pdb < 7000): # tRNA for development (transmin1_gro.pdb). This is just for short test purpose only
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 7 seconds to make a gro file.\n"
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
@@ -650,7 +589,7 @@ def step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, star
   print "Step 1", (show_time(start, end))
 # end of step_1 function
 
-def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, \
+def step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
            force_field, perturb_xyz_by, remove_metals):
   show_header("Step 2: Clean gro file to be compatible for amber03 forcefield")
   os.chdir (starting_dir)
@@ -697,9 +636,7 @@ def step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_
   
   # in an effort to work in Karissa's old MacOS
   for check_this_file in glob.glob("*.gro"): # there will be only one file like this
-    #command_string = "mv " + check_this_file + " minimized_cleaned.gro" # this is not minimized yet
     command_string = "mv " + check_this_file + " will_be_minimized_cleaned.gro"
-    #print "\tcommand: ", command_string 
     libtbx.easy_run.call(command_string)
     
   end_time_renaming = time.time()
@@ -1076,22 +1013,21 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
 def search_charge_in_md_log():
   print "\tSearch \"A charge group moved too far between two domain decomposition steps\" in md.log"
   command_string = "grep \"A charge group moved too far between two domain decomposition steps\" md.log > grepped"
-  print "\n\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   returned_file_size = file_size("grepped")
   if (returned_file_size > 0):
     print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
     return 1 # found "charge group..."
+  print "\t\"A charge group moved too far between two domain decomposition steps\" not found in md.log"
   return 0 # not found "charge group..."
 # end of search_charge_in_md_log function
            
 def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-           target_map_with_pathways, output_file_format, output_file_name_prefix):
+         map_file_with_pathways, output_file_name_prefix):
   show_header("Step 8: Run cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
-  #print "\n\tcp_command: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
   this_is_test = False
@@ -1103,13 +1039,14 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\tthis_is_test:", this_is_test
   
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
-              str(number_of_available_cores) + " " + number_of_cores_to_use + " " + target_map_with_pathways\
-              + " " + output_file_format + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
+              str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
+              + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
               + str(this_is_test)
   print "\n\tcommand: ", command_string
   print "\n\tYou can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
+  time_end_cryo_fit = time.time()
   
   # progress is shown to monitor in GUI (but not super-fast), but after run is done
   '''
@@ -1139,32 +1076,22 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   f_in.close()
   '''
   
-  returned = '' # initial value
-  output_file_name = '' # initial value
-  if (output_file_format == "pdb"):
-    for output_file_name in glob.glob("*cryo_fitted.pdb"): # there will be only one *.gro file for step_5
-      returned = check_whether_the_step_was_successfully_ran("Step 8", output_file_name)
-  else:
-    for output_file_name in glob.glob("*cryo_fitted.gro"): # there will be only one *.gro file for step_5
-      returned = check_whether_the_step_was_successfully_ran("Step 8", output_file_name)
-  time_end_cryo_fit = time.time()
+  f_out = open('log.step_8', 'at+')
+  command_string = "cat md.log | grep correlation > cc_record"
+  libtbx.easy_run.fully_buffered(command_string)
+  
+  returned = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
   
   if (returned != "success"):
-    color_print ("Step 8 (Run cryo_fit) didn't run successfully", 'red')
+    print "Step 8 (Run cryo_fit) didn't run successfully"
     logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
     searched = search_charge_in_md_log()
     if searched == 0: # no "charge group... " message in md.log
       return "failed"
     else:
       return "re_run_w_smaller_MD_time_step"
-  
-  f_out = open('log.step_8', 'at+')
-  command_string = "cat md.log | grep correlation > cc_record"
-  print "\n\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-  
+    
   command_string = "cat md.log | grep correlation"
-  #print "\n\tcommand: ", command_string
   correlation_coefficients_change = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
   
   print "\n\tCorrelation coefficient change during cryo_fit\n"
@@ -1230,14 +1157,12 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   f_in.close()
   
   results = dict()
-  results['cc_record'] = cc_record
-  #results['cc_has_been_increased'] = cc_has_been_increased
+  results['cc_record'] = cc_record # results should have ['cc_record'] only, if it has ['cc_has_been_increased'] as well, GUI will error
   
   print "\nStep 8", (show_time(time_start_cryo_fit, time_end_cryo_fit))
   
   os.chdir( starting_dir )
   return results
-  #return results, cc_has_been_increased
 # end of step_8 (cryo_fit itself) function
 
 
@@ -1277,6 +1202,7 @@ def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_b
   print "\nStep final", (show_time(time_start, time_end))
 # end of step_final (arrange output) function
 
+''' not used now, but keep
 def step_9(command_path, starting_dir):
   show_header("Step 9: Show Correlation Coefficient")
   remake_and_move_to_this_folder(starting_dir, "steps/9_draw_cc_commandline")
@@ -1289,7 +1215,7 @@ def step_9(command_path, starting_dir):
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
-  cc_record = starting_pdb_without_pathways[:-4] + "_fitted_to_" + target_map_without_pathways[:-4]
+  cc_record = model_file_without_pathways[:-4] + "_fitted_to_" + map_file_without_pathways[:-4]
   command_string = "cat md.log | grep correlation > " + cc_record
   print "\n\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
@@ -1302,19 +1228,17 @@ def step_9(command_path, starting_dir):
   print "\n\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 #end of step_9 (cc draw) function
-
+'''
   
 def run_cryo_fit(logfile, params, inputs):  
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
-  # works well at macOS commandline and GUI
-  # works well at CentOS commandline
+  # works well at macOS commandline, macOS GUI and CentOS commandline
   # not works at CentOS GUI
   home_dir = expanduser("~")
   home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
   
   print "\thome_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
-  #print "os.path.exists(home_cryo_fit_bin_dir):", os.path.exists(home_cryo_fit_bin_dir)
   
   if (os.path.exists(home_cryo_fit_bin_dir) != True):
       print "\ncryo_fit can't find ", home_cryo_fit_bin_dir
@@ -1341,10 +1265,10 @@ def run_cryo_fit(logfile, params, inputs):
   
   returned = assign_model_map_names(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name, params.cryo_fit.Input.map_file_name)
   
-  starting_pdb_with_pathways = returned[0]
-  starting_pdb_without_pathways = returned[1]
-  target_map_with_pathways = returned[2]
-  target_map_without_pathways = returned[3]
+  model_file_with_pathways = returned[0]
+  model_file_without_pathways = returned[1]
+  map_file_with_pathways = returned[2]
+  map_file_without_pathways = returned[3]
   origin_shifted_to_000 = returned[4]
   shifted_in_x = returned[5]
   shifted_in_y = returned[6]
@@ -1362,8 +1286,8 @@ def run_cryo_fit(logfile, params, inputs):
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
   print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization
-  number_of_steps_for_minimization = determine_number_of_steps_for_minimization(starting_pdb_without_pathways,\
-                                                                            starting_pdb_with_pathways, \
+  number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
+                                                                            model_file_with_pathways, \
                                                                             user_entered_number_of_steps_for_minimization)
   params.cryo_fit.Options.number_of_steps_for_minimization = number_of_steps_for_minimization
   print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (a real value that will be used eventually): ", \
@@ -1371,8 +1295,8 @@ def run_cryo_fit(logfile, params, inputs):
   
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (initial value, not necessarily a real value \
         that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_cryo_fit
-  number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(starting_pdb_without_pathways,\
-                                                                            starting_pdb_with_pathways, \
+  number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(model_file_without_pathways,\
+                                                                            model_file_with_pathways, \
                                                                             user_entered_number_of_steps_for_cryo_fit)
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
@@ -1380,7 +1304,6 @@ def run_cryo_fit(logfile, params, inputs):
   
   # Output
   # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
-  output_file_format = "gro"
   output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix
   
   # Development
@@ -1420,11 +1343,11 @@ def run_cryo_fit(logfile, params, inputs):
   if ((platform.system() == "Linux") and (kill_mdrun_mpirun_in_linux == True)):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
-    step_1(logfile, command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, ignh, missing, remove_metals)
+    step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, ignh, missing, remove_metals)
     logfile.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     
   if (steps_list[1] == True):
-    step_2(command_path, starting_dir, starting_pdb_with_pathways, starting_pdb_without_pathways, force_field, \
+    step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
     logfile.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
   
@@ -1480,8 +1403,8 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-             target_map_with_pathways, output_file_format, output_file_name_prefix)
-      if (starting_pdb_without_pathways == "regression.pdb"): # for regression purpose
+             map_file_with_pathways, output_file_name_prefix)
+      if (model_file_without_pathways == "regression.pdb"): # for regression purpose
         logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
         return results
       if results == "failed":
@@ -1495,7 +1418,7 @@ def run_cryo_fit(logfile, params, inputs):
           break
         os.chdir( starting_dir )
       elif results == "re_run_with_longer_steps":
-        if ((devel == True) or (starting_pdb_without_pathways == "devel.pdb")):
+        if ((devel == True) or (model_file_without_pathways == "devel.pdb")):
           return results
         charge_group_moved = False
         print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n"
@@ -1508,7 +1431,6 @@ def run_cryo_fit(logfile, params, inputs):
           break
         os.chdir( starting_dir )
       else: # normal ending of cryo_fit
-      # results should have results['cc_record'], if it has results['cc_has_been_increased'] as well, GUI will error
         charge_group_moved = False
         cc_has_been_increased = False
          
@@ -1521,7 +1443,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   # keep for now for this cc draw
   #if (steps_list[8] == True):
-  #  step_9(command_path, starting_dir, starting_pdb_without_pathways, target_map_without_pathways)
+  #  step_9(command_path, starting_dir, model_file_without_pathways, map_file_without_pathways)
 # end of run_cryo_fit function
 
 # parse through command line arguments
@@ -1609,8 +1531,17 @@ def cmd_run(args, validated=False, out=sys.stdout):
   time_process_command_line_args_end = time.time()
   #print "\tProcessing command_line_args", show_time(time_process_command_line_args_start, time_process_command_line_args_end)
   
+  '''
   original_model_file = working_params.cryo_fit.Input.model_file_name
+  model_file_with_pathways = os.path.abspath(original_model_file)
+  print ("model_file_with_pathways:",model_file_with_pathways)
+  
   original_map_file = working_params.cryo_fit.Input.map_file_name
+  map_file_with_pathways = os.path.abspath(original_map_file)
+  print ("map_file_with_pathways:",map_file_with_pathways)
+  #STOP()
+  '''
+  
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
   

@@ -2,11 +2,9 @@ import glob, os, subprocess, sys, time
 
 def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, ns_type):
     bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
-    #print "\tbool_enable_mpi:", bool_enable_mpi
     home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     bool_minimization = True
     target_map = '' # no map for minimization
-    output_file_format = '' # no map for minimization
     
     bool_just_get_input_command = False
     command_used = first_prepare_for_minimization_cryo_fit(bool_minimization,\
@@ -14,7 +12,7 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
                                                            home_bin_cryo_fit_bin_dir,\
                                                            ns_type, \
                                                           number_of_available_cores, number_of_cores_to_use,\
-                                                          target_map, output_file_format, "bogus_output_file_name_prefix")
+                                                          target_map, "bogus_output_file_name_prefix")
     
     f_out = open('log.step_4_1_minimization_used_command', 'wt')
     f_out.write(str(command_used[0]))
