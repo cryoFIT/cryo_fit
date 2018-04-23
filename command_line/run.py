@@ -271,12 +271,12 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
     return True 
   
-  print "len(cc_array):",len(cc_array)
-  
+  print "\tlen(cc_array):",len(cc_array)
   
   the_highest_cc = -99
+  cc_last = cc_array[len(cc_array)-1]
   for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
-    cc = cc_array[len(cc_array)-i]
+    cc = cc_array[i]
     print "\ti:",i,"cc:",cc
     if cc > the_highest_cc:
       the_highest_cc = cc
@@ -296,7 +296,6 @@ def check_whether_cc_has_been_increased(cc_record):
   print "\tcc_has_been_increased:",cc_has_been_increased,", cc_has_been_decreased:",cc_has_been_decreased
   if (cc_has_been_increased > cc_has_been_decreased):
     cc_10th_last = cc_array[len(cc_array)-11]
-    cc_last = cc_array[len(cc_array)-1]
     print "cc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
       return True # the last 10 cc values tend to be increased, so re-run with longer steps
