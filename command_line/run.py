@@ -280,8 +280,8 @@ def check_whether_cc_has_been_increased(cc_record):
       cc_has_been_increased = cc_has_been_increased + 1
   print "\tcc_has_been_increased:",cc_has_been_increased,"cc_has_been_decreased:",cc_has_been_decreased
   if (cc_has_been_increased > cc_has_been_decreased-2):
-    cc_last = cc_array[len(cc_array)-1]
-    cc_10th_last = cc_array[len(cc_array)-10]
+    cc_last = cc_array[len(cc_array)-10]
+    cc_10th_last = cc_array[len(cc_array)-1]
     
     the_highest_cc = -99
     for i in xrange(1, 11, 1):
@@ -316,9 +316,6 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
   
-  # if (model_file_without_pathways == "devel.pdb"):
-  #   number_of_steps_for_cryo_fit = 10
-  #   return number_of_steps_for_cryo_fit
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
@@ -336,11 +333,8 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
 def determine_number_of_steps_for_minimization(model_file_without_pathways, \
                                                model_file_with_pathways, \
                                                user_entered_number_of_steps_for_minimization):
-  print "\tDetermine number_of_steps for minimization"
-
   if (user_entered_number_of_steps_for_minimization != None ):
-    print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", \
-            user_entered_number_of_steps_for_minimization
+    print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", user_entered_number_of_steps_for_minimization
     return user_entered_number_of_steps_for_minimization
   if (model_file_without_pathways == "devel.pdb"):
     number_of_steps_for_minimization = 10
