@@ -139,7 +139,7 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 8
+  emweight_multiply_by = 9
     .type = int
     .short_caption = EM weight multiply by
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
@@ -271,11 +271,11 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
     return True 
   
-  cc_10th_last = cc_array[len(cc_array)-1]
-  cc_last = cc_array[len(cc_array)-10]
+  print "len(cc_array):",len(cc_array)
+  
   
   the_highest_cc = -99
-  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
+  for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
     cc = cc_array[len(cc_array)-i]
     print "\ti:",i,"cc:",cc
     if cc > the_highest_cc:
@@ -284,17 +284,24 @@ def check_whether_cc_has_been_increased(cc_record):
   if the_highest_cc == cc_last:
     print "Definitely re-run with longer steps since the_highest_cc = cc_last"
     return True
-    
+
   cc_has_been_increased = 0
-  cc_has_been_decreased = 0  
+  cc_has_been_decreased = 0
+  print "len(cc_has_been_increased_array):",len(cc_has_been_increased_array)
   for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
   print "\tcc_has_been_increased:",cc_has_been_increased,", cc_has_been_decreased:",cc_has_been_decreased
-  if (cc_has_been_increased > cc_has_been_decreased+1):
-    return True # the last 10 cc values tend to be increased, so re-run with longer steps
+  if (cc_has_been_increased > cc_has_been_decreased):
+    cc_10th_last = cc_array[len(cc_array)-11]
+    cc_last = cc_array[len(cc_array)-1]
+    print "cc_10th_last:", cc_10th_last, ", cc_last:", cc_last
+    if (cc_last > cc_10th_last):
+      return True # the last 10 cc values tend to be increased, so re-run with longer steps
+    else:
+      return False
   else:
     return False # the last 10 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
