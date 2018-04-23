@@ -275,6 +275,7 @@ def check_whether_cc_has_been_increased(cc_record):
   
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
+  print "\tcc_last:", cc_last
   for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
     cc = cc_array[i]
     print "\ti:",i,"cc:",cc
@@ -282,12 +283,12 @@ def check_whether_cc_has_been_increased(cc_record):
       the_highest_cc = cc
   print "\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
   if the_highest_cc == cc_last:
-    print "Definitely re-run with longer steps since the_highest_cc = cc_last"
+    print "\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
     return True
 
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
-  print "len(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  print "\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
   for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1
@@ -296,8 +297,9 @@ def check_whether_cc_has_been_increased(cc_record):
   print "\tcc_has_been_increased:",cc_has_been_increased,", cc_has_been_decreased:",cc_has_been_decreased
   if (cc_has_been_increased > cc_has_been_decreased):
     cc_10th_last = cc_array[len(cc_array)-11]
-    print "cc_10th_last:", cc_10th_last, ", cc_last:", cc_last
+    print "\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
+      print "cc_last > cc_10th_last"
       return True # the last 10 cc values tend to be increased, so re-run with longer steps
     else:
       return False
