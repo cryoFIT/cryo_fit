@@ -23,7 +23,6 @@ def extract_gro(target_step):
     result = os.popen(grep_nsteps_string).read()
     splited = result.split()
     nsteps = splited[2]
-    #print "\tnsteps: ", nsteps
     
     total_ps = float(dt)*float(nsteps) 
     print "\tTherefore, total mdrun running time was: ", total_ps, "ps (10^-12) second"

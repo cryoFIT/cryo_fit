@@ -139,7 +139,7 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 10
+  emweight_multiply_by = 8
     .type = int
     .short_caption = EM weight multiply by
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
@@ -188,6 +188,9 @@ Output
     .short_caption = Output prefix
     .help = Prefix for output filename
 }
+devel = False
+  .type = bool
+  .short_caption = If true, just quick check for sanity
 force_field = *amber03 gromos96 
     .type = choice
     .short_caption = Force field
@@ -422,7 +425,7 @@ def validate_params(params): # validation for GUI
 # end of validate_params function
 
 def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_file_name): # 04/23/2018, I need to assign map file first, then model file
-  print "\tassign_map_model_names"
+  print "\tAssign names of map and model files."
   
   params.cryo_fit.Input.map_file_name = map_file_name
   if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
@@ -649,7 +652,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
 # end of step_2 (clean gro) function
 
 def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-           time_step_for_minimization):
+           time_step_for_minimization, devel):
   show_header("Step 3: Make a tpr file for minimization")
   os.chdir (starting_dir)
 
@@ -665,8 +668,11 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
       for line in fin:
         splited = line.split()
         if splited[0] == "nsteps":
-          new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " \
-                    ; Maximum number of minimization steps to perform\n"
+          new_line = ''
+          if (devel == False):
+            new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " ; Maximum number of minimization steps to perform\n"
+          else:
+            new_line = "nsteps  = 10 ; Maximum number of minimization steps to perform\n"
           fout.write(new_line)
         elif splited[0] == "ns_type":
           new_line = "ns_type  = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
@@ -911,8 +917,8 @@ def step_6(command_path, starting_dir):
   return this_is_test
 # end of step_6 (neutralize) function
     
-def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
-           emweight_multiply_by, emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit):
+def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
+           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, devel):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
@@ -949,6 +955,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
           if (emsteps == None):
               #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
               new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/30)) + "\n" # to make cryo_fit step 8 faster
+              #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/40)) + "\n" # to make cryo_fit step 8 faster
               fout.write(new_line)
           else:
             new_line = "emsteps = " + str(emsteps) + "\n"
@@ -971,7 +978,11 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, \
             new_line = "lincs-order  = " + str(lincs_order) + "\n"
             fout.write(new_line)
         elif splited[0] == "nsteps":
-          new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
+          new_line = ''
+          if (devel == False):
+            new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
+          else:
+            new_line = "nsteps  = 100 ; Maximum number of steps to perform cryo_fit\n"
           fout.write(new_line)
         else:
           fout.write(line)
@@ -1006,7 +1017,7 @@ def search_charge_in_md_log():
 # end of search_charge_in_md_log function
            
 def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-         map_file_with_pathways, output_file_name_prefix, no_rerun):
+         map_file_with_pathways, output_file_name_prefix, no_rerun, devel):
   show_header("Step 8: Run cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
@@ -1086,6 +1097,8 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
   print "\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
+  if (devel == True):
+    no_rerun = True
   if (no_rerun == False):
     if cc_has_been_increased == True:
       return "re_run_with_longer_steps"
@@ -1305,6 +1318,7 @@ def run_cryo_fit(logfile, params, inputs):
   output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix
   
   # Development
+  devel = params.cryo_fit.devel
   no_rerun = params.cryo_fit.no_rerun
   force_field = params.cryo_fit.force_field
   ignh = params.cryo_fit.ignh
@@ -1353,7 +1367,7 @@ def run_cryo_fit(logfile, params, inputs):
   if str(constraint_algorithm_minimization) != "none_default": # this is default for "regression"
     if (steps_list[2] == True):
       this_is_test = step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, devel)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
       this_is_test = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
@@ -1361,7 +1375,7 @@ def run_cryo_fit(logfile, params, inputs):
   else: #str(constraint_algorithm_minimization) = "none_default"
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, devel)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
@@ -1376,7 +1390,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, devel)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
@@ -1401,12 +1415,12 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[6] == True):
       this_is_test = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-             emwritefrequency, lincs_order, time_step_for_cryo_fit)
+             emwritefrequency, lincs_order, time_step_for_cryo_fit, devel)
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
     
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, output_file_name_prefix, no_rerun)
+             map_file_with_pathways, output_file_name_prefix, no_rerun, devel)
       if (results == True): # this is a test
         break  
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose

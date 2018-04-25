@@ -13,58 +13,21 @@ command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
 
-command_path = command_path + "modules/cryo_fit/"
-# capital letter does matter, so I'm uniting into cryo_fit
-#command_path = command_path + "modules/cryofit/"
-
+command_path = command_path + "modules/cryo_fit/" # capital letter does matter, so I'm uniting into cryo_fit
 
 common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
-#from common_functions import * # ImportError: No module named libtbx at doonam's newest personal macbookpro
-from common_functions_without_libtbx import  *
 
-def get_FFTW_INSTALL_path (home_dir):
-  color_print ("Hit enter key to locate FFTW install path", 'green')
-  raw_input()
+from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
+#from common_functions_without_libtbx import  *
 
-  command_script = "ls -d " + home_dir + "/bin/fftw*"
-  color_print ("command: ", 'green')
-  print command_script
-  FFTW_INSTALL = subprocess.check_output(command_script,
-                                   stderr=subprocess.STDOUT,
-                                   shell=True)
-  print "A folder that installed FFTW: ", FFTW_INSTALL
-  if ((FFTW_INSTALL) == False):
-      print "Your computer seem to not have installed fftw yet."
-      print "Please FULLY install fftw first before installing this cryo_fit, because the cryo_fit installation needs to specify fftw installation folder location."
-      print "You are welcome to download the fftw at http://www.fftw.org/download.html"
-      print "Then, you may install the fftw, for example, python /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit/steps/0_install_cryo_fit/2_runme_to_install_fftw.py fftw-3.3.6-pl2.tar.gz"
-      print "Hit enter key to exit."
-      raw_input()
-      exit(1)
 
-  FFTW_INSTALL = FFTW_INSTALL[:-1]
-  print "User's computer seems to have installed fftw already at: ", FFTW_INSTALL
-  
-  command_string = "export CPPFLAGS=-I" + FFTW_INSTALL + "/include/"
-  color_print ("command: ", 'green')
-  print command_string
-  libtbx.easy_run.call(command=command_string)
-
-  command_string = "export LDFLAGS=-L" + FFTW_INSTALL + "/lib/"
-  color_print ("command: ", 'green')
-  print command_string
-  libtbx.easy_run.call(command=command_string)
-  
-  return FFTW_INSTALL
-# end of get_FFTW_INSTALL_path function
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
   raw_input()
   
-  command_string = "make distclean"
-  # use distclean, not clean #http://www.gromacs.org/Documentation/Installation_Instructions_4.5
+  command_string = "make distclean" # use distclean, not clean #http://www.gromacs.org/Documentation/Installation_Instructions_4.5
   color_print ("command: ", 'green')
   print command_string
   libtbx.easy_run.call(command=command_string)  
@@ -114,8 +77,8 @@ def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable
     if (enter_all != "1"):
       color_print ("\nHit enter key to configure.", 'green')
       raw_input()
-    #libtbx.easy_run.call(command=command_string)
-    os.system(command_string)
+    libtbx.easy_run.call(command=command_string)
+    #os.system(command_string) # sometimes this is needed because libtbx.easy_run doesn't work
   
   print '#'*105
   color_print ("\n\nCheck whether it was configured without any error.", 'green')
@@ -150,22 +113,52 @@ def configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable
     color_print ("OK, I'm glad to hear that your configuration went well.", 'green')
     
   end_time_configure = time.time()
-  color_print ((show_time("configuration", start_time_configure, end_time_configure)), 'green')
+  print "configuration"
+  color_print ((show_time(start_time_configure, end_time_configure)), 'green')
   if (enter_all != "1"):
     color_print ("\nHit enter key to continue.", 'green')
     raw_input()
 # end of configure_cryo_fit function
 
-def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
-  if os.path.isdir(GMX_MD_INSTALL):
-    command_script = "rm -rf " + GMX_MD_INSTALL
-    color_print ("command: ", 'green')
-    print command_script, "\n"
-    os.system(command_script)
-  command_script = "mkdir -p " + GMX_MD_INSTALL
-  color_print ("\ncommand: ", 'green')
-  print command_script, "\n"
-  os.system(command_script)
+
+''' # keep for now
+def get_FFTW_INSTALL_path (home_dir):
+  color_print ("Hit enter key to locate FFTW install path", 'green')
+  raw_input()
+
+  command_script = "ls -d " + home_dir + "/bin/fftw*"
+  color_print ("command: ", 'green')
+  print command_script
+  FFTW_INSTALL = subprocess.check_output(command_script,
+                                   stderr=subprocess.STDOUT,
+                                   shell=True)
+  print "A folder that installed FFTW: ", FFTW_INSTALL
+  if ((FFTW_INSTALL) == False):
+      print "Your computer seem to not have installed fftw yet."
+      print "Please FULLY install fftw first before installing this cryo_fit, because the cryo_fit installation needs to specify fftw installation folder location."
+      print "You are welcome to download the fftw at http://www.fftw.org/download.html"
+      print "Then, you may install the fftw, for example, python /Users/doonam/bin/phenix-dev-2747/modules/cryo_fit/steps/0_install_cryo_fit/2_runme_to_install_fftw.py fftw-3.3.6-pl2.tar.gz"
+      print "Hit enter key to exit."
+      raw_input()
+      exit(1)
+
+  FFTW_INSTALL = FFTW_INSTALL[:-1]
+  print "User's computer seems to have installed fftw already at: ", FFTW_INSTALL
+  
+  command_string = "export CPPFLAGS=-I" + FFTW_INSTALL + "/include/"
+  color_print ("command: ", 'green')
+  print command_string
+  libtbx.easy_run.call(command=command_string)
+
+  command_string = "export LDFLAGS=-L" + FFTW_INSTALL + "/lib/"
+  color_print ("command: ", 'green')
+  print command_string
+  libtbx.easy_run.call(command=command_string)
+  
+  return FFTW_INSTALL
+# end of get_FFTW_INSTALL_path function
+'''
+
     
 def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
@@ -188,41 +181,12 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   home_dir = expanduser("~")
   GMX_MD_INSTALL = home_dir + "/bin/" + gromacs_cryo_fit_file_name
     
-  # color_print ("\nDo you want to install with mpi enabled? (Hi Nigel, please type N)", 'green')
-  # color_print ("Unless users are confident with relatively newer version of \
-  #              openmpi and plan to use more than 16 cores, \"N\" is recommended", 'green')
-  # color_print ("Type either Y or N and hit enter.", 'green')
-  # enable_mpi = raw_input()
-  
   # to avoid network related warning message during GUI based cryo_fit in MacOS,
   # and to avoid some version related mpi failure (like Karissa's case),
   # enable_mpi = "N" by default, enable_mpi = "N" will support most cores
   # (like 32 cores) anyway, and runs with same speed as with enable_mpi=Y
-  enable_mpi = "N"
+  enable_mpi = "N" # "mpi will not be enabled during configuration. Threads will be used instead."
   
-  ''' #deprecated
-  if (enable_mpi == "Y"):
-    color_print ("mpi will be enabled during configuration. Threads will not be used.", 'green')
-  else:
-    color_print ("mpi will not be enabled during configuration. Threads will be used instead.", 'green')
-  
-  color_print ("\nHit enter key to continue.", 'green')
-  raw_input()
-  '''
-  
-  ''' # for development purpose only
-  color_print ("\nDo you want to install with FFTW enabled? (Hi Nigel, please type N)", 'green')
-  color_print ("Type either Y or N and hit enter.", 'green')
-  enable_fftw = raw_input()
-  if (enable_fftw == "N"):
-    color_print ("FFTW will not be enabled during configuration, fftpack will be used instead.", 'green')
-    color_print ("\nHit enter key to continue.", 'green')
-    raw_input()
-  else:
-    color_print ("FFTW will be enabled during configuration.", 'green')
-    color_print ("\nHit enter key to continue.", 'green')
-    raw_input()
-  '''
   enable_fftw = "N"
   
   if (enable_mpi == "Y"):
@@ -255,7 +219,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("\ncommand:  cd ~/src", 'green')
     os.chdir(src_dir)
   
-  else: #unzip please
+  else: #unzip
     print "remove a former src folder"
     if os.path.isdir(GMX_MD_SRC):
       print GMX_MD_SRC
@@ -264,7 +228,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
       command_string = "rm -rf " + GMX_MD_SRC
       color_print ("command: ", 'green')
       print command_string, "\n"
-      os.system(command_string)
+      libtbx.easy_run.call(command=command_string)
+      #os.system(command_string)
 
       print "\n", GMX_MD_INSTALL
       color_print ("was made", 'green')
@@ -274,8 +239,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
       command_string = "cp " + zipped_file + " ~/src"
       color_print ("command: ", 'green')
       print command_string
-      #libtbx.easy_run.call(command=command_string)
-      os.system(command_string)
+      libtbx.easy_run.call(command=command_string)
+      #os.system(command_string)
   
     start_time_unzip = time.time()
     color_print ("\ncommand:  cd ~/src", 'green')
@@ -293,12 +258,13 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     if (enter_all != "1"):
       color_print ("\nHit enter key to continue.", 'green')
       raw_input()
-    #libtbx.easy_run.call(command=command_string)
-    os.system(command_string)
+    libtbx.easy_run.call(command=command_string)
+    #os.system(command_string)
     
     end_time_unzip = time.time()
     message = "unzipping " + zipped_file
-    color_print ((show_time(message, start_time_unzip, end_time_unzip)), 'green')
+    print message
+    color_print ((show_time(start_time_unzip, end_time_unzip)), 'green')
   
   configure_cryo_fit (home_dir, GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
@@ -359,7 +325,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   else:
     color_print ("OK, I'm glad to hear that your Make went well.", 'green')
     
-  color_print ((show_time ("Make", start_time_make, end_time_make)), 'green')
+  print "Make"
+  color_print ((show_time (start_time_make, end_time_make)), 'green')
   
   if (enter_all != "1"):
     color_print ("\nHit enter key to continue.", 'green')
@@ -379,8 +346,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   if (enter_all != "1"):
     color_print ("\nHit enter key to install cryo_fit.", 'green')
     raw_input()
-  #libtbx.easy_run.call(command=make_install_command_string)
-  os.system(make_install_command_string)
+  libtbx.easy_run.call(command=make_install_command_string)
+  #os.system(make_install_command_string)
   print '#'*105
   color_print ("\n\nCheck whether the installation was done without any error.\n", 'green')
   color_print ("Was your installation ended with this kind of message?", 'green')
@@ -389,6 +356,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\t...\"If you want links to the executables in /usr/local/bin,", 'green')  
   color_print ("\t   you can issue \"make links\" now.", 'green')   
   color_print ("\t   make[2]: Nothing to be done for `install-data-am'.\"\n\n", 'green')
+  
+  install_result = '' # just initial value
   
   if (enter_all != "1"):
     color_print ("Press Y or N and enter key.", 'green')
@@ -407,11 +376,22 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("exit now", 'red')
     exit(1)
   else:
-    color_print ("OK, I'm glad to hear that your installation went well.", 'green')
+    check_this_file = home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin/mdrun"
+    print "Check whether ", check_this_file, " exists."
+    returned_file_size = ''
+    if (os.path.isfile(check_this_file)):
+      returned_file_size = file_size(check_this_file)
+    if (returned_file_size > 0):
+      print "Successful installation. cryo_fit can find mdrun executable in " + home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
+    else:
+      print "Not successful installation, cryo_fit can't find mdrun executable in " + home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
+      color_print ("exit now", 'red')
+      exit(1)
     
   end_time_install = time.time()
-
-  color_print ((show_time ("The final installation of cryo_fit", start_time_install, end_time_install)), 'green')
+  
+  print "The final installation of cryo_fit"
+  color_print ((show_time (start_time_install, end_time_install)), 'green')
   
   if (enable_mpi == "Y"):
     command_string = "\nexport TMPDIR=/tmp"
@@ -425,10 +405,21 @@ def install_gromacs_cryo_fit(zipped_file, *args):
 ######## Doonam needs to code to edit .bashrc automatically
     raw_input()
     
-  if (enter_all != "1"):
-    color_print ("\nHit enter key to finish", 'green')
-    raw_input()
 # end of install_gromacs_cryo_fit function
+
+def remake_GMX_MD_INSTALL(GMX_MD_INSTALL):
+  if os.path.isdir(GMX_MD_INSTALL):
+    command_string = "rm -rf " + GMX_MD_INSTALL
+    color_print ("command: ", 'green')
+    print command_string, "\n"
+    libtbx.easy_run.call(command=command_string)
+    #os.system(command_script)
+  command_string = "mkdir -p " + GMX_MD_INSTALL
+  color_print ("\ncommand: ", 'green')
+  print command_string, "\n"
+  libtbx.easy_run.call(command=command_string)
+  #os.system(command_script)
+# end of remake_GMX_MD_INSTALL function
 
 if (__name__ == "__main__") :
   total_start_time = time.time()
@@ -478,4 +469,5 @@ if (__name__ == "__main__") :
         exit(1)
       install_gromacs_cryo_fit(zipped_file, enter_all)
   total_end_time = time.time()
-  color_print ((show_time("Total cryo_fit installation", total_start_time, total_end_time)), 'green')
+  print "Total cryo_fit installation"
+  color_print ((show_time(total_start_time, total_end_time)), 'green')

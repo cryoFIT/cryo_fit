@@ -63,7 +63,6 @@ def retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_nu
                   return first_line_num_matching_pair
 # end of retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_num):
 
-
 def retrieve_chain(seeking_res, seeking_res_num, TER_number):
    pdb_before_cryo_fit_in = open(pdb_before_cryo_fit)
    TER_counted = 0
