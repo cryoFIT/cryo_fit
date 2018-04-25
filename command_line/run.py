@@ -322,7 +322,11 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
 # end of check_whether_the_step_was_successfully_ran function
 
 def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
-                                          user_entered_number_of_steps_for_cryo_fit):
+                                          user_entered_number_of_steps_for_cryo_fit, devel):
+  if (devel == True):
+    number_of_steps_for_cryo_fit = 100
+    return number_of_steps_for_cryo_fit
+  
   if (user_entered_number_of_steps_for_cryo_fit != None ):
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
@@ -343,13 +347,14 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
 
 def determine_number_of_steps_for_minimization(model_file_without_pathways, \
                                                model_file_with_pathways, \
-                                               user_entered_number_of_steps_for_minimization):
+                                               user_entered_number_of_steps_for_minimization, devel):
+  if (devel == True):
+    number_of_steps_for_minimization = 10
+    return number_of_steps_for_minimization
   if (user_entered_number_of_steps_for_minimization != None ):
     print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", user_entered_number_of_steps_for_minimization
     return user_entered_number_of_steps_for_minimization
-  if (model_file_without_pathways == "devel.pdb"):
-    number_of_steps_for_minimization = 10
-    return number_of_steps_for_minimization
+
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_minimization = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
@@ -652,7 +657,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
 # end of step_2 (clean gro) function
 
 def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-           time_step_for_minimization, devel):
+           time_step_for_minimization):
   show_header("Step 3: Make a tpr file for minimization")
   os.chdir (starting_dir)
 
@@ -668,11 +673,7 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
       for line in fin:
         splited = line.split()
         if splited[0] == "nsteps":
-          new_line = ''
-          if (devel == False):
-            new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " ; Maximum number of minimization steps to perform\n"
-          else:
-            new_line = "nsteps  = 10 ; Maximum number of minimization steps to perform\n"
+          new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " ; Maximum number of minimization steps to perform\n"
           fout.write(new_line)
         elif splited[0] == "ns_type":
           new_line = "ns_type  = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
@@ -918,7 +919,7 @@ def step_6(command_path, starting_dir):
 # end of step_6 (neutralize) function
     
 def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
-           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, devel):
+           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
@@ -978,11 +979,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
             new_line = "lincs-order  = " + str(lincs_order) + "\n"
             fout.write(new_line)
         elif splited[0] == "nsteps":
-          new_line = ''
-          if (devel == False):
-            new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
-          else:
-            new_line = "nsteps  = 300 ; Maximum number of steps to perform cryo_fit\n"
+          new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
           fout.write(new_line)
         else:
           fout.write(line)
@@ -1298,27 +1295,10 @@ def run_cryo_fit(logfile, params, inputs):
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
-  #print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (initial value, not necessarily a real value that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_minimization
-  number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
-                                                                            model_file_with_pathways, \
-                                                                            user_entered_number_of_steps_for_minimization)
-  params.cryo_fit.Options.number_of_steps_for_minimization = number_of_steps_for_minimization
-  print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (a real value that will be used eventually): ", \
-    params.cryo_fit.Options.number_of_steps_for_minimization
-  
-  #print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (initial value, not necessarily a real value that will be used eventually): ", params.cryo_fit.Options.number_of_steps_for_cryo_fit
-  number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(model_file_without_pathways,\
-                                                                            model_file_with_pathways, \
-                                                                            user_entered_number_of_steps_for_cryo_fit)
-  params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
-  print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
-    params.cryo_fit.Options.number_of_steps_for_cryo_fit
-  
   # Output
-  # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
-  output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix
+  output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
   
-  # Development
+  # Development options
   devel = params.cryo_fit.devel
   no_rerun = params.cryo_fit.no_rerun
   force_field = params.cryo_fit.force_field
@@ -1330,6 +1310,20 @@ def run_cryo_fit(logfile, params, inputs):
   number_of_cores_to_use = params.cryo_fit.number_of_cores_to_use
   perturb_xyz_by = params.cryo_fit.perturb_xyz_by
   remove_metals = params.cryo_fit.remove_metals
+  
+  number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
+                                                                            model_file_with_pathways, \
+                                                                            user_entered_number_of_steps_for_minimization, devel)
+  params.cryo_fit.Options.number_of_steps_for_minimization = number_of_steps_for_minimization
+  print "\tparams.cryo_fit.Options.number_of_steps_for_minimization (a real value that will be used eventually): ", \
+    params.cryo_fit.Options.number_of_steps_for_minimization
+  
+  number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(model_file_without_pathways,\
+                                                                            model_file_with_pathways, \
+                                                                            user_entered_number_of_steps_for_cryo_fit, devel)
+  params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
+  print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
+    params.cryo_fit.Options.number_of_steps_for_cryo_fit
   
   steps_list = [bool_step_1, bool_step_2, bool_step_3, bool_step_4, bool_step_5, bool_step_6, bool_step_7\
                 , bool_step_8, bool_step_9]
@@ -1368,7 +1362,7 @@ def run_cryo_fit(logfile, params, inputs):
   if str(constraint_algorithm_minimization) != "none_default": # this is default for "regression"
     if (steps_list[2] == True):
       this_is_test = step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-             time_step_for_minimization, devel)
+             time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
       this_is_test = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
@@ -1376,7 +1370,7 @@ def run_cryo_fit(logfile, params, inputs):
   else: #str(constraint_algorithm_minimization) = "none_default"
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
-             time_step_for_minimization, devel)
+             time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
@@ -1391,7 +1385,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[2] == True):
       step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
-             time_step_for_minimization, devel)
+             time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
@@ -1416,7 +1410,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[6] == True):
       this_is_test = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-             emwritefrequency, lincs_order, time_step_for_cryo_fit, devel)
+             emwritefrequency, lincs_order, time_step_for_cryo_fit)
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
     
     if (steps_list[7] == True):
