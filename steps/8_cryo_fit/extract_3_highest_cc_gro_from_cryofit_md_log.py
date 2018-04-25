@@ -4,7 +4,7 @@ from os.path import expanduser # to find home_dir
 args=sys.argv[1:]
 this_is_test = args[0]
 
-def extract_gro(target_step):
+def extract_gro(target_step, i):
     for_cryo_fit_mdp_location = ''
     print "\tthis_is_test in extrating:", this_is_test
     if this_is_test == "False":
@@ -38,6 +38,12 @@ def extract_gro(target_step):
     cmd = home_bin_cryo_fit_bin_dir + "/trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     os.system(cmd)
+    
+    if (i == 0):
+        print "\tThis has the highest cc, so rename it"
+        cmd = "mv " + output_gro_name + " cryo_fitted.gro"
+        print "cmd:", cmd
+        os.system(cmd)
 # end of extract_gro function
 
 if (__name__ == "__main__") :
@@ -50,4 +56,4 @@ if (__name__ == "__main__") :
         splited = result[i].split()
         target_step = splited[1]
         print "\ttarget_step: ", target_step
-        extract_gro(target_step)
+        extract_gro(target_step, i)

@@ -982,7 +982,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           if (devel == False):
             new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
           else:
-            new_line = "nsteps  = 100 ; Maximum number of steps to perform cryo_fit\n"
+            new_line = "nsteps  = 300 ; Maximum number of steps to perform cryo_fit\n"
           fout.write(new_line)
         else:
           fout.write(line)
@@ -1197,9 +1197,10 @@ def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_b
     trivial_command_string = "rm *_chain_recovered.pdb"
     libtbx.easy_run.fully_buffered(trivial_command_string)
   
-  print "\n\tA finally fitted bio-molecule to user's cryo-EM map is cryo_fitted_chain_recovered.pdb in output folder"
-  print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the the highest CC/stereochemistry."
-  print "\tA user may use extracted_x_steps_x_ps.gro/pdb in output folder as well."
+  print "\n\tAll results files are in output folder"
+  print "\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
+  print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
+  print "\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
