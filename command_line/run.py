@@ -1136,9 +1136,9 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   if (this_is_test == False): # recover chain information
     print "\tthis_is_test = False"
     for pdb_in_step8 in glob.glob("*.pdb"):
-        command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
-        print "\tcommand: ", command_string
-        libtbx.easy_run.fully_buffered(command_string)
+      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
+      print "\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
       
   f_in = open('cc_record')
   cc_record = list()

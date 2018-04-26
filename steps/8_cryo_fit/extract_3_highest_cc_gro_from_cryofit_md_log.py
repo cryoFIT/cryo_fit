@@ -42,7 +42,7 @@ def extract_gro(target_step, i):
     if (i == 0):
         print "\tThis has the highest cc, so rename it"
         cmd = "mv " + output_gro_name + " cryo_fitted.gro"
-        print "cmd:", cmd
+        print "\tcmd:", cmd
         os.system(cmd)
 # end of extract_gro function
 

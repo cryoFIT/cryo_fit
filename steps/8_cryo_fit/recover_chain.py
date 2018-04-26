@@ -25,6 +25,8 @@ def count_TER_before_this(pdb_before_cryo_fit, count_TER_until_this_line):
    TER_number = 0
    for line_before_cryo_fit in pdb_before_cryo_fit_in:
       line_num = line_num + 1
+      #print "line_num:",line_num, " in count_TER_before_this()"
+      #print "count_TER_until_this_line:",count_TER_until_this_line
       if int(line_num) < int(count_TER_until_this_line):
          if line_before_cryo_fit[:3] == "TER":
             TER_number = TER_number + 1
@@ -37,10 +39,13 @@ def retrieve_1st_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_re
    line_num = 0
    for line_before_cryo_fit in pdb_before_cryo_fit_in:
       line_num = line_num + 1
-      if line_before_cryo_fit[:4] == "ATOM":
+      #if line_before_cryo_fit[:4] == "ATOM":
+      if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
          res = line_before_cryo_fit[17:20]
          res_num = line_before_cryo_fit[23:27]
-         if str(res) == str(seeking_res):
+         #print "res:",res," res_num:",res_num, " in retrieve_1st_line_matching_pair()"
+         #if str(res) == str(seeking_res):
+         if str(res.strip()) == str(seeking_res.strip()):
             if int(res_num) == int(seeking_res_num):
                first_line_num_matching_pair = line_num
                pdb_before_cryo_fit_in.close()
@@ -48,15 +53,18 @@ def retrieve_1st_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_re
 # end of retrieve_1st_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_num):
 
 def retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_num, after_this_line_num_in_ori_pdb):
+   #print "after_this_line_num_in_ori_pdb:"+ str(after_this_line_num_in_ori_pdb) + " in retrieve_line_matching_pair()"
    pdb_before_cryo_fit_in = open(pdb_before_cryo_fit)
    line_num = 0
    for line_before_cryo_fit in pdb_before_cryo_fit_in:
       line_num = line_num + 1
       if line_num > after_this_line_num_in_ori_pdb:
-         if line_before_cryo_fit[:4] == "ATOM":
+         #if line_before_cryo_fit[:4] == "ATOM":
+         if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
             res = line_before_cryo_fit[17:20]
             res_num = line_before_cryo_fit[23:27]
-            if str(res) == str(seeking_res):
+            #if str(res) == str(seeking_res):
+            if str(res.strip()) == str(seeking_res.strip()):
                if int(res_num) == int(seeking_res_num):
                   first_line_num_matching_pair = line_num
                   pdb_before_cryo_fit_in.close()
@@ -73,7 +81,8 @@ def retrieve_chain(seeking_res, seeking_res_num, TER_number):
       if TER_can == "TER":
          TER_counted = TER_counted + 1
          pass
-      if line_before_cryo_fit[:4] == "ATOM":
+      #if line_before_cryo_fit[:4] == "ATOM" # not works for chimera fitted pdb
+      if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
          chain = line_before_cryo_fit[20:22]
          res_num = line_before_cryo_fit[23:27]
          if str(res) == str(seeking_res):
@@ -88,7 +97,7 @@ def retrieve_chain(seeking_res, seeking_res_num, TER_number):
 # end of retrieve_chain(seeking_res, seeking_res_num, TER_number):
 
 line_num = 0
-first_chain_retrieved = 0
+first_chain_retrieved = False
 for line in pdb_after_cryo_fit_in:
    line_num = line_num + 1
    if line[:5] == "CRYST" or line[:3] == "END" or line[:6] == "HETATM" or \
@@ -98,13 +107,15 @@ for line in pdb_after_cryo_fit_in:
       res = line[17:20]
       res_num = line[23:27]
       line_num_matching_pair = ''
-      if first_chain_retrieved == 0:
+      #print pdb_after_cryo_fit + "'s " + " res:",res," res_num:",res_num, " in main function"
+      if first_chain_retrieved == False:
          line_num_matching_pair = retrieve_1st_line_matching_pair(pdb_before_cryo_fit, res, res_num)
       else:
          line_num_matching_pair = retrieve_line_matching_pair(pdb_before_cryo_fit, res, res_num, after_this_line_num_in_ori_pdb)
+      #print "line_num_matching_pair:",line_num_matching_pair, " in main function"
       TER_number = count_TER_before_this(pdb_before_cryo_fit, line_num_matching_pair)
       retrieved_chain, after_this_line_num_in_ori_pdb = retrieve_chain(res, res_num, TER_number)
-      first_chain_retrieved = 1
+      first_chain_retrieved = True
       new_line = ''
       if retrieved_chain == "not_retrieved":
          new_line = line[:20] + "  " + line[22:]
