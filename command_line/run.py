@@ -50,17 +50,16 @@ Input:
          density map structurally (for example by USCF chimera)
     - A .ccp4 (MRC) or .map (MRC) or .sit (Situs) file, a cryo EM density map 
     
-Output:
-    - cryo_fitted.x in steps/8_cryo_fit folder: Fitted biomolecule structure to a target cryo-EM map
-    - Correlation coefficient record: Record of correlation coefficient 
-      between cryo-EM map and current biomolecule structure will be printed 
-      on the screen during cryo_fit and after cryo_fit
+Output folder:
+    - cryo_fitted.x: Fitted biomolecule structure to a target cryo-EM map
+    - Correlation coefficient record: Record of correlation coefficient between cryo-EM map
+    and current biomolecule structure
       
 Usage example with minimum input requirements (all other options will run with default values):
-    - phenix.cryo_fit transmin1_gro.pdb H40-H44_0.5A.map
+    - phenix.cryo_fit tRNA.pdb tRNA.map
 
-Usage example with step 1~5 only
-    - phenix.cryo_fit transmin1_gro.pdb H40-H44_0.5A.map step_6=False step_7=False
+Usage example with step 7~8 only
+    - phenix.cryo_fit tRNA.pdb tRNA.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
     
 Most useful options (GUI has more explanation about these):
     - number_of_cores_to_use

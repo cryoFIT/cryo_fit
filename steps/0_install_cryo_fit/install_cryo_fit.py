@@ -12,7 +12,6 @@ splited = path.split("/")
 
 # (works) /Users/doonam/bin/phenix-1.13rc1-2961/modules/cryo_fit
 # (works) /Applications/phenix-dev-3120/modules/cryo_fit
-
 command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
@@ -20,15 +19,11 @@ for i in range(len(splited)-3):
 command_path = command_path + "modules/cryo_fit/" # capital letter does matter, so I'm uniting into cryo_fit
 print "command_path:",command_path
 
-
-
 common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
 
 from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
 #from common_functions_without_libtbx import  *
-
-
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
