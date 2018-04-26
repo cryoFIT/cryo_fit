@@ -9,11 +9,18 @@ import platform
 # this is needed to import all common functions
 path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
+
+# (works) /Users/doonam/bin/phenix-1.13rc1-2961/modules/cryo_fit
+# (works) /Applications/phenix-dev-3120/modules/cryo_fit
+
 command_path = ''
 for i in range(len(splited)-3):
   command_path = command_path + splited[i] + "/"
-
+  
 command_path = command_path + "modules/cryo_fit/" # capital letter does matter, so I'm uniting into cryo_fit
+print "command_path:",command_path
+
+
 
 common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
@@ -390,7 +397,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     
   end_time_install = time.time()
   
-  print "The final installation of cryo_fit"
+  print "\nThe final installation of cryo_fit"
   color_print ((show_time (start_time_install, end_time_install)), 'green')
   
   if (enable_mpi == "Y"):
@@ -469,5 +476,5 @@ if (__name__ == "__main__") :
         exit(1)
       install_gromacs_cryo_fit(zipped_file, enter_all)
   total_end_time = time.time()
-  print "Total cryo_fit installation"
+  print "\nTotal cryo_fit installation"
   color_print ((show_time(total_start_time, total_end_time)), 'green')
