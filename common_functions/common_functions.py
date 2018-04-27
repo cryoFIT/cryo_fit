@@ -391,6 +391,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\tConvert mrc format map to situs format map"
+    print "\t(If user's map is big like ~300MB mrc file, this conversion may take ~10 minutes requiring few Gigabytes)\n"
     
     new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
     f_out = open(new_map_file_name, 'wt')
