@@ -1,4 +1,5 @@
 # author: Doonam
+# purpose: confirmed to be essential for molprobity to run with Dieter's pdb file
 import glob, os, sys
 
 def add_new_element(input_pdb_file_name):

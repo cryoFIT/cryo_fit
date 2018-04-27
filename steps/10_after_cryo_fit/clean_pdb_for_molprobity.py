@@ -1,5 +1,5 @@
 # author: Doonam
-# purpose: essential for molprobity to run
+# purpose: confirmed to be essential for molprobity to run with Dieter's pdb file
 
 import glob, os, sys
 

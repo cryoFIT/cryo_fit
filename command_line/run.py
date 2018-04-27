@@ -1232,6 +1232,10 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     logfile.write("Step final (arrange output) didn't run successfully\n")
     exit(1)
   
+  for py in glob.glob("*.py"): # most users will not need *.py
+    run_this = "rm " + py
+    libtbx.easy_run.call(run_this)
+    
   logfile.write("Step final (arrange output) is successfully ran\n")
   time_end = time.time()
   print "\nStep final", (show_time(time_start, time_end))
