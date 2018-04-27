@@ -459,7 +459,7 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
   widthx = 1 # just an initial value
   
   temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
@@ -475,7 +475,7 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
     widthx = returned[6]
     
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
-  print "\tmap_file_with_pathways:",map_file_with_pathways
+  print "\t\tmap_file_with_pathways:",map_file_with_pathways
   if map_file_with_pathways[:-4] == ".map":
     map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
   
@@ -485,7 +485,7 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
   #print "\tmap_file_without_pathways:",map_file_without_pathways
   
   if os.path.isfile(map_file_with_pathways) != True:
-    print "map_file_with_pathways is wrong"
+    print "\tmap_file_with_pathways is wrong"
     exit(1)
   
   
@@ -495,19 +495,19 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
   model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
   if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
-    print "\tSince a user provided .cif file, let's turn it into .pdb"
+    print "\t\tSince a user provided .cif file, let's turn it into .pdb"
     cif_as_pdb(params.cryo_fit.Input.model_file_name)
     cw_dir = os.getcwd()
     params.cryo_fit.Input.model_file_name = cw_dir + "/" + model_file_without_pathways
     params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
   elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\tSince a user provided .ent file, let's simply change its extension into .pdb"
+    print "\t\tSince a user provided .ent file, let's simply change its extension into .pdb"
     params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
   
   model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
-  print "\tmodel_file_with_pathways:",model_file_with_pathways
+  print "\t\tmodel_file_with_pathways:",model_file_with_pathways
   if os.path.isfile(model_file_with_pathways) != True:
-    print "model_file_with_pathways is wrong"
+    print "\t\tmodel_file_with_pathways is wrong"
     exit(1)
     
   splited_model_file_name = model_file_with_pathways.split("/")
@@ -519,7 +519,7 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
 # end of assign_map_model_names()
 
 def shorten_file_name_if_needed(model_file_without_pathways):
-  print "\tshorten_file_name_if_needed"
+  print "\tShorten_file_name_if_needed"
 
   if len(model_file_without_pathways) > 50:
     #print "\tThe length of model_file_without_pathways is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
@@ -963,10 +963,9 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
+              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/60)) + "\n" # to make cryo_fit step 8 faster
               #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
               # when emsteps is too sparse, cc went to become worse
-              #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/30)) + "\n" # to make cryo_fit step 8 faster
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/50)) + "\n" # to make cryo_fit step 8 faster
               fout.write(new_line)
           else:
             new_line = "emsteps = " + str(emsteps) + "\n"
@@ -1209,9 +1208,9 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     libtbx.easy_run.fully_buffered(trivial_command_string)
   
   print "\n\tAll results files are in output folder"
-  print "\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
-  print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
-  print "\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
+  print "\t\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
+  print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
+  print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):

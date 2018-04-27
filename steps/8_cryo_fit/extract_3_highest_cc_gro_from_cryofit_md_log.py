@@ -6,10 +6,11 @@ this_is_test = args[0]
 
 def extract_gro(target_step, i):
     for_cryo_fit_mdp_location = ''
-    print "\tthis_is_test in extrating:", this_is_test
+    
     if this_is_test == "False":
         for_cryo_fit_mdp_location = "../7_make_tpr_with_disre2/for_cryo_fit.mdp"
     else:
+        print "\tthis_is_test in extract_gro:", this_is_test
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
         
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
@@ -17,7 +18,6 @@ def extract_gro(target_step, i):
     result = os.popen(grep_dt_string).read()
     splited = result.split()
     dt = splited[2]
-    #print "\tdt: ", dt
     
     grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
     result = os.popen(grep_nsteps_string).read()
@@ -41,9 +41,12 @@ def extract_gro(target_step, i):
     
     if (i == 0):
         print "\tThis has the highest cc"
-        if (target_step == 0):
+        if (target_step == "0"): # works as expected
             print "\tHowever, it was the initial model that a user provided"
             print "\tso don't rename it"
+            cmd = "rm cryo_fitted.gro"
+            print "\tcmd:", cmd
+            os.system(cmd)
         else:
             print "\tso rename it"
             cmd = "mv " + output_gro_name + " cryo_fitted.gro"
