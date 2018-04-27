@@ -54,7 +54,7 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   
   #output_pdb_file_name = remove_OXT (output_pdb_file_name)
   # I removed OXT in user's pdb for a pdb file like Dieter's that has OXT before "TER"
-  # But it gromacs OC1, OC2 anyway, and it may have created cc=0.00 sometimes. So I turned it off
+  # But gromacs made OC1, OC2 anyway, and it may have created cc=0.00 sometimes. So I turned it off
   
   final_output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_gromacs.pdb"
   cmd = "mv " + output_pdb_file_name + " " + final_output_pdb_file_name

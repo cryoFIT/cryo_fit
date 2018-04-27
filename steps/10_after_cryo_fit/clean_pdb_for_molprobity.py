@@ -16,7 +16,7 @@ def clean_main(input_pdb_file_name):
 
 def change_OC12(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_OC12.pdb"
   f_out = open(output_pdb_file_name, 'wt')
           
   for line in f_in:
