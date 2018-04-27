@@ -453,7 +453,8 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
   print "\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
   
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map"):
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
     
     returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
     params.cryo_fit.Input.map_file_name = returned[0]
