@@ -1218,6 +1218,12 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     run_this = "python clean_pdb_for_molprobity.py " + pdb
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
+  
+  print "\n\tAdd element to each line"
+  for pdb in glob.glob("*.pdb"):
+    run_this = "python add_element_to_pdb.py " + pdb
+    print "\t\tcommand: ", run_this
+    libtbx.easy_run.call(run_this)
     
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   

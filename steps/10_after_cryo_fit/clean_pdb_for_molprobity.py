@@ -1,6 +1,5 @@
 # author: Doonam
-
-# essential for molprobity
+# purpose: essential for molprobity to run
 
 import glob, os, sys
 
