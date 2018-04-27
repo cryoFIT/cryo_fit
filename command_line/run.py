@@ -954,8 +954,9 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
         elif splited[0] == "emsteps":
           if (emsteps == None):
               #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
+              # when emsteps is too sparse, cc went to become worse
               #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/30)) + "\n" # to make cryo_fit step 8 faster
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/40)) + "\n" # to make cryo_fit step 8 faster
+              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/50)) + "\n" # to make cryo_fit step 8 faster
               fout.write(new_line)
           else:
             new_line = "emsteps = " + str(emsteps) + "\n"
@@ -1498,7 +1499,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
     if arg.endswith('.cif') or arg.endswith('.pdb'): # .ent brought an error in GUI
       if arg.find('=')==-1:
         args[i]='model=%s' % arg
-    elif arg.endswith('.ccp4') or arg.endswith('.map') or arg.endswith('.sit'):
+    elif arg.endswith('.ccp4') or arg.endswith('.map') or arg.endswith('.mrc') or arg.endswith('.sit'):
       if arg.find('=')==-1:
         args[i]='map=%s' % arg
   
