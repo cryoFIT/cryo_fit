@@ -52,6 +52,8 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   
   output_pdb_file_name = remove_water (output_pdb_file_name) # gromacs cannot handle water
   
+  output_pdb_file_name = remove_OXT (output_pdb_file_name) # for a pdb file like Dieter's that has OXT before "TER"
+  
   final_output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_gromacs.pdb"
   cmd = "mv " + output_pdb_file_name + " " + final_output_pdb_file_name
   os.system(cmd)
@@ -309,7 +311,6 @@ def put_TER_between_chains(input_pdb_file_name):
   return output_pdb_file_name
 # end of put_TER_between_chains function
 
-
 def clean_HETATM_7C4(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_HETATM.pdb"
@@ -353,6 +354,24 @@ def clean_HETATM_7C4(input_pdb_file_name):
   return output_pdb_file_name
 # end of clean_HETATM_7C4 function
 
+def remove_OXT(input_pdb_file_name):
+  f_in = open(input_pdb_file_name)
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
+  f_out = open(output_pdb_file_name, 'wt')
+          
+  for line in f_in:
+    atom = line[13:16]
+    if atom == "OXT":
+      print line, " removed due to OXT"
+      continue
+    else:
+      f_out.write(line)
+  f_in.close()
+  f_out.close()
+  cmd = "rm " + input_pdb_file_name
+  os.system(cmd)
+  return output_pdb_file_name
+# end of remove_OXT function
 
 def remove_water(input_pdb_file_name):
   f_in = open(input_pdb_file_name)

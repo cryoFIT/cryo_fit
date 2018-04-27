@@ -390,8 +390,7 @@ def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_t
 
 
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
-    print "\tConvert mrc format map to situs format map"
-    print "\t(If user's map is big like ~300MB mrc file, this conversion may take ~10 minutes requiring few Gigabytes)\n"
+    print "\n\tConvert mrc format map to situs format map"
     
     new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
     f_out = open(new_map_file_name, 'wt')
@@ -443,6 +442,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     
     print "\ttarget_map_data.all():", target_map_data.all()
+    
+    print "\n\tconversion started..."
+    print "\t(If user's map is big like ~300MB mrc file, this conversion may take 7~17 minutes requiring ~1.5 Gigabytes)"
+    print "\t(Therefore, if you want to re-run cryo_fit, \'step_1=False\' will save this time)\n"
+    
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
     emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
     emmap_nx = target_map_data.all()[0] # for H40 -> 169, nucleosome: 196

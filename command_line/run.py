@@ -297,6 +297,9 @@ def check_whether_cc_has_been_increased(cc_record):
     else:
       cc_has_been_increased = cc_has_been_increased + 1
   print "\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
+  if (cc_has_been_increased == 0):
+    print "cc has not been increased over the last 10 steps."
+    print "Consider to increase emweight_multiply_by or check whether the initial model is properly aligned in a map."
   if (cc_has_been_increased > cc_has_been_decreased):
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
