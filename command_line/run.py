@@ -140,7 +140,7 @@ Options
             If it is left blank, the cryo_fit will automatically determine the emsteps
   emweight_multiply_by = 8
     .type = int
-    .short_caption = EM weight multiply by
+    .short_caption = EM weight multiply by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 7) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
@@ -251,7 +251,7 @@ master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
 def check_whether_cc_has_been_increased(cc_record):
-  print "\tcheck_whether_cc_has_been_increased"
+  print "\tCheck_whether_cc_has_been_increased"
   
   f_in = open(cc_record)
   former_cc = -99
@@ -261,11 +261,11 @@ def check_whether_cc_has_been_increased(cc_record):
     splited = line.split(" ")
     cc = splited[4]
     if (cc < 0.0001):
-      print "\tcc: " + cc + " < 0.0001"
-      print "\tExit now, since further cc will be 0.000 as well\n"
+      print "\t\tcc: " + cc + " < 0.0001"
+      print "\t\tExit now, since further cc will be 0.000 as well\n"
       
-      print "\tIt seems either a rare racing condition error or user provided initial model doesn't align well with the map in the first step"
-      print "\tWhen Doonam had this problem, simply re-runing solved the problem (probabaly the initial error is due to a rare racing condition error)"
+      print "\t\tIt seems either a rare racing condition error or user provided initial model doesn't align well with the map in the first step"
+      print "\t\tWhen Doonam had this problem, simply re-runing solved the problem (probabaly the initial error is due to a rare racing condition error)"
       exit(1)
     cc_array.append(cc)
     if cc > former_cc:
@@ -276,47 +276,47 @@ def check_whether_cc_has_been_increased(cc_record):
   f_in.close()
 
   if (len(cc_has_been_increased_array) < 15):
-    print "\tnumber of cc evaluations < 15"
-    print "\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
+    print "\t\tnumber of cc evaluations < 15"
+    print "\t\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
     return True 
   
-  print "\tlen(cc_array):",len(cc_array)
+  print "\t\tlen(cc_array):",len(cc_array)
   
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
-  print "\tcc_last:", cc_last
+  print "\t\tcc_last:", cc_last
   for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
     cc = cc_array[i]
-    print "\ti:",i,"cc:",cc
+    print "\t\ti:",i,"cc:",cc
     if cc > the_highest_cc:
       the_highest_cc = cc
-  print "\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
+  print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
   if the_highest_cc == cc_last:
-    print "\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
+    print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
     return True
 
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
-  print "\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
   for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
-  print "\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
+  print "\t\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
   if (cc_has_been_decreased >= 9):
-    print "\tcc tends to be decreased over the last 10 steps."
-    print "\tThings to consider"
-    print "\t\tRe-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
-    print "\t\tCheck whether the initial model is properly aligned in a map"
-    print "\t\tIncrease emweight_multiply_by"
-    print "\tExit now"
+    print "\t\tcc tends to be decreased over the last 10 steps."
+    print "\t\tThings to consider"
+    print "\t\t\tRe-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
+    print "\t\t\tCheck whether the initial model is properly aligned in a map"
+    print "\t\t\tIncrease emweight_multiply_by"
+    print "\t\tExit now"
     exit(1)
   if (cc_has_been_increased > cc_has_been_decreased):
     cc_10th_last = cc_array[len(cc_array)-11]
-    print "\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
+    print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
-      print "\tcc_last > cc_10th_last"
+      print "\t\tcc_last > cc_10th_last"
       return True # the last 10 cc values tend to be increased, so re-run with longer steps
     else:
       return False
@@ -1040,8 +1040,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = True
-  
-  print "\tthis_is_test:", this_is_test
+      print "\tthis_is_test:", this_is_test
   
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
