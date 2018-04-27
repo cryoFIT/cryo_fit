@@ -260,6 +260,13 @@ def check_whether_cc_has_been_increased(cc_record):
   for line in f_in:
     splited = line.split(" ")
     cc = splited[4]
+    if (cc < 0.0001):
+      print "\tcc: " + cc + " < 0.0001"
+      print "\tExit now, since further cc will be 0.000 as well\n"
+      
+      print "\tIt seems either a rare racing condition error or user provided initial model doesn't align well with the map in the first step"
+      print "\tWhen Doonam had this problem, simply re-runing solved the problem (probabaly the initial error is due to a rare racing condition error)"
+      exit(1)
     cc_array.append(cc)
     if cc > former_cc:
       cc_has_been_increased_array.append(True)
@@ -391,7 +398,7 @@ def print_author():
   print """\
  %s
   cryo_fit %s 
-    - Doo Nam Kim (doonam@lanl.gov), Serdal Kirmizialtin, Nigel Moriarty, Tom Terwilliger, Billy Poon
+    - Doo Nam Kim, Serdal Kirmizialtin, Nigel Moriarty, Tom Terwilliger, Billy Poon
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
 
@@ -432,20 +439,19 @@ def validate_params(params): # validation for GUI
 # end of validate_params function
 
 def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_file_name): # 04/23/2018, I need to assign map file first, then model file
-  print "\tAssign names of map and model files."
+  print "\n\tAssign names of map and model files."
   
   params.cryo_fit.Input.map_file_name = map_file_name
   if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
-    print "Please correct map file location, cryo_fit can't find it"
+    print "Please correct map file location, cryo_fit can't find " + params.cryo_fit.Input.map_file_name
     exit(1)
     
   params.cryo_fit.Input.model_file_name = model_file_name
   if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
-    print "Please correct model file location, cryo_fit can't find it"
+    print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
     exit(1)
   
   ################## assign map file
-  # shift origin of map if needed
   origin_shifted_to_000 = False # just assume that it will not be shifted
   shifted_in_x = 0 # just an initial value
   shifted_in_y = 0 # just an initial value
@@ -459,7 +465,7 @@ def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_fi
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
     
-    returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name)
+    returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
     params.cryo_fit.Input.map_file_name = returned[0]
     params.cryo_fit.Input.model_file_name = returned[1]
     origin_shifted_to_000 = returned[2]
@@ -1115,22 +1121,22 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py " + str(this_is_test)
   print "\n\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
-  print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
+  #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
   
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
 
-  # .gro -> .pdb
+  print "\n\tConvert .gro -> .pdb"
+  print "\t\t(.gro file is for gromacs/vmd)"
+  print "\t\t(.pdb file is for chimera/pymol/vmd)"
   for extracted_gro in glob.glob("*gro"):
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    print "\tcommand: ", command_string
+    print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-  print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/8_cryo_fit\n"
+  #print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/8_cryo_fit\n"
   
-  print "\t\t(.pdb file is for chimera/pymol/vmd)"
-  print "\t\t(.gro file is for gromacs/vmd)"
   
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
@@ -1139,10 +1145,10 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       print "\tthis_is_test = True"
       this_is_test = True
   if (this_is_test == False): # recover chain information
-    print "\tthis_is_test = False"
+    print "\n\tRecover chain information since gromacs erased it"
     for pdb_in_step8 in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
-      print "\tcommand: ", command_string
+      print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
       
   f_in = open('cc_record')
@@ -1167,10 +1173,10 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
 # end of step_8 (cryo_fit itself) function
 
 
-def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
+def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
   os.chdir( starting_dir )
   time_start = time.time()
-  show_header("Step 9: Arrange output")
+  show_header("Step 9 (final): Arrange output")
   remake_and_move_to_this_folder(starting_dir, "output")
   
   this_is_test = False
@@ -1191,6 +1197,10 @@ def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_b
     
     cp_command_string = "cp ../steps/8_cryo_fit/*_chain_recovered.pdb ."
     libtbx.easy_run.fully_buffered(cp_command_string)
+    
+    command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
+    libtbx.easy_run.fully_buffered(command_string)
+
   
   if (origin_shifted_to_000 == True):
     for pdb in glob.glob("*.pdb"):
@@ -1203,6 +1213,12 @@ def step_final(logfile, starting_dir, origin_shifted_to_000, move_x_by, move_y_b
   print "\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
   print "\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   
+  print "\n\tChange OC1 and OC2 so that molprobity can run"
+  for pdb in glob.glob("*.pdb"):
+    run_this = "python clean_pdb_for_molprobity.py " + pdb
+    print "\t\tcommand: ", run_this
+    libtbx.easy_run.call(run_this)
+    
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   if (returned != "success"):
@@ -1438,7 +1454,7 @@ def run_cryo_fit(logfile, params, inputs):
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
           logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
-          this_is_test = step_final(logfile, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
+          this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
           return results
         charge_group_moved = False
         print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n"
@@ -1454,7 +1470,7 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
   logfile.write("Step 8 (Run cryo_fit) is successfully ran\n")
-  this_is_test = step_final(logfile, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
+  this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
   if (this_is_test == False):
     return results
   
@@ -1514,6 +1530,8 @@ def cmd_run(args, validated=False, out=sys.stdout):
         master_params = master_phil)
   
   time_process_command_line_args_start = time.time()
+  print "\tReading user provided map started..."
+  print "\t(If a user provided a big .sit file like 1.6 GB, this may take more than 6 minutes)"
   argument_interpreter = libtbx.phil.command_line.argument_interpreter(
     master_phil=master_phil,
     home_scope="cryo_fit",
@@ -1562,17 +1580,6 @@ def cmd_run(args, validated=False, out=sys.stdout):
   if (results == "failed") or (results == "re_run_w_smaller_MD_time_step"): # errored
     exit(1)
   
-  '''
-  if (results == "failed") or (results == "re_run_w_smaller_MD_time_step"): # errored
-    write_this = "\ncryo_fit took " + str(round((time_total_end-time_total_start)/60, 2)) + " minutes (wallclock).\n"
-    logfile.write(write_this)
-    logfile.close()
-    exit(1)
-  else: # normal execution without error
-    write_this = "\nTotal cryo_fit " + time_took + "\n"
-    logfile.write(write_this)
-    logfile.close()
-  '''
   return results
   #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name)) # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function

@@ -398,21 +398,21 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     # Compute a target map
     from iotbx import ccp4_map
     ccp4_map = ccp4_map.map_reader(user_input_map)
-    print "\tMap read from %s" %(user_input_map)
+    print "\t\tMap read from %s" %(user_input_map)
     target_map_data = ccp4_map.map_data()
     
     #print "\tdir(): ", dir(ccp4_map)
     # acc = target_map_data.accessor() # not used, but keep for now
-    print "\ttarget_map_data.origin():",target_map_data.origin()
+    print "\t\ttarget_map_data.origin():",target_map_data.origin()
 
     emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
     emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
     emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
     
-    print "\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
+    print "\t\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
     a,b,c = ccp4_map.unit_cell_parameters[:3]
     widthx = a/target_map_data.all()[0]
-    print "\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
+    print "\t\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
     
     origin_shited_to_000 = False # just assume that it will not be shifted
     shifted_in_x = 0
@@ -437,15 +437,15 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
         emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
         emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
-        print "\ttarget_map_data.origin() after shifting:",target_map_data.origin()
+        print "\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
     ### (end) shift map origin
         pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     
-    print "\ttarget_map_data.all():", target_map_data.all()
+    print "\t\ttarget_map_data.all():", target_map_data.all()
     
-    print "\n\tconversion started..."
-    print "\t(If user's map is big like ~300MB mrc file, this conversion may take 7~17 minutes requiring ~1.5 Gigabytes)"
-    print "\t(Therefore, if you want to re-run cryo_fit, \'step_1=False\' will save this time)\n"
+    print "\n\tConversion started..."
+    print "\t\t(If a user's map is big like ~300MB mrc file, this conversion may take 7~17 minutes requiring ~1.5 Gigabytes)"
+    print "\t\t(Therefore, if you want to re-run cryo_fit, providing this already converted .sit file will save this conversion time)\n"
     
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
     emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
