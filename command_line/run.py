@@ -1211,11 +1211,6 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     trivial_command_string = "rm *_chain_recovered.pdb"
     libtbx.easy_run.fully_buffered(trivial_command_string)
   
-  print "\n\tAll results files are in output folder"
-  print "\t\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
-  print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
-  print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
-  
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
@@ -1229,6 +1224,13 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     libtbx.easy_run.call(run_this)
     
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
+  
+  print "\n\tAll results files are in output folder"
+  print "\t\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
+  print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
+  print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
+  print "\n\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record "
+  print "\twill draw a figure for cc change."
   
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
