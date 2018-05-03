@@ -306,10 +306,14 @@ def check_whether_cc_has_been_increased(cc_record):
   print "\t\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
   if (cc_has_been_decreased >= 9):
     print "\t\tcc tends to be decreased over the last 10 steps."
-    print "\t\tThings to consider"
+    print "The possible cause of this problem is that cryo_fi is provided a giant cryoem map with a tiny atomic model."
+    print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
+    print "\t\tPossible solutions:"
     print "\t\t\tRe-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
+    print "\t\t\tRe-run cryo_fit with an atomic model that fits the majority of the map."
     print "\t\t\tCheck whether the initial model is properly aligned in a map"
-    print "\t\t\tIncrease emweight_multiply_by"
+    print "\t\tNote:"
+    print "\t\t\tIncreasing emweight_multiply_by may not help"
     print "\t\tExit now"
     exit(1)
   if (cc_has_been_increased > cc_has_been_decreased):
