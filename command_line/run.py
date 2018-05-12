@@ -1235,7 +1235,8 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
   print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record "
   print "\twill draw a figure for cc change."
-  
+  print "\tgromacs experts are welcome to use trajectory files in steps/8_cryo_fit"
+
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
     logfile.write("Step final (arrange output) didn't run successfully\n")
