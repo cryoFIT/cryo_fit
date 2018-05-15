@@ -437,7 +437,7 @@ def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
           if trimmed_res_num == "1" or deal_this_res_num_as_first == res_num or \
                     res_num == consider_this_resnum_as_the_first : 
             if (atom != "P  ") and (atom != "OP1") and (atom != "O1P") and (atom != "OP2") and (atom != "O2P") \
-              and (atom != "OP3") :
+              and (atom != "OP3") and (atom != "O3P") :
               f_out.write(line)
             else:
               if res_num == "   1":
@@ -449,10 +449,10 @@ def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
 
           # clean the "non-first" nucleic acid
           else:
-            if atom != "OP3" :
+            if (atom != "OP3") and (atom != "O3P"):
               f_out.write(line)
             else:
-              print "removed OP3 in the non-first nucleic acid"
+              print "removed ", atom, " in the non-first nucleic acid"
         elif residue == "MIA": 
           bool_MIA_found = 1
           OP1_OP2_changed = 0
