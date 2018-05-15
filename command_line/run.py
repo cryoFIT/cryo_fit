@@ -1175,7 +1175,6 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
 # end of step_8 (cryo_fit itself) function
 
 
-#def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
 def step_final(logfile, command_path, starting_dir):
   os.chdir( starting_dir )
   time_start = time.time()
@@ -1482,9 +1481,6 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
-  #print "origin_shifted_to_000:",origin_shifted_to_000
-  #print "shifted_in_x:",shifted_in_x
-  #this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
   this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
   if (this_is_test == False):
     return results
