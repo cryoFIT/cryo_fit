@@ -445,89 +445,7 @@ def validate_params(params): # validation for GUI
   print "\tvalidate_params pass"
   return True
 # end of validate_params function
-#'''
-def assign_map_model_names(params, starting_dir, inputs, model_file_name, map_file_name): # 04/23/2018, I need to assign map file first, then model file
-  print "\n\tAssign names of map and model files."
-  
-  params.cryo_fit.Input.map_file_name = map_file_name
-  if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
-    print "Please correct map file location, cryo_fit can't find " + params.cryo_fit.Input.map_file_name
-    exit(1)
-    
-  params.cryo_fit.Input.model_file_name = model_file_name
-  if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
-    print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
-    exit(1)
-  
-  ################## assign map file
-  origin_shifted_to_000 = False # just assume that it will not be shifted
-  shifted_in_x = 0 # just an initial value
-  shifted_in_y = 0 # just an initial value
-  shifted_in_z = 0 # just an initial value
-  widthx = 1 # just an initial value
-  
-  temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
-  
-  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
-    
-    returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
-    params.cryo_fit.Input.map_file_name = returned[0]
-    params.cryo_fit.Input.model_file_name = returned[1]
-    origin_shifted_to_000 = returned[2]
-    shifted_in_x = returned[3]
-    shifted_in_y = returned[4]
-    shifted_in_z = returned[5]
-    widthx = returned[6]
-    
-  map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
-  print "\t\tmap_file_with_pathways:",map_file_with_pathways
-  if map_file_with_pathways[:-4] == ".map":
-    map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
-  
-  # assign map_file_without_pathways
-  splited_map_file_name = map_file_with_pathways.split("/")
-  map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-  #print "\tmap_file_without_pathways:",map_file_without_pathways
-  
-  if os.path.isfile(map_file_with_pathways) != True:
-    print "\tmap_file_with_pathways is wrong"
-    exit(1)
-  
-  
-  ################## assign model file
-  # assign model_file_without_pathways (not final)
-  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  
-  if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
-    print "\t\tSince a user provided .cif file, let's turn it into .pdb"
-    cif_as_pdb(params.cryo_fit.Input.model_file_name)
-    cw_dir = os.getcwd()
-    params.cryo_fit.Input.model_file_name = cw_dir + "/" + model_file_without_pathways
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
-  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\t\tSince a user provided .ent file, let's simply change its extension into .pdb"
-    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
-  
-  model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
-  print "\t\tmodel_file_with_pathways:",model_file_with_pathways
-  if os.path.isfile(model_file_with_pathways) != True:
-    print "\t\tmodel_file_with_pathways is wrong"
-    exit(1)
-    
-  splited_model_file_name = model_file_with_pathways.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  #print "\tmodel_file_without_pathways:",model_file_without_pathways
-  
-  os.chdir(starting_dir)
-  return model_file_with_pathways, model_file_without_pathways, map_file_with_pathways, map_file_without_pathways, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
-# end of assign_map_model_names()
-#'''
 
-'''
 def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, I need to assign map file first, then model file
   print "\n\tAssign map file name"
   
@@ -535,13 +453,6 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
   if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
     print "Please correct map file location, cryo_fit can't find " + params.cryo_fit.Input.map_file_name
     exit(1)
-    
-  ################## assign map file
-  origin_shifted_to_000 = False # just assume that it will not be shifted
-  shifted_in_x = 0 # just an initial value
-  shifted_in_y = 0 # just an initial value
-  shifted_in_z = 0 # just an initial value
-  widthx = 1 # just an initial value
   
   temp_map_file_name = params.cryo_fit.Input.map_file_name
   print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
@@ -550,15 +461,9 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
     
-    returned = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
-    params.cryo_fit.Input.map_file_name = returned[0]
-    params.cryo_fit.Input.model_file_name = returned[1]
-    origin_shifted_to_000 = returned[2]
-    shifted_in_x = returned[3]
-    shifted_in_y = returned[4]
-    shifted_in_z = returned[5]
-    widthx = returned[6]
-    
+    params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
+  
+  print "\t\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
   print "\t\tmap_file_with_pathways:",map_file_with_pathways
   if map_file_with_pathways[:-4] == ".map":
@@ -569,15 +474,15 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
   map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
   
   if os.path.isfile(map_file_with_pathways) != True:
-    print "\tmap_file_with_pathways is wrong"
+    print "\tcryo_fit can't find ", map_file_with_pathways
     exit(1)
   
   os.chdir(starting_dir)
-  return map_file_with_pathways, map_file_without_pathways, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
+  return map_file_with_pathways, map_file_without_pathways
 # end of assign_map_name()
-'''
 
-'''
+
+
 def assign_model_name(params, starting_dir, inputs, model_file_name):
   print "\n\tAssign model file name."
   params.cryo_fit.Input.model_file_name = model_file_name
@@ -608,12 +513,11 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
     
   splited_model_file_name = model_file_with_pathways.split("/")
   model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  #print "\tmodel_file_without_pathways:",model_file_without_pathways
   
   os.chdir(starting_dir)
   return model_file_with_pathways, model_file_without_pathways
 # end of assign_model_name()
-'''
+
 
 def shorten_file_name_if_needed(model_file_without_pathways):
   print "\tShorten_file_name_if_needed"
@@ -1271,7 +1175,8 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
 # end of step_8 (cryo_fit itself) function
 
 
-def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
+#def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_x_by, move_y_by, move_z_by, widthx):
+def step_final(logfile, command_path, starting_dir):
   os.chdir( starting_dir )
   time_start = time.time()
   show_header("Step 9 (final): Arrange output")
@@ -1299,13 +1204,13 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
     command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
     libtbx.easy_run.fully_buffered(command_string)
 
-  
+  '''
   if (origin_shifted_to_000 == True):
     for pdb in glob.glob("*.pdb"):
       translate_pdb_file_by_xyz(pdb, move_x_by, move_y_by, move_z_by, widthx, True)
     trivial_command_string = "rm *_chain_recovered.pdb"
     libtbx.easy_run.fully_buffered(trivial_command_string)
-  
+  '''
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
@@ -1324,8 +1229,8 @@ def step_final(logfile, command_path, starting_dir, origin_shifted_to_000, move_
   print "\t\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
   print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
   print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
-  print "\n\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record will draw a figure for cc change."
-  print "\n\tVMD can show trajectory animation by loading traj.xtc in steps/8_cryo_fit"
+  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record will draw a figure for cc change."
+  print "\n\t\tVMD can show trajectory animation by loading traj.xtc in steps/8_cryo_fit"
 
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
@@ -1403,24 +1308,9 @@ def run_cryo_fit(logfile, params, inputs):
   bool_step_8 = params.cryo_fit.Steps.step_8
   bool_step_9 = params.cryo_fit.Steps.step_9
   
-  #'''
-  returned = assign_map_model_names(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name, params.cryo_fit.Input.map_file_name)
-  model_file_with_pathways = returned[0]
-  model_file_without_pathways = returned[1]
-  map_file_with_pathways = returned[2]
-  map_file_without_pathways = returned[3]
-  origin_shifted_to_000 = returned[4]
-  shifted_in_x = returned[5]
-  shifted_in_y = returned[6]
-  shifted_in_z = returned[7]
-  widthx = returned[8]
-  #'''
-  
-  '''
   returned = assign_model_name(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name)
   model_file_with_pathways = returned[0]
   model_file_without_pathways = returned[1]
-  '''
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1551,19 +1441,11 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
     
     if (steps_list[7] == True):
-      '''
+      
       returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
-  
       map_file_with_pathways = returned[0]
       map_file_without_pathways = returned[1]
-      origin_shifted_to_000 = returned[2]
-      shifted_in_x = returned[3]
-      shifted_in_y = returned[4]
-      shifted_in_z = returned[5]
-      widthx = returned[6]
-      print "origin_shifted_to_000:",origin_shifted_to_000
-      print "shifted_in_y:",shifted_in_y
-      '''
+      
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, output_file_name_prefix, no_rerun, devel)
       if (results == True): # this is a test
@@ -1600,9 +1482,10 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
-  print "origin_shifted_to_000:",origin_shifted_to_000
-  print "shifted_in_x:",shifted_in_x
-  this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
+  #print "origin_shifted_to_000:",origin_shifted_to_000
+  #print "shifted_in_x:",shifted_in_x
+  #this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
+  this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
   if (this_is_test == False):
     return results
   
@@ -1713,7 +1596,6 @@ def cmd_run(args, validated=False, out=sys.stdout):
     exit(1)
   
   return results
-  #return os.path.abspath(os.path.join('steps', '8_cryo_fit', output_file_name)) # Billy doesn't need this anymore for pdb file opening by coot  
 # end of cmd_run function
 
 # =============================================================================

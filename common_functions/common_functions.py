@@ -409,6 +409,10 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
     emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
     
+    ori_emmap_z0 = emmap_z0
+    ori_emmap_y0 = emmap_y0
+    ori_emmap_x0 = emmap_x0
+    
     print "\t\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
     a,b,c = ccp4_map.unit_cell_parameters[:3]
     widthx = a/target_map_data.all()[0]
@@ -439,7 +443,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
         print "\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
     ### (end) shift map origin
-        pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
+        #pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     
     print "\t\ttarget_map_data.all():", target_map_data.all()
     
@@ -474,7 +478,30 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
               f_out.write("\n")
     f_out.write("\n")
     f_out.close()
-    return new_map_file_name, pdb_file_name, origin_shited_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
+    
+    if (origin_shited_to_000 == True):
+        # reassign origin into original ones (not necessarily to 0,0,0)
+        first_line = True
+        print "map_file_name:", map_file_name
+        new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+        print "new_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
+        f_in = open(new_map_file_name, 'r')
+        f_out = open(new_map_file_name_w_ori_origins, 'wt')
+        for line in f_in:
+            if (first_line == True):
+                line = str(widthx) + " " + str(widthx*ori_emmap_x0) + " " + str(widthx*ori_emmap_y0) + " " + str(widthx*ori_emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+                first_line = False
+            f_out.write(line)
+        f_in.close()
+        f_out.close()
+        subprocess.call(["rm", new_map_file_name])
+        return new_map_file_name_w_ori_origins
+    else:
+        
+        return new_map_file_name
+    
+    #return new_map_file_name, pdb_file_name, origin_shited_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
+    
 # end of mrc_to_sit(map_file_name)
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
