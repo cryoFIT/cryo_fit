@@ -1130,7 +1130,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
     pdb_file_with_original_chains = pdb_with_original_chains
 
   print "\n\tConvert .gro -> .pdb"
-  print "\t\t(.gro file is for gromacs/vmd)"
+  print "\t\t(.gro file is for chimera/gromacs/vmd)"
   print "\t\t(.pdb file is for chimera/pymol/vmd)"
   for extracted_gro in glob.glob("*gro"):
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
