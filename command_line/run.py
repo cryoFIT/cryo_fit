@@ -315,7 +315,7 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\t\tIncreasing emweight_multiply_by may not help"
     print "\t\tExit now"
     exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased):
+  if (cc_has_been_increased > cc_has_been_decreased+2):
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
@@ -1024,8 +1024,7 @@ def search_charge_in_md_log():
   return 0 # not found "charge group..."
 # end of search_charge_in_md_log function
            
-#def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-#         map_file_with_pathways, output_file_name_prefix, no_rerun, devel):
+
 def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
        map_file_with_pathways, no_rerun, devel):
   show_header("Step 8: Run cryo_fit")
@@ -1043,12 +1042,6 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       this_is_test = True
       print "\tthis_is_test:", this_is_test
   
-  '''
-  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
-              str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
-              + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
-              + str(this_is_test)
-  '''
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
               + " " + str(starting_dir) + " " + str(this_is_test)
