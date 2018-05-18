@@ -279,7 +279,7 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
     return True 
   
-  print "\t\tlen(cc_array):",len(cc_array)
+  #print "\t\tlen(cc_array):",len(cc_array)
   
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]

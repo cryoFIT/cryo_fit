@@ -14,17 +14,19 @@ command_string = home_cryo_fit_bin_dir + "/grompp -f for_cryo_fit.mdp -c *.gro -
                   # -f, -c, -p are for input files of grompp
                   # -o is for an output file
                   
-f_out = open('log.step_7', 'wt')
+f_out = open('log.step_7_used_command', 'wt')
 write_this_input_command = command_string + "\n"
 f_out.write(write_this_input_command)
-f_out.close() # close early so that it writes input command for sure, before writing running time
+#f_out.close() # close early so that it writes input command for sure, before writing running time
 
-f_out = open('log.step_7', 'at+') # reopen here
+f_out = open('log.step_7_used_command', 'at+') # reopen here
 time_start = time.time()
 os.system(command_string)
 time_end = time.time()
 
 write_this = "\n" + show_time("step_7", time_start, time_end) + "\n"
 color_print ((write_this), 'green')
-f_out.write(write_this)
+
+#f_out.write(write_this)
+
 f_out.close()

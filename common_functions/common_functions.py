@@ -491,9 +491,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     if (origin_shited_to_000 == True):
         # reassign origin into original ones (not necessarily to 0,0,0)
         first_line = True
-        print "map_file_name:", map_file_name
+        print "\t\tmap_file_name:", map_file_name
         new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
-        print "new_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
+        print "\t\tnew_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')
         for line in f_in:
