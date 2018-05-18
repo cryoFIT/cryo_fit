@@ -1449,6 +1449,11 @@ def run_cryo_fit(logfile, params, inputs):
   
   cc_has_been_increased = True # just an initial value
   charge_group_moved = True # just an initial value
+  
+  returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
+  map_file_with_pathways = returned[0]
+  map_file_without_pathways = returned[1]
+  
   while (cc_has_been_increased == True or charge_group_moved == True):
     if ((this_is_test == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
@@ -1462,9 +1467,9 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[7] == True):
       
-      returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
-      map_file_with_pathways = returned[0]
-      map_file_without_pathways = returned[1]
+      # returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
+      # map_file_with_pathways = returned[0]
+      # map_file_without_pathways = returned[1]
       
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, tutorial)
@@ -1485,18 +1490,18 @@ def run_cryo_fit(logfile, params, inputs):
         os.chdir( starting_dir )
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
-          logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
+          logfile.write("re_run_with_longer_steps is recommended, but no_rerun, Step 8 (cryo_fit itself) is successfully ran\n")
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
-        charge_group_moved = False
-        print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n"
-        print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n"
-        logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n")
-        logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*4) + ")\n\n")
+        charge_group_moved = False # just initial value
+        print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n"
+        print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n"
+        logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n")
+        logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n")
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
           print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
-          break
+          break # no need to use exit(1) since break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
       else: # normal ending of cryo_fit
         charge_group_moved = False
