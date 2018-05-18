@@ -314,7 +314,7 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\t\tIncreasing emweight_multiply_by may not help"
     print "\t\tExit now"
     exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased+4):
+  if (cc_has_been_increased > cc_has_been_decreased+3):
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
