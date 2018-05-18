@@ -19,8 +19,9 @@ number_of_available_cores = int(args[2])
 number_of_cores_to_use = args[3] # for mpi -> cores, for threads -> threads
 target_map_with_pathways = args[4]
 starting_dir = args[5]
-output_file_name_prefix = args[6]
-this_is_test = args[7]
+this_is_test = args[6]
+#output_file_name_prefix = args[6]
+#this_is_test = args[7]
 
 if (__name__ == "__main__") :
   #remove_former_files() #needed for development only
@@ -37,11 +38,17 @@ if (__name__ == "__main__") :
   home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
   
   bool_just_get_input_command = False
+  '''
   write_this_input_command, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
                                                          home_bin_cryo_fit_bin_dir, \
                                                          ns_type, number_of_available_cores, \
                                                          number_of_cores_to_use,\
                                                          target_map_with_pathways, output_file_name_prefix)
+  '''
+  write_this_input_command, output_file_name = first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
+                                                         home_bin_cryo_fit_bin_dir, ns_type,
+                                                         number_of_available_cores, \
+                                                         number_of_cores_to_use, target_map_with_pathways)
   
   f_out = open('log.step_8_cryo_fit_used_command', 'wt')
   f_out.write(write_this_input_command)

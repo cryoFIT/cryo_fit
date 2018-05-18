@@ -182,10 +182,10 @@ Options
 }
 Output
 {
-  output_file_name_prefix = None
-    .type = str
-    .short_caption = Output prefix
-    .help = Prefix for output filename
+  #output_file_name_prefix = None
+  #  .type = str
+  #  .short_caption = Output prefix
+  #  .help = Prefix for output filename
 }
 devel = False
   .type = bool
@@ -1024,8 +1024,10 @@ def search_charge_in_md_log():
   return 0 # not found "charge group..."
 # end of search_charge_in_md_log function
            
+#def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
+#         map_file_with_pathways, output_file_name_prefix, no_rerun, devel):
 def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-         map_file_with_pathways, output_file_name_prefix, no_rerun, devel):
+       map_file_with_pathways, no_rerun, devel):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -1041,10 +1043,15 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       this_is_test = True
       print "\tthis_is_test:", this_is_test
   
+  '''
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
               + " " + str(starting_dir) + " " + str(output_file_name_prefix) + " " \
               + str(this_is_test)
+  '''
+  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
+              str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
+              + " " + str(starting_dir) + " " + str(this_is_test)
   print "\n\tcommand: ", command_string
   print "\n\tA user can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
@@ -1132,7 +1139,17 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\n\tConvert .gro -> .pdb"
   print "\t\t(.gro file is for chimera/gromacs/vmd)"
   print "\t\t(.pdb file is for chimera/pymol/vmd)"
-  for extracted_gro in glob.glob("*gro"):
+  for extracted_gro in glob.glob("cryo_fitted*gro"):
+    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+    command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+  for extracted_gro in glob.glob("extracted*gro"):
+    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+    command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+  for extracted_gro in glob.glob("user_provided*gro"):
     home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\t\tcommand: ", command_string
@@ -1194,7 +1211,13 @@ def step_final(logfile, command_path, starting_dir):
     cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
-    cp_command_string = "cp ../steps/8_cryo_fit/*gro ."
+    cp_command_string = "cp ../steps/8_cryo_fit/cryo_fitted*.gro ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
+    cp_command_string = "cp ../steps/8_cryo_fit/extracted*.gro ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
+    cp_command_string = "cp ../steps/8_cryo_fit/user_provided*.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
     cp_command_string = "cp ../steps/8_cryo_fit/*_chain_recovered.pdb ."
@@ -1225,7 +1248,7 @@ def step_final(logfile, command_path, starting_dir):
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   print "\n\tAll results files are in output folder"
-  print "\t\tThe highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
+  print "\t\tIf cryo_fit found the better cc fitting, the highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
   print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
   print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record will draw a figure for cc change."
@@ -1322,7 +1345,7 @@ def run_cryo_fit(logfile, params, inputs):
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
   # Output
-  output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
+  #output_file_name_prefix = params.cryo_fit.Output.output_file_name_prefix # Since we need to recover chain information (lost by gromacs) anyway, output_file_format is better to be .gro now
   
   # Development options
   devel = params.cryo_fit.devel
@@ -1445,8 +1468,10 @@ def run_cryo_fit(logfile, params, inputs):
       map_file_with_pathways = returned[0]
       map_file_without_pathways = returned[1]
       
+      #results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
+      #       map_file_with_pathways, output_file_name_prefix, no_rerun, devel)
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, output_file_name_prefix, no_rerun, devel)
+             map_file_with_pathways, no_rerun, devel)
       if (results == True): # this is a test
         break  
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose

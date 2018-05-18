@@ -43,12 +43,13 @@ def extract_gro(target_step, i):
         print "\tThis has the highest cc"
         if (target_step == "0"): # works as expected
             print "\tHowever, it was the initial model that a user provided"
-            print "\tso don't rename it"
-            cmd = "rm cryo_fitted.gro"
+            print "\tso don't rename it to cryo_fitted.gro"
+            #cmd = "rm cryo_fitted.gro"
+            cmd = "mv " + output_gro_name + " user_provided.gro"
             print "\tcmd:", cmd
             os.system(cmd)
         else:
-            print "\tso rename it"
+            print "\tso rename it to cryo_fitted.gro"
             cmd = "mv " + output_gro_name + " cryo_fitted.gro"
             print "\tcmd:", cmd
             os.system(cmd)

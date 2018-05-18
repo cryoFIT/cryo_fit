@@ -12,7 +12,7 @@ def minimize(input_tpr_name, number_of_available_cores, number_of_cores_to_use, 
                                                            home_bin_cryo_fit_bin_dir,\
                                                            ns_type, \
                                                           number_of_available_cores, number_of_cores_to_use,\
-                                                          target_map, "bogus_output_file_name_prefix")
+                                                          target_map)
     
     f_out = open('log.step_4_1_minimization_used_command', 'wt')
     f_out.write(str(command_used[0]))
