@@ -264,7 +264,6 @@ def check_whether_cc_has_been_increased(cc_record):
     if (float(cc) < 0.0001):
       print "\t\tcc: " + cc + " < 0.0001"
       print "\t\tExit now, since further cc will be 0.000 as well\n"
-      print "\t\tPlease contact doonam@lanl.gov for this possible error\n"
       exit(1)
     cc_array.append(cc)
     if cc > former_cc:
@@ -315,7 +314,7 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\t\tIncreasing emweight_multiply_by may not help"
     print "\t\tExit now"
     exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased+2):
+  if (cc_has_been_increased > cc_has_been_decreased+4):
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
@@ -1026,7 +1025,7 @@ def search_charge_in_md_log():
            
 
 def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-       map_file_with_pathways, no_rerun, devel):
+       map_file_with_pathways, no_rerun, devel, tutorial):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -1106,13 +1105,17 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
   print "\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
-  if (devel == True):
-    no_rerun = True
-  if (no_rerun == False):
-    if cc_has_been_increased == True:
-      return "re_run_with_longer_steps"
-    else:
-      print "\tcc has been saturated, so go ahead to the next step"
+  
+  if (tutorial == True):
+    print "\tcryo_fit so meticulously finds better cc, so it takes long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
+  if (tutorial == False):
+    if (devel == True):
+      no_rerun = True
+    if (no_rerun == False):
+      if cc_has_been_increased == True:
+        return "re_run_with_longer_steps"
+      else:
+        print "\tcc has been saturated, so go ahead to the next step"
   
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
@@ -1148,7 +1151,6 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
   #print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/8_cryo_fit\n"
-  
   
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
@@ -1326,6 +1328,9 @@ def run_cryo_fit(logfile, params, inputs):
   returned = assign_model_name(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name)
   model_file_with_pathways = returned[0]
   model_file_without_pathways = returned[1]
+  tutorial = False
+  if (model_file_without_pathways == "tRNA_tutorial.pdb"):
+    tutorial = True
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1461,10 +1466,8 @@ def run_cryo_fit(logfile, params, inputs):
       map_file_with_pathways = returned[0]
       map_file_without_pathways = returned[1]
       
-      #results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-      #       map_file_with_pathways, output_file_name_prefix, no_rerun, devel)
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, no_rerun, devel)
+             map_file_with_pathways, no_rerun, devel, tutorial)
       if (results == True): # this is a test
         break  
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose
@@ -1483,7 +1486,7 @@ def run_cryo_fit(logfile, params, inputs):
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
           logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
-          this_is_test = step_final(logfile, command_path, starting_dir, origin_shifted_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx) # just to arrange final output
+          this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
         charge_group_moved = False
         print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 5 steps\n"
