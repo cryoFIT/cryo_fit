@@ -179,6 +179,7 @@ def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_inp
                                                         bool_minimization, \
                                                      ns_type, number_of_available_cores, \
                                                      number_of_cores_to_use, common_command_string)
+    command_used = command_used + "\n"
     return command_used, output_file_name
 # end of first_prepare_for_minimization_cryo_fit function
 
