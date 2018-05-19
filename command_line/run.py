@@ -1247,7 +1247,7 @@ def step_final(logfile, command_path, starting_dir):
   print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
   print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record will draw a figure for cc change."
-  print "\n\t\tVMD can show trajectory animation by loading traj.xtc in steps/8_cryo_fit"
+  print "\n\t\tVMD can show trajectory animation by loading steps/8_cryo_fit/traj.xtc"
 
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
@@ -1328,9 +1328,7 @@ def run_cryo_fit(logfile, params, inputs):
   returned = assign_model_name(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name)
   model_file_with_pathways = returned[0]
   model_file_without_pathways = returned[1]
-  tutorial = False
-  if (model_file_without_pathways == "tRNA_tutorial.pdb"):
-    tutorial = True
+  
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1454,6 +1452,10 @@ def run_cryo_fit(logfile, params, inputs):
   map_file_with_pathways = returned[0]
   map_file_without_pathways = returned[1]
   
+  tutorial = False
+  if (model_file_without_pathways == "tRNA_tutorial.pdb"):
+    tutorial = True
+    
   while (cc_has_been_increased == True or charge_group_moved == True):
     if ((this_is_test == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
@@ -1466,11 +1468,6 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
     
     if (steps_list[7] == True):
-      
-      # returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
-      # map_file_with_pathways = returned[0]
-      # map_file_without_pathways = returned[1]
-      
       results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, tutorial)
       if (results == True): # this is a test
