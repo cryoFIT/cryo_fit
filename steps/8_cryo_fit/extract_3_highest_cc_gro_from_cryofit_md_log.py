@@ -14,7 +14,7 @@ def extract_gro(target_step, i):
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
         
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
-    print "\tgrep_dt_string:", grep_dt_string
+    print "\t\tgrep_dt_string:", grep_dt_string
     result = os.popen(grep_dt_string).read()
     splited = result.split()
     dt = splited[2]
@@ -25,10 +25,10 @@ def extract_gro(target_step, i):
     nsteps = splited[2]
     
     total_ps = float(dt)*float(nsteps) 
-    print "\tTherefore, total mdrun running time was: ", total_ps, "ps (10^-12) second"
-    print "\tUser wants to extract a gro file from ", target_step, "steps"
+    print "\t\tTherefore, total mdrun running time was: ", total_ps, "ps (10^-12) second"
+    print "\t\tUser wants to extract a gro file from ", target_step, "steps"
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
-    print "\tTherefore, I will extract a gro file from ", target_ps, "ps"
+    print "\t\tTherefore, cryo_fit will extract a gro file from ", target_ps, "ps"
     
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
     os.system("echo 0 > input_parameters") # to select system
@@ -60,7 +60,6 @@ if (__name__ == "__main__") :
     os.system(cmd)
     
     result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    #print result
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]

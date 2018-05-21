@@ -1124,7 +1124,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   print "\n\tExtract .gro files from the 3 highest cc values."
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py " + str(this_is_test)
-  print "\n\tcommand: ", command_string
+  print "\n\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
   #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
   
@@ -1164,7 +1164,16 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
-      
+  
+  print "\n\tMake a trajectory .gro file"
+  command_string = "echo 0 > input_parameter" # to select system
+  print "\t\tcommand: ", command_string
+  libtbx.easy_run.fully_buffered(command_string)
+  command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
+  print "\t\tcommand: ", command_string
+  libtbx.easy_run.fully_buffered(command_string)
+  os.remove("input_parameter")
+  
   f_in = open('cc_record')
   cc_record = list()
   for line in f_in:
@@ -1212,6 +1221,9 @@ def step_final(logfile, command_path, starting_dir):
     cp_command_string = "cp ../steps/8_cryo_fit/extracted*.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
+    cp_command_string = "cp ../steps/8_cryo_fit/trajectory.gro ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
     cp_command_string = "cp ../steps/8_cryo_fit/user_provided*.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
@@ -1243,11 +1255,13 @@ def step_final(logfile, command_path, starting_dir):
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   print "\n\tAll results files are in output folder"
-  print "\t\tIf cryo_fit found the better cc fitting, the highest cc value is cryo_fitted_chain_recovered.pdb (or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
-  print "\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
-  print "\t\tA user may use other extracted_x_steps_x_ps.gro/pdb as well."
-  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record will draw a figure for cc change."
-  print "\n\t\tVMD can show trajectory animation by loading steps/8_cryo_fit/traj.xtc"
+  print "\t\tIf cryo_fit found the better cc fitting, the highest cc value is cryo_fitted_chain_recovered.pdb "
+  print "\t\t(or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
+  print "\n\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
+  print "\t\tTherefore, a user may use other extracted_x_steps_x_ps.gro/pdb as well."
+  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record draws a figure for cc change."
+  print "\t\t(Phenix GUI shows the figure automatically)."
+  print "\n\t\tVMD can show trajectory animation by \"File -> New Molecule -> Browse -> (select output/trajectory.gro) -> Load \""
 
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
