@@ -1159,7 +1159,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       print "\tthis_is_test = True"
       this_is_test = True
   if (this_is_test == False): # recover chain information
-    print "\n\tRecover chain information since gromacs erased it"
+    print "\n\tRecover chain information (since gromacs erased it)"
     for pdb_in_step8 in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
       print "\t\tcommand: ", command_string
@@ -1221,6 +1221,12 @@ def step_final(logfile, command_path, starting_dir):
     cp_command_string = "cp ../steps/8_cryo_fit/extracted*.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
+    cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
+    cp_command_string = "cp ../steps/8_cryo_fit/traj.xtc ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
     cp_command_string = "cp ../steps/8_cryo_fit/trajectory.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
@@ -1233,13 +1239,6 @@ def step_final(logfile, command_path, starting_dir):
     command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
     libtbx.easy_run.fully_buffered(command_string)
 
-  '''
-  if (origin_shifted_to_000 == True):
-    for pdb in glob.glob("*.pdb"):
-      translate_pdb_file_by_xyz(pdb, move_x_by, move_y_by, move_z_by, widthx, True)
-    trivial_command_string = "rm *_chain_recovered.pdb"
-    libtbx.easy_run.fully_buffered(trivial_command_string)
-  '''
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
@@ -1254,14 +1253,15 @@ def step_final(logfile, command_path, starting_dir):
     
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
-  print "\n\tAll results files are in output folder"
-  print "\t\tIf cryo_fit found the better cc fitting, the highest cc value is cryo_fitted_chain_recovered.pdb "
-  print "\t\t(or cryo_fitted_chain_recovered_retranslated.pdb if user's mrc map has negative origins)"
-  print "\n\t\tThis finally fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user need such as the stereochemistry/other purposes."
-  print "\t\tTherefore, a user may use other extracted_x_steps_x_ps.gro/pdb as well."
-  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py output/cc_record draws a figure for cc change."
-  print "\t\t(Phenix GUI shows the figure automatically)."
-  print "\n\t\tVMD can show trajectory animation by \"File -> New Molecule -> Browse -> (select output/trajectory.gro) -> Load \""
+  print "\n\tResults files are in \"output\" folder"
+  print "  \t\tIf cryo_fit fitted better than a user provided input atomic model, the highest cc value is cryo_fitted_chain_recovered.pdb "
+  print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes"
+  print "  \t\tTherefore, a user may use other extracted_x_steps_x_ps.gro/pdb as well."
+  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record draws a figure for cc change."
+  print "  \t\t(Phenix GUI shows this figure automatically)."
+  print "\n\t\tTo see trajectory animation "
+  print "  \t\t\t<Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (for_cryo_fit.tpr), .xtc = (traj.xtc) -> OK -> (click play button)"
+  print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory.gro) -> Load "
 
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
