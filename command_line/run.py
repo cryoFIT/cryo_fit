@@ -1259,8 +1259,8 @@ def step_final(logfile, command_path, starting_dir):
   print "  \t\tTherefore, a user may use other extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record draws a figure for cc change."
   print "  \t\t(Phenix GUI shows this figure automatically)."
-  print "\n\t\tTo see trajectory animation "
-  print "  \t\t\t<Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (for_cryo_fit.tpr), .xtc = (traj.xtc) -> OK -> (click play button)"
+  print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course)"
+  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (for_cryo_fit.tpr), .xtc = (traj.xtc) -> OK -> (click play button)"
   print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory.gro) -> Load "
 
   if (returned != "success"):
