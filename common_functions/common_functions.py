@@ -28,6 +28,166 @@ except Exception:
     print "Press any key to continue"
     ''' #raw_input() # disable this for now, so that Phenix GUI will work
 
+def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, I need to assign map file first, then model file
+  print "\n\tAssign map file name"
+  
+  params.cryo_fit.Input.map_file_name = map_file_name
+  if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
+    print "Please correct map file location, cryo_fit can't find " + params.cryo_fit.Input.map_file_name
+    exit(1)
+  
+  temp_map_file_name = params.cryo_fit.Input.map_file_name
+  print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  
+  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
+        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
+    
+    params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
+  
+  print "\t\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
+  map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
+  print "\t\tmap_file_with_pathways:",map_file_with_pathways
+  if map_file_with_pathways[:-4] == ".map":
+    map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
+  
+  # assign map_file_without_pathways
+  splited_map_file_name = map_file_with_pathways.split("/")
+  map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+  
+  if os.path.isfile(map_file_with_pathways) != True:
+    print "\tcryo_fit can't find ", map_file_with_pathways
+    exit(1)
+  
+  os.chdir(starting_dir)
+  return map_file_with_pathways, map_file_without_pathways
+# end of assign_map_name()
+
+
+
+def assign_model_name(params, starting_dir, inputs, model_file_name):
+  print "\n\tAssign model file name."
+  params.cryo_fit.Input.model_file_name = model_file_name
+  if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
+    print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
+    exit(1)
+  
+  ################## assign model file
+  # assign model_file_without_pathways (not final)
+  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  
+  if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
+    print "\t\tSince a user provided .cif file, let's turn it into .pdb"
+    cif_as_pdb(params.cryo_fit.Input.model_file_name)
+    cw_dir = os.getcwd()
+    params.cryo_fit.Input.model_file_name = cw_dir + "/" + model_file_without_pathways
+    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
+  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
+    print "\t\tSince a user provided .ent file, let's simply change its extension into .pdb"
+    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
+  
+  model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
+  print "\t\tmodel_file_with_pathways:",model_file_with_pathways
+  if os.path.isfile(model_file_with_pathways) != True:
+    print "\t\tmodel_file_with_pathways is wrong"
+    exit(1)
+    
+  splited_model_file_name = model_file_with_pathways.split("/")
+  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  
+  os.chdir(starting_dir)
+  return model_file_with_pathways, model_file_without_pathways
+# end of assign_model_name()
+
+def check_whether_cc_has_been_increased(cc_record):
+  print "\tCheck_whether_cc_has_been_increased"
+  
+  f_in = open(cc_record)
+  former_cc = -99
+  cc_has_been_increased_array = []
+  cc_array = []
+  for line in f_in:
+    splited = line.split(" ")
+    cc = splited[4]
+
+    if (float(cc) < 0.0001):
+      print "\t\tcc: " + cc + " < 0.0001"
+      print "\t\tExit now, since further cc will be 0.000 as well\n"
+      exit(1)
+    cc_array.append(cc)
+    if cc > former_cc:
+      cc_has_been_increased_array.append(True)
+    else:
+      cc_has_been_increased_array.append(False)
+    former_cc = cc
+  f_in.close()
+
+  if (len(cc_has_been_increased_array) < 15):
+    print "\t\tnumber of cc evaluations < 15"
+    print "\t\t\tRe-run because usually first few evaluations of cc are fluctuating."
+    print "\t\t\tTherefore, consider as if the most recent ccs have been increased."
+    return True 
+  
+  #print "\t\tlen(cc_array):",len(cc_array)
+  
+  the_highest_cc = -99
+  cc_last = cc_array[len(cc_array)-1]
+  print "\t\tcc_last:", cc_last
+  for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
+    cc = cc_array[i]
+    print "\t\ti:",i,"cc:",cc
+    if cc > the_highest_cc:
+      the_highest_cc = cc
+  print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
+  if the_highest_cc == cc_last:
+    print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
+    return True
+
+  cc_has_been_increased = 0
+  cc_has_been_decreased = 0
+  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
+    if cc_has_been_increased_array[i] == False:
+      cc_has_been_decreased = cc_has_been_decreased + 1
+    else:
+      cc_has_been_increased = cc_has_been_increased + 1
+  print "\t\tNumber of cc increase in the last 10 steps:",cc_has_been_increased,", number of cc decrease in the last 10 steps:",cc_has_been_decreased
+  if (cc_has_been_decreased >= 9):
+    print "\t\tcc tends to be decreased over the last 10 steps."
+    print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
+    print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
+    print "\t\tPossible solutions:"
+    print "\t\t\t1) Re-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
+    print "\t\t\t2) Re-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
+    print "\t\t\t3) Check whether the initial model is properly aligned in a map"
+    print "\t\tNote:"
+    print "\t\t\tIncreasing emweight_multiply_by may not help"
+    print "\t\tExit now"
+    exit(1)
+  if (cc_has_been_increased > cc_has_been_decreased+3):
+    cc_10th_last = cc_array[len(cc_array)-11]
+    print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
+    if (cc_last > cc_10th_last):
+      print "\t\tcc_last > cc_10th_last"
+      return True # the last 10 cc values tend to be increased, so re-run with longer steps
+    else:
+      return False
+  else:
+    return False # the last 10 cc values tend NOT to be increased
+# end of check_whether_cc_has_been_increased function
+
+def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
+  if (os.path.isfile(check_this_file)):
+    returned_file_size = file_size(check_this_file)
+    if (returned_file_size > 0):
+      return "success"
+  print step_name, " didn't successfully ran"
+  if (step_name == "Step 4" or step_name == "Step 8"):
+    return "failed"
+  exit(1)
+# end of check_whether_the_step_was_successfully_ran function
+
 def cif_as_pdb(file_name):  
     try:
       assert os.path.exists(file_name)
@@ -50,38 +210,56 @@ def cif_as_pdb(file_name):
       print " ", str(e)
 # end of cif_as_pdb()
 
-def ent_as_pdb(file_name):
-    new_file_name = file_name[:-4] + ".pdb"
-    cp_command_string = "cp " + file_name + " " + new_file_name
-    print "cp_command_string:", cp_command_string
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    return new_file_name
-# end of ent_as_pdb()
+def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
+                                          user_entered_number_of_steps_for_cryo_fit, devel):
+  if (devel == True):
+    number_of_steps_for_cryo_fit = 100
+    return number_of_steps_for_cryo_fit
+  
+  if (user_entered_number_of_steps_for_cryo_fit != None ):
+    print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
+    return user_entered_number_of_steps_for_cryo_fit
+  
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
+  number_of_steps_for_cryo_fit = '' # just initial declaration
+  if (number_of_atoms_in_input_pdb < 2500): # pdb5khe.pdb
+    number_of_steps_for_cryo_fit = 500 
+  elif (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
+    number_of_steps_for_cryo_fit = 5000 # 15,000 seems too large
+  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
+    number_of_steps_for_cryo_fit = 20000
+  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
+    number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
+  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
+    number_of_steps_for_cryo_fit = 80000
+  print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
+  return number_of_steps_for_cryo_fit
+# end of determine_number_of_steps_for_cryo_fit function
 
-def remove_water_for_gromacs(input_pdb_file_name):
-    f_in = open(input_pdb_file_name)
-    output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
-    f_out = open(output_pdb_file_name, 'wt')
-    for line in f_in:
-      if line[17:20] != "HOH":
-        f_out.write(line)
-    f_in.close()
-    f_out.close()
-    return output_pdb_file_name
-    # using construct_hierarchy() will be great, but my own code would be much faster to develop
-    '''
-    pdb_input = iotbx.pdb.input(file_name=file)
-    pdb_hierarchy = pdb_input.construct_hierarchy()
-    for model in pdb_hierarchy.models():
-      chains = model.chains()
-      for chain in chains:
-        conformers = chain.conformers()
-        for conformer in conformers:
-          residues = conformer.residues()
-          for residue in residues:
-            print "residue.resname:", residue.resname
-    '''
-#end of clean_pdb_for_gromacs ()
+def determine_number_of_steps_for_minimization(model_file_without_pathways, \
+                                               model_file_with_pathways, \
+                                               user_entered_number_of_steps_for_minimization, devel):
+  if (devel == True):
+    number_of_steps_for_minimization = 10
+    return number_of_steps_for_minimization
+  if (user_entered_number_of_steps_for_minimization != None ):
+    print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", user_entered_number_of_steps_for_minimization
+    return user_entered_number_of_steps_for_minimization
+
+  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
+  number_of_steps_for_minimization = '' # just initial declaration
+  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
+    number_of_steps_for_minimization = 1000
+  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
+    number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
+  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
+    number_of_steps_for_minimization = 5000
+  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
+    number_of_steps_for_minimization = 5000
+  print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
+  return number_of_steps_for_minimization
+# end of determine_number_of_steps_for_minimization function
+
 
 def color_print(text, color):
     if (termcolor_installed == True):
@@ -108,88 +286,89 @@ def decide_number_of_cores_to_use(check_at_each_step):
     return cores
 # end of decide_number_of_cores_to_use function
 
+def ent_as_pdb(file_name):
+    new_file_name = file_name[:-4] + ".pdb"
+    cp_command_string = "cp " + file_name + " " + new_file_name
+    print "cp_command_string:", cp_command_string
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    return new_file_name
+# end of ent_as_pdb()
+
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
 # end of file_size(fname)
 
-def final_prepare_for_minimization_cryo_fit(bool_just_get_input_command, bool_minimization, \
-                                         ns_type, number_of_available_cores, \
-                                         number_of_cores_to_use, common_command_string):
+def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use, common_command_string):
     command_used = '' #just initial value
     if (number_of_cores_to_use == "max"):
         if (number_of_available_cores < 4):
-            command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-                                                     bool_minimization, 2, \
-                                                     ns_type, common_command_string)
+            command_used = minimize(2, ns_type, common_command_string)
         elif (number_of_available_cores < 8):
-            command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-                                                     bool_minimization, 4, \
-                                                     ns_type, common_command_string)
+            command_used = minimize(4, ns_type, common_command_string)
         elif (number_of_available_cores < 12):
-            command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-                                                     bool_minimization, 8, \
-                                                     ns_type, common_command_string)
+            command_used = minimize(8, ns_type, common_command_string)
         elif (number_of_available_cores < 16):
-            command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-                                                     bool_minimization, 12, \
-                                                     ns_type, common_command_string)
+            command_used = minimize(12, ns_type, common_command_string)
         else: # ribosome benchmark showed that maximum useful number of cores is 16
-            command_used = minimize_or_cryo_fit(bool_just_get_input_command, \
-                                                     bool_minimization, 16, \
-                                                     ns_type, common_command_string)
+            command_used = minimize(16, ns_type, common_command_string)
     else:
-        command_used = minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, \
-                                                 int(number_of_cores_to_use), ns_type, common_command_string)
+        command_used = minimize(int(number_of_cores_to_use), ns_type, common_command_string)
     return command_used
-# end of final_prepare_for_minimization_cryo_fit function
+# end of final_prepare_minimization function
 
-
-'''
-def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
-                                            home_bin_cryo_fit_bin_dir, ns_type, \
-                                            number_of_available_cores, number_of_cores_to_use, target_map, \
-                                            output_file_name_prefix):
-'''
-def first_prepare_for_minimization_cryo_fit(bool_minimization, bool_just_get_input_command, \
-                                            home_bin_cryo_fit_bin_dir, ns_type, \
-                                            number_of_available_cores, number_of_cores_to_use, target_map):
-    common_command_string = '' # initial value
-    output_file_name = '' # initial value
-    if (bool_minimization == True):
-        common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "
+def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart):
+    command_used = '' #just initial value
+    if (number_of_cores_to_use == "max"):
+        if (number_of_available_cores < 4):
+            command_used = run_cryo_fit_itself(2, common_command_string, restart)
+        elif (number_of_available_cores < 8):
+            command_used = run_cryo_fit_itself(4, common_command_string, restart)
+        elif (number_of_available_cores < 12):
+            command_used = run_cryo_fit_itself(8, common_command_string, restart)
+        elif (number_of_available_cores < 16):
+            command_used = run_cryo_fit_itself(12, common_command_string, restart)
+        else: # ribosome benchmark showed that maximum useful number of cores is 16
+            command_used = run_cryo_fit_itself(16, common_command_string, restart)
     else:
-        '''
-        if (output_file_name_prefix == "None"):
-            output_file_name = "cryo_fitted.gro"
-        else:
-            output_file_name = output_file_name_prefix + "_cryo_fitted.gro"
-            common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
-                                target_map + " -c " + output_file_name + " -nosum  -noddcheck "
-        '''
-        common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
-                                target_map + " -nosum  -noddcheck "
-        # -c       : confout.gro  Output       Structure file: gro g96 pdb etc
-        # mmff     : Merck Molecular ForceField
-        # noddcheck: When inter charge-group bonded interactions are beyond the bonded cut-off distance, \
-        #            mdrun terminates with an error message. For pair interactions and tabulated bonds \
-        #            that do not generate exclusions, this check can be turned off with the option -noddcheck.
-        #-rdd      : real   0  The maximum distance for bonded interactions with DD (nm), \
-        #           0 is determined from initial coordinates.
-        #           Option -rdd can be used to set the required maximum distance for inter charge-group bonded interactions. \
-        #           Communication for two-body bonded interactions below the non-bonded cut-off distance always comes for \
-        #           free with the non-bonded communication. Atoms beyond the non-bonded cut-off are only communicated \
-        #           when they have missing bonded interactions; this means that the extra cost is minor and nearly independent \
-        #           of the value of -rdd. With dynamic load balancing option -rdd also sets the lower limit \
-        #           for the domain decomposition cell sizes. By default -rdd is determined by mdrun based on the initial coordinates. \
-        #           The chosen value will be a balance between interaction range and communication cost.
-    command_used = final_prepare_for_minimization_cryo_fit(bool_just_get_input_command, \
-                                                        bool_minimization, \
-                                                     ns_type, number_of_available_cores, \
-                                                     number_of_cores_to_use, common_command_string)
-    command_used = command_used + "\n"
-    return command_used, output_file_name
-# end of first_prepare_for_minimization_cryo_fit function
+        command_used = run_cryo_fit_itself(int(number_of_cores_to_use), common_command_string, restart)
+    return command_used
+# end of final_prepare_cryo_fit function
+
+def first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
+                                   number_of_cores_to_use):
+    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "    
+    command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
+                                                               common_command_string)
+        
+    command_used = command_used + "\n"    
+    return command_used
+# end of first_prepare_minimization function
+
+def first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores, number_of_cores_to_use, target_map, restart):
+    
+    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
+                            target_map + " -nosum  -noddcheck "
+    
+                            # -c       : confout.gro  Output       Structure file: gro g96 pdb etc
+                            # mmff     : Merck Molecular ForceField
+                            # noddcheck: When inter charge-group bonded interactions are beyond the bonded cut-off distance, \
+                            #            mdrun terminates with an error message. For pair interactions and tabulated bonds \
+                            #            that do not generate exclusions, this check can be turned off with the option -noddcheck.
+                            #-rdd      : real   0  The maximum distance for bonded interactions with DD (nm), \
+                            #           0 is determined from initial coordinates.
+                            #           Option -rdd can be used to set the required maximum distance for inter charge-group bonded interactions. \
+                            #           Communication for two-body bonded interactions below the non-bonded cut-off distance always comes for \
+                            #           free with the non-bonded communication. Atoms beyond the non-bonded cut-off are only communicated \
+                            #           when they have missing bonded interactions; this means that the extra cost is minor and nearly independent \
+                            #           of the value of -rdd. With dynamic load balancing option -rdd also sets the lower limit \
+                            #           for the domain decomposition cell sizes. By default -rdd is determined by mdrun based on the initial coordinates. \
+                            #           The chosen value will be a balance between interaction range and communication cost.
+            
+    command_used = final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart)
+    command_used = command_used + "\n"    
+    return command_used
+# end of first_prepare_cryo_fit function
 
 
 def get_fc(complete_set, xray_structure):
@@ -267,57 +446,7 @@ def know_output_bool_enable_mpi_by_ls():
         exit(1)
     output_bool_enable_mpi = False
     return output_bool_enable_mpi
-    ''' # now we use non-mpi version only, below is not necessary, not working for CentOS machine as well.
-    command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
-    #print "\n\tcommand: ", command_string
-    folder_of_cryo_fit = ''
-    try: # this try-except seems to be needed for CentOS machine
-        folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    except:
-        print "\nInstall cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-        print "exit now"
-        exit(1)
-    #print "folder_of_cryo_fit[0]:", folder_of_cryo_fit[0]
-  
-    if folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added":
-        print "\tUser's cryo_fit was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
-        output_bool_enable_mpi = False  
-    elif folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
-        print "folder_of_cryo_fit[0] = gromacs-4.5.5_cryo_fit_added_mpi"
-        output_bool_enable_mpi = True
-    else:
-        print "\nInstall cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-        print "exit now"
-        exit(1)
-    return output_bool_enable_mpi
-    '''
 # end of know_output_bool_enable_mpi_by_ls function
-
-
-'''
-def know_home_cryo_fit_bin_dir_by_ls():
-    home_dir = expanduser("~")
-    home_cryo_fit_bin_dir = ''
-    command_string = "ls ~/bin | grep gromacs-4.5.5_cryo_fit"
-    #print "\n\tcommand: ", command_string
-    folder_of_cryo_fit = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    #print "\tfolder_of_cryo_fit[0]:", folder_of_cryo_fit[0]
-    
-    # needed only for debug
-    # f_out = open('log.folder_of_cryo_fit', 'wt')
-    # f_out.write(folder_of_cryo_fit[0])
-    # f_out.close()
-    
-    if folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added":
-        #print "\tUser's cryo_fit was installed with enable_mpi=False, so the current cryo_fit will run as enable_mpi = False"
-        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added/bin"
-    elif folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
-        home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_added_mpi/bin"
-    else:
-        print "Install cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-    return home_cryo_fit_bin_dir
-# end of know_output_bool_enable_mpi_by_ls function
-'''
 
 def know_home_cryo_fit_bin_dir_by_ls_find(): # really used
     home_dir = expanduser("~")
@@ -333,7 +462,6 @@ def know_home_cryo_fit_bin_dir_by_ls_find(): # really used
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_mpi/bin"
     return home_cryo_fit_bin_dir
 # end of know_output_bool_enable_mpi_by_ls_find function
-
 
 def know_total_number_of_cores():
     if ((platform.system() != "Darwin") and (platform.system() != "Linux")):
@@ -366,37 +494,12 @@ def locate_Phenix_executable():
     return command_path
 # end of locate_Phenix_executable function
 
-
-def minimize_or_cryo_fit(bool_just_get_input_command, bool_minimization, cores_to_use, \
-                              ns_type, common_command_string):
-    command_string = '' # just initial
-    if (bool_minimization == True and ns_type == "simple"):
-        if (bool_enable_mpi == True):
-            command_string = "mpirun -np 1 " + common_command_string + " -dd 1 1 1 "
-        else:
-            command_string = common_command_string + " -nt 1 -dd 1 1 1 "
-    elif (cores_to_use == 2):
-        command_string = common_command_string + " -nt 2 -dd 2 1 1 "
-    elif (cores_to_use == 4):
-        command_string = common_command_string + " -nt 4 -dd 2 2 1 "
-    elif (cores_to_use == 8):
-        command_string = common_command_string + " -nt 8 -dd 2 2 2 "
-    elif (cores_to_use == 12):
-        command_string = common_command_string + " -nt 12 -dd 3 2 2 " # [keep this comment] for -nt 12, -dd 3 2 2 is needed instead of 2 2 3
-    else: #elif (cores_to_use == 16):
-        command_string = common_command_string + " -nt 16 -dd 4 2 2 "
-    #else:
-        # [keep this comment 4/27/2018]
-        # command_string = common_command_string + " -nt " + str(cores_to_use) + " -dd 0 "
-        # Major Warning: this resulted in "charge group moved" error in nuclesome with all emweights, although looks simpler and convinient
-    
-    if bool_just_get_input_command == False:
-        color_print ("\tcommand: ", 'green')
-        print "\t", command_string
-        libtbx.easy_run.call(command=command_string)
+def minimize(cores_to_use, ns_type, common_command_string):
+    command_string = common_command_string + " -nt 1 -dd 1 1 1 "
+    print "\tcommand: ", command_string
+    libtbx.easy_run.call(command=command_string)
     return command_string
-# end of minimize_or_cryo_fit function
-
+# end of minimize function
 
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\n\tConvert mrc format map to situs format map"
@@ -508,16 +611,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     else:
         
         return new_map_file_name
-    
-    #return new_map_file_name, pdb_file_name, origin_shited_to_000, shifted_in_x, shifted_in_y, shifted_in_z, widthx
-    
 # end of mrc_to_sit(map_file_name)
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
-      #print "\tRemove a former " + this_folder + " folder"
       shutil.rmtree(this_folder)
-  #print "\tMake a new " + this_folder + " folder"
   os.mkdir(this_folder)
   
   new_path = starting_dir + "/" + this_folder
@@ -542,6 +640,68 @@ def remove_former_files():
           subprocess.call(["rm", each_file])
 # end of remove_former_files function 
 
+def remove_water_for_gromacs(input_pdb_file_name):
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    for line in f_in:
+      if line[17:20] != "HOH":
+        f_out.write(line)
+    f_in.close()
+    f_out.close()
+    return output_pdb_file_name
+    # using construct_hierarchy() will be great, but my own code would be much faster to develop
+    '''
+    pdb_input = iotbx.pdb.input(file_name=file)
+    pdb_hierarchy = pdb_input.construct_hierarchy()
+    for model in pdb_hierarchy.models():
+      chains = model.chains()
+      for chain in chains:
+        conformers = chain.conformers()
+        for conformer in conformers:
+          residues = conformer.residues()
+          for residue in residues:
+            print "residue.resname:", residue.resname
+    '''
+#end of remove_water_for_gromacs ()
+
+def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
+    command_string = '' # just initial
+    print "\trestart:",restart
+    if (cores_to_use == 2):
+        if (str(restart) == "False"):
+            command_string = common_command_string + " -nt 2 -dd 2 1 1 "
+        else:
+            command_string = common_command_string + " -nt 2 -dd 2 1 1 -cpi state.cpt"
+    elif (cores_to_use == 4):
+        if (str(restart) == "False"):
+            command_string = common_command_string + " -nt 4 -dd 2 2 1 "
+        else:
+            command_string = common_command_string + " -nt 4 -dd 2 2 1 -cpi state.cpt"
+    elif (cores_to_use == 8):
+        if (str(restart) == "False"):
+            command_string = common_command_string + " -nt 8 -dd 2 2 2 "
+        else:
+            command_string = common_command_string + " -nt 8 -dd 2 2 2 -cpi state.cpt"
+    elif (cores_to_use == 12):
+        if (str(restart) == "False"):
+            command_string = common_command_string + " -nt 12 -dd 3 2 2 " # [keep this comment] for -nt 12, -dd 3 2 2 is needed instead of 2 2 3
+        else:
+            command_string = common_command_string + " -nt 12 -dd 3 2 2 -cpi state.cpt"
+    else: #elif (cores_to_use == 16):
+        if (str(restart) == "False"):
+            command_string = common_command_string + " -nt 16 -dd 4 2 2 "
+        else:
+            command_string = common_command_string + " -nt 16 -dd 4 2 2 -cpi state.cpt"
+    #else:
+        # [keep this comment 4/27/2018]
+        # command_string = common_command_string + " -nt " + str(cores_to_use) + " -dd 0 "
+        # Major Warning: this resulted in "charge group moved" error in nuclesome with all emweights, although looks simpler and convinient
+    
+    print "\tcommand: ", command_string
+    libtbx.easy_run.call(command=command_string)
+    return command_string
+# end of run_cryo_fit_itself function
 
 def shift_origin_of_mrc_map_if_needed(map_data, model):
     print "\tShift_origin_of_mrc_map_if_needed"
@@ -553,6 +713,29 @@ def shift_origin_of_mrc_map_if_needed(map_data, model):
     return map_data
 # end of shift_origin_of_mrc_map_if_needed ()
 
+def shorten_file_name_if_needed(model_file_without_pathways):
+  print "\tShorten_file_name_if_needed"
+
+  if len(model_file_without_pathways) > 50:
+    print "\tThe length of model_file_without_pathways is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
+    print "\tTherefore, cryo_fit will copy another short named file."
+    extension = model_file_without_pathways[len(model_file_without_pathways)-4:len(model_file_without_pathways)]
+    new_model_file_without_pathways = model_file_without_pathways[:40] + extension
+    
+    return new_model_file_without_pathways
+  return model_file_without_pathways
+# end of shorten_file_name_if_needed
+
+def show_time(time_start, time_end):
+    time_took = 0 # temporary of course
+    if (round((time_end-time_start)/60, 1) < 1):
+      time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
+    elif (round((time_end-time_start)/60/60, 1) < 1):
+      time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
+    else:
+      time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+    return time_took
+# end of show_time function
 
 def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx, retranslate_to_original):
     #print "\ttranslate_pdb_file_by_xyz"
@@ -617,15 +800,3 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
     f_out.close()
     return output_pdb_file_name   
 # end of translate_pdb_file_by_xyz ()
-
-
-def show_time(time_start, time_end):
-    time_took = 0 # temporary of course
-    if (round((time_end-time_start)/60, 1) < 1):
-      time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
-    elif (round((time_end-time_start)/60/60, 1) < 1):
-      time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
-    else:
-      time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
-    return time_took
-# end of show_time function

@@ -250,141 +250,6 @@ master_params = master_params_str
 master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
-def check_whether_cc_has_been_increased(cc_record):
-  print "\tCheck_whether_cc_has_been_increased"
-  
-  f_in = open(cc_record)
-  former_cc = -99
-  cc_has_been_increased_array = []
-  cc_array = []
-  for line in f_in:
-    splited = line.split(" ")
-    cc = splited[4]
-
-    if (float(cc) < 0.0001):
-      print "\t\tcc: " + cc + " < 0.0001"
-      print "\t\tExit now, since further cc will be 0.000 as well\n"
-      exit(1)
-    cc_array.append(cc)
-    if cc > former_cc:
-      cc_has_been_increased_array.append(True)
-    else:
-      cc_has_been_increased_array.append(False)
-    former_cc = cc
-  f_in.close()
-
-  if (len(cc_has_been_increased_array) < 15):
-    print "\t\tnumber of cc evaluations < 15"
-    print "\t\tRe-run because usually first few evaluations of cc are fluctuating. Therefore, consider as if the most recent ccs have been increased"
-    return True 
-  
-  #print "\t\tlen(cc_array):",len(cc_array)
-  
-  the_highest_cc = -99
-  cc_last = cc_array[len(cc_array)-1]
-  print "\t\tcc_last:", cc_last
-  for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
-    cc = cc_array[i]
-    print "\t\ti:",i,"cc:",cc
-    if cc > the_highest_cc:
-      the_highest_cc = cc
-  print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
-  if the_highest_cc == cc_last:
-    print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
-    return True
-
-  cc_has_been_increased = 0
-  cc_has_been_decreased = 0
-  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
-  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
-    if cc_has_been_increased_array[i] == False:
-      cc_has_been_decreased = cc_has_been_decreased + 1
-    else:
-      cc_has_been_increased = cc_has_been_increased + 1
-  print "\t\tcc_has_been_increased in the last 10 steps:",cc_has_been_increased,", cc_has_been_decreased in the last 10 steps:",cc_has_been_decreased
-  if (cc_has_been_decreased >= 9):
-    print "\t\tcc tends to be decreased over the last 10 steps."
-    print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
-    print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
-    print "\t\tPossible solutions:"
-    print "\t\t\t1) Re-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
-    print "\t\t\t2) Re-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
-    print "\t\t\t3) Check whether the initial model is properly aligned in a map"
-    print "\t\tNote:"
-    print "\t\t\tIncreasing emweight_multiply_by may not help"
-    print "\t\tExit now"
-    exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased+3):
-    cc_10th_last = cc_array[len(cc_array)-11]
-    print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
-    if (cc_last > cc_10th_last):
-      print "\t\tcc_last > cc_10th_last"
-      return True # the last 10 cc values tend to be increased, so re-run with longer steps
-    else:
-      return False
-  else:
-    return False # the last 10 cc values tend NOT to be increased
-# end of check_whether_cc_has_been_increased function
-
-def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
-  if (os.path.isfile(check_this_file)):
-    returned_file_size = file_size(check_this_file)
-    if (returned_file_size > 0):
-      return "success"
-  print step_name, " didn't successfully ran"
-  if (step_name == "Step 4" or step_name == "Step 8"):
-    return "failed"
-  exit(1)
-# end of check_whether_the_step_was_successfully_ran function
-
-def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
-                                          user_entered_number_of_steps_for_cryo_fit, devel):
-  if (devel == True):
-    number_of_steps_for_cryo_fit = 100
-    return number_of_steps_for_cryo_fit
-  
-  if (user_entered_number_of_steps_for_cryo_fit != None ):
-    print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
-    return user_entered_number_of_steps_for_cryo_fit
-  
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
-  number_of_steps_for_cryo_fit = '' # just initial declaration
-  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_cryo_fit = 5000 # 15,000 seems too large
-  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_cryo_fit = 20000
-  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
-  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_cryo_fit = 80000
-  print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
-  return number_of_steps_for_cryo_fit
-# end of determine_number_of_steps_for_cryo_fit function
-
-def determine_number_of_steps_for_minimization(model_file_without_pathways, \
-                                               model_file_with_pathways, \
-                                               user_entered_number_of_steps_for_minimization, devel):
-  if (devel == True):
-    number_of_steps_for_minimization = 10
-    return number_of_steps_for_minimization
-  if (user_entered_number_of_steps_for_minimization != None ):
-    print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", user_entered_number_of_steps_for_minimization
-    return user_entered_number_of_steps_for_minimization
-
-  number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
-  number_of_steps_for_minimization = '' # just initial declaration
-  if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_minimization = 1000
-  elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
-  elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_minimization = 5000
-  else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_minimization = 5000
-  print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
-  return number_of_steps_for_minimization
-# end of determine_number_of_steps_for_minimization function
-
 def get_release_tag():
   release_tag = os.environ.get("PHENIX_RELEASE_TAG", None)
   return release_tag
@@ -444,93 +309,6 @@ def validate_params(params): # validation for GUI
   print "\tvalidate_params pass"
   return True
 # end of validate_params function
-
-def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, I need to assign map file first, then model file
-  print "\n\tAssign map file name"
-  
-  params.cryo_fit.Input.map_file_name = map_file_name
-  if os.path.isfile(params.cryo_fit.Input.map_file_name) != True:
-    print "Please correct map file location, cryo_fit can't find " + params.cryo_fit.Input.map_file_name
-    exit(1)
-  
-  temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
-  
-  if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
-    
-    params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
-  
-  print "\t\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
-  map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
-  print "\t\tmap_file_with_pathways:",map_file_with_pathways
-  if map_file_with_pathways[:-4] == ".map":
-    map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
-  
-  # assign map_file_without_pathways
-  splited_map_file_name = map_file_with_pathways.split("/")
-  map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
-  
-  if os.path.isfile(map_file_with_pathways) != True:
-    print "\tcryo_fit can't find ", map_file_with_pathways
-    exit(1)
-  
-  os.chdir(starting_dir)
-  return map_file_with_pathways, map_file_without_pathways
-# end of assign_map_name()
-
-
-
-def assign_model_name(params, starting_dir, inputs, model_file_name):
-  print "\n\tAssign model file name."
-  params.cryo_fit.Input.model_file_name = model_file_name
-  if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
-    print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
-    exit(1)
-  
-  ################## assign model file
-  # assign model_file_without_pathways (not final)
-  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  
-  if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
-    print "\t\tSince a user provided .cif file, let's turn it into .pdb"
-    cif_as_pdb(params.cryo_fit.Input.model_file_name)
-    cw_dir = os.getcwd()
-    params.cryo_fit.Input.model_file_name = cw_dir + "/" + model_file_without_pathways
-    params.cryo_fit.Input.model_file_name = params.cryo_fit.Input.model_file_name[:-4] + ".pdb"
-  elif params.cryo_fit.Input.model_file_name.endswith('.ent'):
-    print "\t\tSince a user provided .ent file, let's simply change its extension into .pdb"
-    params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
-  
-  model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
-  print "\t\tmodel_file_with_pathways:",model_file_with_pathways
-  if os.path.isfile(model_file_with_pathways) != True:
-    print "\t\tmodel_file_with_pathways is wrong"
-    exit(1)
-    
-  splited_model_file_name = model_file_with_pathways.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
-  
-  os.chdir(starting_dir)
-  return model_file_with_pathways, model_file_without_pathways
-# end of assign_model_name()
-
-
-def shorten_file_name_if_needed(model_file_without_pathways):
-  print "\tShorten_file_name_if_needed"
-
-  if len(model_file_without_pathways) > 50:
-    #print "\tThe length of model_file_without_pathways is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
-    #print "\tTherefore, cryo_fit will copy another short named file."
-    extension = model_file_without_pathways[len(model_file_without_pathways)-4:len(model_file_without_pathways)]
-    new_model_file_without_pathways = model_file_without_pathways[:40] + extension
-    
-    #print "\tmodel_file_without_pathways after shortening: ", new_model_file_without_pathways
-    return new_model_file_without_pathways
-  return model_file_without_pathways
-# end of shorten_file_name_if_needed
 
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starting_pdb_without_path, \
            force_field, ignh, missing, remove_metals):
@@ -767,7 +545,6 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   start = time.time()
   
   libtbx.easy_run.call(command_string)
-  
   
   ''' # seems not working
   f_in = open('log.step_4_1_minimization_real_command')
@@ -1024,8 +801,8 @@ def search_charge_in_md_log():
 # end of search_charge_in_md_log function
            
 
-def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
-       map_file_with_pathways, no_rerun, devel, tutorial):
+def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
+       map_file_with_pathways, no_rerun, devel, tutorial, restart):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -1034,6 +811,10 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
   libtbx.easy_run.fully_buffered(command_string)
   
+  if (str(restart) == "True"):
+    command_string = "cp ../../state.cpt . "
+    libtbx.easy_run.fully_buffered(command_string)
+  
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   for i in range(len(splited_starting_dir)):
@@ -1041,11 +822,11 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
       this_is_test = True
       print "\tthis_is_test:", this_is_test
   
-  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(ns_type) + " " + \
+  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + \
               str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
-              + " " + str(starting_dir) + " " + str(this_is_test)
+              + " " + str(starting_dir) + " " + str(this_is_test) + " " + str(restart)
   print "\n\tcommand: ", command_string
-  print "\n\tA user can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
+  print "\n\tA user can check progress of this step 8 at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   time_end_cryo_fit = time.time()
@@ -1104,7 +885,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\n"
   
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
-  print "\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
+  print "\t\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
     print "\tcryo_fit so meticulously finds better cc, so it takes long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
@@ -1124,7 +905,7 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   print "\n\tExtract .gro files from the 3 highest cc values."
   command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py " + str(this_is_test)
-  print "\n\t\tcommand: ", command_string
+  print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
   #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
   
@@ -1188,13 +969,15 @@ def step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   
   print "\nStep 8", (show_time(time_start_cryo_fit, time_end_cryo_fit))
   
+  if (os.path.isfile("../../state.cpt") == True):
+    os.remove("../../state.cpt")
+    
   os.chdir( starting_dir )
   if (this_is_test == True):
     return this_is_test
   else:
     return results
 # end of step_8 (cryo_fit itself) function
-
 
 def step_final(logfile, command_path, starting_dir):
   os.chdir( starting_dir )
@@ -1253,12 +1036,12 @@ def step_final(logfile, command_path, starting_dir):
     
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
-  print "\n\tResults files are in \"output\" folder"
-  print "  \t\tIf cryo_fit fitted better than a user provided input atomic model, the highest cc value is cryo_fitted_chain_recovered.pdb "
-  print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes"
-  print "  \t\tTherefore, a user may use other extracted_x_steps_x_ps.gro/pdb as well."
+  print "\n\tOutputs are in \"output\" folder"
+  print "  \t\tIf cryo_fit fitted better than a user provided input atomic model, a model with the highest cc value is cryo_fitted_chain_recovered.pdb"
+  print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
+  print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record draws a figure for cc change."
-  print "  \t\t(Phenix GUI shows this figure automatically)."
+  print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course)"
   print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (for_cryo_fit.tpr), .xtc = (traj.xtc) -> OK -> (click play button)"
   print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory.gro) -> Load "
@@ -1306,7 +1089,7 @@ def step_9(command_path, starting_dir):
 #end of step_9 (cc draw) function
 '''
   
-def run_cryo_fit(logfile, params, inputs):  
+def run_cryo_fit(logfile, params, inputs):
   
   # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
   # works well at macOS commandline, macOS GUI and CentOS commandline
@@ -1342,7 +1125,6 @@ def run_cryo_fit(logfile, params, inputs):
   returned = assign_model_name(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name)
   model_file_with_pathways = returned[0]
   model_file_without_pathways = returned[1]
-  
   
   # Options  
   constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
@@ -1469,7 +1251,9 @@ def run_cryo_fit(logfile, params, inputs):
   tutorial = False
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     tutorial = True
-    
+  
+  restart = False # this is a proper initial assignment
+  
   while (cc_has_been_increased == True or charge_group_moved == True):
     if ((this_is_test == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
@@ -1482,8 +1266,8 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
     
     if (steps_list[7] == True):
-      results = step_8(logfile, command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, no_rerun, devel, tutorial)
+      results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
+             map_file_with_pathways, no_rerun, devel, tutorial, restart)
       if (results == True): # this is a test
         break  
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose
@@ -1501,15 +1285,26 @@ def run_cryo_fit(logfile, params, inputs):
         os.chdir( starting_dir )
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
-          logfile.write("re_run_with_longer_steps is recommended, but no_rerun, Step 8 (cryo_fit itself) is successfully ran\n")
+          logfile.write("re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n")
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
+        restart = True
+        # copy for next restart step
+        cp_command_string = "cp state.cpt ../.."
+        libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
+  
         charge_group_moved = False # just initial value
         print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n"
         print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n"
         logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n")
         logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n")
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
+        
+        restart_record = open("../../restart_record.txt", "a+")
+        write_this = str(number_of_steps_for_cryo_fit)+"\n"
+        restart_record.write(write_this)
+        restart_record.close()
+        
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
           print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
           break # no need to use exit(1) since break will break this while loop
