@@ -128,7 +128,7 @@ Options
 {
   constraint_algorithm_minimization = *default none none_default
     .type = choice
-    .help = Try none or none_default if you see this error during minimization "Too many lincs warnings" \
+    .help = Try none or none_default if a user see this error during minimization "Too many lincs warnings" \
             none_default will minimize twice. \
             First with constraint_algorithm_minimization = none \
             then with constraint_algorithm_minimization = default
@@ -166,12 +166,12 @@ Options
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
-    .help = Default value is 0.002. Try 0.001 if you see this error during cryo_fit \
+    .help = Default value is 0.002. Try 0.001 if a user see this error during cryo_fit \
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
   time_step_for_minimization = 0.001
     .type = float
-    .help = Default value is 0.001. Try 0.0005 if you see this error during minimization
+    .help = Default value is 0.001. Try 0.0005 if a user see this error during minimization
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
   # number_of_threads_to_use = *2 4 8 12 16 24 32
@@ -273,15 +273,6 @@ def print_author():
     - Doo Nam Kim, Serdal Kirmizialtin, Nigel Moriarty, Tom Terwilliger, Billy Poon
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
-
-def return_number_of_atoms_in_gro():
-  for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
-    command_string = "wc -l " + check_this_file
-    wc_result = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    splited = wc_result[0].split()
-    print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
-    return str(splited[0])
-# end of return_number_of_atoms_in_gro function
 
 def show_header(title):
   print "\n"
@@ -541,7 +532,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2)
               # set number_of_cores_to_use = 2 to minimize a possibility of having cell size error
   print "\tcommand: ", command_string
-  print "\n\tYou can check progress at ", starting_dir + "/steps/4_minimize\n"
+  print "\n\tA user can check progress at ", starting_dir + "/steps/4_minimize\n"
   start = time.time()
   
   libtbx.easy_run.call(command_string)
@@ -822,9 +813,9 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       this_is_test = True
       print "\tthis_is_test:", this_is_test
   
-  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + \
-              str(number_of_available_cores) + " " + number_of_cores_to_use + " " + map_file_with_pathways\
-              + " " + str(starting_dir) + " " + str(this_is_test) + " " + str(restart)
+  command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(number_of_available_cores) \
+              + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
+              + " " + str(this_is_test) + " " + str(restart)
   print "\n\tcommand: ", command_string
   print "\n\tA user can check progress of this step 8 at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
@@ -884,11 +875,18 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     f_out.write(correlation_coefficients_change[i])
   print "\n"
   
+  if (str(restart) == "False"):
+    user_s_cc = get_users_cc("cc_record")
+    user_s_cc = round(float(user_s_cc),3)
+    write_this = "\nUser's provided atomic model has " + str(user_s_cc) + " cc\n\n"
+    #print "\twrite_this:", write_this
+    logfile.write(write_this)
+    
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
   print "\t\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
-    print "\tcryo_fit so meticulously finds better cc, so it takes long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
+    print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
   if (tutorial == False):
     if (devel == True):
       no_rerun = True
@@ -1289,7 +1287,7 @@ def run_cryo_fit(logfile, params, inputs):
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
         restart = True
-        # copy for next restart step
+        # copy for a next restart step
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   

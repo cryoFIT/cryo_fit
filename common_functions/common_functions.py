@@ -21,7 +21,7 @@ except Exception:
     termcolor_installed = False
     ''' # disable this for now, so that phenix launch will not show this message
     print "\n\tUser's computer has no termcolor"
-    print "\tIf you want to see cryo_fit installation helper's comments in color..."
+    print "\tIf a user want to see cryo_fit installation helper's comments in color..."
     print "\t1. Download termcolor-1.1.0.tar.gz from https://pypi.python.org/pypi/termcolor"
     print "\t2. Extract termcolor-1.1.0.tar.gz (for example, tar -xvf termcolor-1.1.0.tar.gz)"
     print "\t3. Run \"python setup.py install\" at the extracted folder"
@@ -62,8 +62,6 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
   os.chdir(starting_dir)
   return map_file_with_pathways, map_file_without_pathways
 # end of assign_map_name()
-
-
 
 def assign_model_name(params, starting_dir, inputs, model_file_name):
   print "\n\tAssign model file name."
@@ -158,11 +156,10 @@ def check_whether_cc_has_been_increased(cc_record):
     print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
     print "\t\tPossible solutions:"
-    print "\t\t\t1) Re-run cryo_fit with only relevant map region. You can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
+    print "\t\t\t1) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
     print "\t\t\t2) Re-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
     print "\t\t\t3) Check whether the initial model is properly aligned in a map"
-    print "\t\tNote:"
-    print "\t\t\tIncreasing emweight_multiply_by may not help"
+    print "\t\tNote: Increasing emweight_multiply_by may not help"
     print "\t\tExit now"
     exit(1)
   if (cc_has_been_increased > cc_has_been_decreased+3):
@@ -209,6 +206,13 @@ def cif_as_pdb(file_name):
       print "Error converting %s to PDB format:" %file_name
       print " ", str(e)
 # end of cif_as_pdb()
+
+def color_print(text, color):
+    if (termcolor_installed == True):
+        print colored (text, color)
+    else:
+        print text
+# end of color_print()
 
 def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
                                           user_entered_number_of_steps_for_cryo_fit, devel):
@@ -260,14 +264,6 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
   return number_of_steps_for_minimization
 # end of determine_number_of_steps_for_minimization function
 
-
-def color_print(text, color):
-    if (termcolor_installed == True):
-        print colored (text, color)
-    else:
-        print text
-# end of color_print()
-
 def decide_number_of_cores_to_use(check_at_each_step):
     number_of_total_cores = know_total_number_of_cores()
     color_print ("User's computer has ", 'green')
@@ -276,7 +272,7 @@ def decide_number_of_cores_to_use(check_at_each_step):
     print "\n"
     cores = 0 # temporary value
     if check_at_each_step == 1:
-        color_print ("Enter how many cores you want to use:", 'green')
+        color_print ("Enter how many cores a user want to use:", 'green')
         cores = raw_input()
     else:
         if number_of_total_cores > 38:
@@ -299,24 +295,6 @@ def file_size(fname):
     return statinfo.st_size
 # end of file_size(fname)
 
-def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use, common_command_string):
-    command_used = '' #just initial value
-    if (number_of_cores_to_use == "max"):
-        if (number_of_available_cores < 4):
-            command_used = minimize(2, ns_type, common_command_string)
-        elif (number_of_available_cores < 8):
-            command_used = minimize(4, ns_type, common_command_string)
-        elif (number_of_available_cores < 12):
-            command_used = minimize(8, ns_type, common_command_string)
-        elif (number_of_available_cores < 16):
-            command_used = minimize(12, ns_type, common_command_string)
-        else: # ribosome benchmark showed that maximum useful number of cores is 16
-            command_used = minimize(16, ns_type, common_command_string)
-    else:
-        command_used = minimize(int(number_of_cores_to_use), ns_type, common_command_string)
-    return command_used
-# end of final_prepare_minimization function
-
 def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart):
     command_used = '' #just initial value
     if (number_of_cores_to_use == "max"):
@@ -335,15 +313,23 @@ def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, co
     return command_used
 # end of final_prepare_cryo_fit function
 
-def first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
-                                   number_of_cores_to_use):
-    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "    
-    command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
-                                                               common_command_string)
-        
-    command_used = command_used + "\n"    
+def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use, common_command_string):
+    command_used = '' #just initial value
+    if (number_of_cores_to_use == "max"):
+        if (number_of_available_cores < 4):
+            command_used = minimize(2, ns_type, common_command_string)
+        elif (number_of_available_cores < 8):
+            command_used = minimize(4, ns_type, common_command_string)
+        elif (number_of_available_cores < 12):
+            command_used = minimize(8, ns_type, common_command_string)
+        elif (number_of_available_cores < 16):
+            command_used = minimize(12, ns_type, common_command_string)
+        else: # ribosome benchmark showed that maximum useful number of cores is 16
+            command_used = minimize(16, ns_type, common_command_string)
+    else:
+        command_used = minimize(int(number_of_cores_to_use), ns_type, common_command_string)
     return command_used
-# end of first_prepare_minimization function
+# end of final_prepare_minimization function
 
 def first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores, number_of_cores_to_use, target_map, restart):
     
@@ -370,6 +356,15 @@ def first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores,
     return command_used
 # end of first_prepare_cryo_fit function
 
+def first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
+                                   number_of_cores_to_use):
+    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "    
+    command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
+                                                               common_command_string)
+        
+    command_used = command_used + "\n"    
+    return command_used
+# end of first_prepare_minimization function
 
 def get_fc(complete_set, xray_structure):
   f_calc = complete_set.structure_factors_from_scatterers(
@@ -408,6 +403,15 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
   #print dir(fc).statistical_mean
 # end of get_structure_factor_from_pdb_string function
 
+def get_users_cc(cc_record):
+  print "\tget user's cc"
+  f_in = open(cc_record)
+  for line in f_in:
+    splited = line.split(" ")
+    cc = splited[4]
+    f_in.close()
+    return cc
+# end of get_users_cc(cc_record)
 
 def kill_mdrun_mpirun_in_linux():
     color_print ("\tkill any existing mdrun jobs (gromacs)", 'green')
@@ -561,7 +565,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     print "\n\tConversion started..."
     print "\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
-    print "\t\t(Therefore, if you want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
+    print "\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
     print "\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
     
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
@@ -664,6 +668,15 @@ def remove_water_for_gromacs(input_pdb_file_name):
             print "residue.resname:", residue.resname
     '''
 #end of remove_water_for_gromacs ()
+
+def return_number_of_atoms_in_gro():
+  for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
+    command_string = "wc -l " + check_this_file
+    wc_result = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    splited = wc_result[0].split()
+    print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
+    return str(splited[0])
+# end of return_number_of_atoms_in_gro function
 
 def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     command_string = '' # just initial
