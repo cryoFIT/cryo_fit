@@ -563,7 +563,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     print "\t\ttarget_map_data.all():", target_map_data.all()
     
-    print "\n\tConversion started..."
+    print "\n\tConversion started."
     print "\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
     print "\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
     print "\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
@@ -715,6 +715,18 @@ def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     libtbx.easy_run.call(command=command_string)
     return command_string
 # end of run_cryo_fit_itself function
+
+def search_charge_in_md_log():
+  print "\tSearch \"A charge group moved too far between two domain decomposition steps\" in md.log"
+  command_string = "grep \"A charge group moved too far between two domain decomposition steps\" md.log > grepped"
+  libtbx.easy_run.fully_buffered(command_string)
+  returned_file_size = file_size("grepped")
+  if (returned_file_size > 0):
+    print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
+    return 1 # found "charge group..."
+  print "\t\"A charge group moved too far between two domain decomposition steps\" not found in md.log"
+  return 0 # not found "charge group..."
+# end of search_charge_in_md_log function
 
 def shift_origin_of_mrc_map_if_needed(map_data, model):
     print "\tShift_origin_of_mrc_map_if_needed"

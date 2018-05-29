@@ -312,7 +312,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starti
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = True
-      print "this_is_test = True"
+      print "\tthis_is_test = True"
     
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
@@ -778,20 +778,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   os.chdir( starting_dir )
   return this_is_test
 # end of step_7 (make tpr for cryo_fit) function
-
-def search_charge_in_md_log():
-  print "\tSearch \"A charge group moved too far between two domain decomposition steps\" in md.log"
-  command_string = "grep \"A charge group moved too far between two domain decomposition steps\" md.log > grepped"
-  libtbx.easy_run.fully_buffered(command_string)
-  returned_file_size = file_size("grepped")
-  if (returned_file_size > 0):
-    print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
-    return 1 # found "charge group..."
-  print "\t\"A charge group moved too far between two domain decomposition steps\" not found in md.log"
-  return 0 # not found "charge group..."
-# end of search_charge_in_md_log function
            
-
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
        map_file_with_pathways, no_rerun, devel, tutorial, restart):
   show_header("Step 8: Run cryo_fit")
@@ -985,8 +972,10 @@ def step_final(logfile, command_path, starting_dir):
   
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
-  cp_command_string = ''
-
+  
+  cp_command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = True
@@ -1016,9 +1005,6 @@ def step_final(logfile, command_path, starting_dir):
     
     cp_command_string = "cp ../steps/8_cryo_fit/*_chain_recovered.pdb ."
     libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
-    libtbx.easy_run.fully_buffered(command_string)
 
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
@@ -1239,9 +1225,12 @@ def run_cryo_fit(logfile, params, inputs):
     this_is_test = step_6(command_path, starting_dir)
     logfile.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
+  if (this_is_test == True):
+    return 0 # return early for regression of step 1~6
+  
   cc_has_been_increased = True # just an initial value
   charge_group_moved = True # just an initial value
-  
+    
   returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
   map_file_with_pathways = returned[0]
   map_file_without_pathways = returned[1]
@@ -1249,7 +1238,7 @@ def run_cryo_fit(logfile, params, inputs):
   tutorial = False
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     tutorial = True
-  
+    
   restart = False # this is a proper initial assignment
   
   while (cc_has_been_increased == True or charge_group_moved == True):
@@ -1262,11 +1251,14 @@ def run_cryo_fit(logfile, params, inputs):
       this_is_test = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
              emwritefrequency, lincs_order, time_step_for_cryo_fit)
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
+      if (this_is_test == True):
+        return 0 # return early for regression of step 7
     
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, tutorial, restart)
       if (results == True): # this is a test
+        print "This is a test, so break early"
         break  
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose
         logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
