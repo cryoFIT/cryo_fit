@@ -179,7 +179,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     returned_file_size = file_size(check_this_file)
     if (returned_file_size > 0):
       return "success"
-  print step_name, " didn't successfully ran"
+  print step_name, " didn't successfully run"
   if (step_name == "Step 4" or step_name == "Step 8"):
     return "failed"
   exit(1)
