@@ -180,28 +180,6 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
         if (returned_file_size > 0):
           return "success"
     print step_name, " didn't successfully run"
-    if (step_name == "Step 3"):
-        msg=(
-        '\nIf a user sees a message like\n\n'
-        '\t"Program grompp, VERSION 4.5.5 \n'
-        '\tSource code file: toppush.c, line: 1166\n\n'
-        
-        '\tFatal error:\n'
-        '\tAtomtype CH3 not found\n'
-        '\tFor more information and tips for troubleshooting, please check the GROMACS\n'
-        '\twebsite at http://www.gromacs.org/Documentation/Errors"\n\n'
-        
-        'It means that user\'s input pdb file has a forcefield undefined ligand\n'
-        'Therefore, cryo_fit recommends either of two methods\n\n'
-        
-        '\t1st method> Remove lines of the unusual ligand that brought that message from input pdb file\n'
-        '\tThen, run again phenix.cryo_fit, ligand fitting into cryo-EM map can be done later by phenix.ligandfit anyway\n'
-        '\tOf course, if the ligand is really unusual, cif file from phenix.elbow is required for that phenix.ligandfit\n\n'
-        
-        '\t2nd method> Add atomtypes of your ligand to amber03.ff of this cryo_fit distribution using http://davapc1.bioch.dundee.ac.uk/cgi-bin/prodrg and .../modules/cryo_fit/steps/0_prepare_cryo_fit/top2rtp/runme_top2rtp.py\n'
-        '\tThen, email me (doonam@lanl.gov), I want to recognize your contribution publicly and distribute updated force field\n'
-        )
-        print (msg)
     if (step_name == "Step 4" or step_name == "Step 8"):
       return "failed"
     exit(1)
