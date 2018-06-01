@@ -435,7 +435,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   return this_is_test
 # end of step_2 (clean gro) function
 
-def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
+def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
            time_step_for_minimization):
   show_header("Step 3: Make a tpr file for minimization")
   os.chdir (starting_dir)
@@ -499,7 +499,8 @@ def step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimizatio
   libtbx.easy_run.call(command_string)
   end = time.time()
 
-  check_whether_the_step_was_successfully_ran("Step 3", "to_minimize.tpr")
+  #check_whether_the_step_was_successfully_ran("Step 3", "to_minimize.tpr")
+  check_whether_the_step_3_was_successfully_ran(logfile, "to_minimize.tpr")
   print "Step 3", (show_time(start, end))
   os.chdir( starting_dir )
   return this_is_test
@@ -1186,7 +1187,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if str(constraint_algorithm_minimization) != "none_default": # this is default for "regression"
     if (steps_list[2] == True):
-      this_is_test = step_3(command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
+      this_is_test = step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
              time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
@@ -1194,7 +1195,7 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   else: #str(constraint_algorithm_minimization) = "none_default"
     if (steps_list[2] == True):
-      step_3(command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
+      step_3(logfile, command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
              time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
@@ -1209,7 +1210,7 @@ def run_cryo_fit(logfile, params, inputs):
     shutil.rmtree("steps/4_minimize")
     
     if (steps_list[2] == True):
-      step_3(command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
+      step_3(logfile, command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
              time_step_for_minimization)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
