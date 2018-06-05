@@ -570,9 +570,15 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     shifted_in_x = 0
     shifted_in_y = 0
     shifted_in_z = 0 
-    
+    print "\t\t(before shifting map origin)"
+    print "\t\t\temmap_x0:",emmap_x0 # tRNA: 0, emd_1044: 0, emd_8249: -12
+    print "\t\t\temmap_y0:",emmap_y0 # tRNA: 0, emd_1044: 0, emd_8249: -12
+    print "\t\t\temmap_z0:",emmap_z0 # tRNA: 0, emd_1044: 52, emd_8249: -12
     ### (begin) shift map origin if current map origin < 0
-    if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0):
+    #if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0): not applicable to emd_8249
+        #print "shift map origin since current map origin < 0"
+    if (emmap_x0 != 0 or emmap_y0 != 0 or emmap_z0 != 0): 
+        print "\t\t\tshift map origin since current map origin != 0"    
         origin_shited_to_000 = True
         pdb_inp = iotbx.pdb.input(file_name=pdb_file_name)
         model = mmtbx.model.manager(
@@ -586,16 +592,21 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         shifted_in_x = target_map_data.origin()[0] - emmap_x0
         
         # origin is shifted, so reassign emmap_z0,y0,x0
-        emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
-        emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
-        emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
-        print "\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
+        emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98, emd_1044: 52, emd_8249: 0
+        emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+        emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+        print "\t\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
+        
+        print "\t\t\t(after shifting map origin)"
+        print "\t\t\t\temmap_x0:",emmap_x0
+        print "\t\t\t\temmap_y0:",emmap_y0
+        print "\t\t\t\temmap_z0:",emmap_z0
     ### (end) shift map origin
         #pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     
     print "\t\ttarget_map_data.all():", target_map_data.all()
     
-    print "\n\tConversion started."
+    print "\n\tConversion of mrc-> sit started."
     print "\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
     print "\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
     print "\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
@@ -611,10 +622,17 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     for k in xrange(emmap_z0, emmap_nz):
       for j in xrange(emmap_y0, emmap_ny):
         for i in xrange(emmap_x0, emmap_nx):
+            #print "i:",i # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+            #print "j:",j # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+            #print "k:",k # emd_8249:0.0, tRNA: 0.0, emd_1044: 52
+            
             x=i/emmap_nx
             y=j/emmap_ny
             z=k/emmap_nz
-            
+            #print "x:",x # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+            #print "y:",y # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+            #print "z:",z # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.945454545455
+            #STOP()
             value = target_map_data.value_at_closest_grid_point((x,y,z)) # doesn't work when x,y,z < 0
             
             # print "value: %10.6f" %value,
@@ -628,7 +646,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     f_out.close()
     
     if (origin_shited_to_000 == True):
-        # reassign origin into original ones (not necessarily to 0,0,0)
+        # reassign shifted_origin into original ones (not necessarily to 0,0,0)
         first_line = True
         print "\t\tmap_file_name:", map_file_name
         new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
@@ -645,7 +663,6 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         subprocess.call(["rm", new_map_file_name])
         return new_map_file_name_w_ori_origins
     else:
-        
         return new_map_file_name
 # end of mrc_to_sit(map_file_name)
 
@@ -761,7 +778,7 @@ def search_charge_in_md_log():
 # end of search_charge_in_md_log function
 
 def shift_origin_of_mrc_map_if_needed(map_data, model):
-    print "\tShift_origin_of_mrc_map_if_needed"
+    print "\tShift_origin_of_mrc_map since needed"
     #soin = maptbx.shift_origin_if_needed(map_data=map_data,
     #    sites_cart=model.get_sites_cart(), crystal_symmetry=model.crystal_symmetry())
     soin = maptbx.shift_origin_if_needed(map_data=map_data,
