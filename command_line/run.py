@@ -838,7 +838,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_in.close()
   '''
   
-  f_out = open('log.step_8', 'at+')
   command_string = "cat md.log | grep correlation > cc_record"
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -857,6 +856,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   correlation_coefficients_change = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
   
   print "\n\tCorrelation coefficient change during cryo_fit\n"
+  f_out = open('log.step_8', 'at+')
   for i in range(len(correlation_coefficients_change)):
     print "\t", correlation_coefficients_change[i]
     f_out.write("\n")
@@ -890,7 +890,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.close()
   
   print "\n\tExtract .gro files from the 3 highest cc values."
-  command_string = "python extract_3_highest_cc_gro_from_cryofit_md_log.py " + str(this_is_test)
+  command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
   print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
   #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
@@ -1000,7 +1000,7 @@ def step_final(logfile, command_path, starting_dir):
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
-  print "\t\tMove trajectory files into trajectory folder: ", run_this
+  print "\tMove trajectory files into trajectory folder: ", run_this
   libtbx.easy_run.call(run_this)
       
   pdb_file_with_original_chains = ''
@@ -1048,9 +1048,10 @@ def step_final(logfile, command_path, starting_dir):
   print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
-  print "\n\t\tTo draw a figure for cc, python <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
+  print "\n\t\tTo draw a figure for cc,"
+  print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
-  print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course)"
+  print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course),"
   print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
   print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load "
 

@@ -92,13 +92,9 @@ def extract_gro(target_step, i):
 # end of extract_gro function
 
 if (__name__ == "__main__") :
-    print "\n\t\textract_3_highest_cc_gro_from_cryofit_md_log"
-    cmd = "grep correlation md.log > cc_record"
-    print "\t\t\tcommand:", cmd
-    os.system(cmd)
+    print "\n\t\textract_3_highest_cc_gro"
     
     # adjust step number if needed
-    #print "os.path.isfile(\"../../restart_record.txt\"):",os.path.isfile("../../restart_record.txt")
     if (os.path.isfile("../../restart_record.txt") == True):
         adjust_step_number ()
         os.remove("../../restart_record.txt") # only for development, keep this file

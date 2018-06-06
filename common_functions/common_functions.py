@@ -123,8 +123,8 @@ def check_whether_cc_has_been_increased(cc_record):
 
   if (len(cc_has_been_increased_array) < 20):
     print "\t\tnumber of cc evaluations < 20"
-    print "\t\t\tRe-run because usually first few evaluations of cc are fluctuating."
-    print "\t\t\tTherefore, just hypothetically consider as if the most recent CCs have been increased for now."
+    print "\t\tRe-run because usually first few evaluations of cc are fluctuating."
+    print "\t\tTherefore, just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
   
   #print "\t\tlen(cc_array):",len(cc_array)
@@ -142,17 +142,19 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
     return True
 
+  step_number_for_judging = 20
+  
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
-  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
-  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-21, -1):
+  #print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-(step_number_for_judging+1), -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
   print "\t\tNumber of cc increase in the last 20 steps:",cc_has_been_increased,", number of cc decrease in the last 20 steps:",cc_has_been_decreased
-  if (cc_has_been_decreased >= 18):
-    print "\t\tcc tends to decrease over the last 20 steps."
+  if (cc_has_been_decreased >= step_number_for_judging*0.8):
+    print "\t\tcc tends to decrease over the last ", step_number_for_judging," steps."
     print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
     print "\t\tPossible solutions:"
@@ -165,13 +167,14 @@ def check_whether_cc_has_been_increased(cc_record):
     exit(1)
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     #cc_10th_last = cc_array[len(cc_array)-11]
-    cc_20th_last = cc_array[len(cc_array)-21]
-    print "\t\tcc_20th_last:", cc_20th_last, ", cc_last:", cc_last
+    cc_20th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    #print "\t\tcc_20th_last:", cc_20th_last, ", cc_last:", cc_last
     if (cc_last > cc_20th_last):
-      print "\t\tcc_last > cc_20th_last"
-      return True # the last 20 cc values tend to be increased, so re-run with longer steps
+        print "\t\tcc_last (",cc_last,") > cc_20th_last (", cc_20th_last, ")"
+        return True # the last 20 cc values tend to be increased, so re-run with longer steps
     else:
-      return False
+        print "\t\tcc_last (",cc_last,") < cc_20th_last (", cc_20th_last, ")"
+        return False
   else:
     return False # the last 20 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
