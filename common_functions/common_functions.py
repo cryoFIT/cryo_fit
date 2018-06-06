@@ -158,11 +158,12 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\tPossible solutions:"
     print "\t\t\t1) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
     print "\t\t\t2) Re-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
-    print "\t\t\t3) Check whether the initial model is properly aligned in a map"
-    print "\t\tNote: Increasing emweight_multiply_by may not help"
+    print "\t\t\t3) Re-run after properly align the initial model to a map"
+    print "\t\t\t4) Re-run with higher emweight_multiply_by"
+    print "\t\tNote: Increasing emweight_multiply_by may not help for a case when an atomic model is too small compared to a map"
     print "\t\tExit now"
     exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased+3):
+  if (cc_has_been_increased > cc_has_been_decreased+2): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_10th_last = cc_array[len(cc_array)-11]
     print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
     if (cc_last > cc_10th_last):
