@@ -606,10 +606,10 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     print "\t\ttarget_map_data.all():", target_map_data.all()
     
-    print "\n\tConversion of mrc-> sit started."
-    print "\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
-    print "\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
-    print "\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
+    print "\n\t\tConversion of mrc-> sit started."
+    print "\t\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
+    print "\t\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
+    print "\t\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
     
     emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
     emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
@@ -648,9 +648,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     if (origin_shited_to_000 == True):
         # reassign shifted_origin into original ones (not necessarily to 0,0,0)
         first_line = True
-        print "\t\tmap_file_name:", map_file_name
+        print "\t\t\tmap_file_name:", map_file_name
         new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
-        print "\t\tnew_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
+        print "\t\t\tnew_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')
         for line in f_in:

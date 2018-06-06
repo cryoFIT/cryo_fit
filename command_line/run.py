@@ -142,7 +142,7 @@ Options
     .type = int
     .short_caption = EM weight multiply by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 7) \
+            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 8) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
             If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
@@ -926,7 +926,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       print "\tthis_is_test = True"
       this_is_test = True
   if (this_is_test == False): # recover chain information
-    print "\n\tRecover chain information (since gromacs erased it)"
+    print "\n\tRecover chain information (since gromacs erased it). "
+    print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
     for pdb_in_step8 in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
       print "\t\tcommand: ", command_string

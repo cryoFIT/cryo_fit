@@ -59,8 +59,9 @@ def extract_gro(target_step, i):
     splited = result.split()
     nsteps = splited[2]
     
-    print "\t\t\t\ttotal_ps = float(dt)*float(nsteps)"
-    total_ps = float(dt)*float(nsteps) 
+    total_ps = float(dt)*float(nsteps)
+    print "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = ", total_ps
+    
     print "\t\t\t\tTherefore, total mdrun running time was: ", total_ps, "pico (10^-12) second"
     print "\t\t\t\tCryo_fit needs to extract a gro file from ", target_step, "steps"
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
