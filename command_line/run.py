@@ -894,10 +894,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
   #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
-  
-  pdb_file_with_original_chains = ''
-  for pdb_with_original_chains in glob.glob("../1_make_gro/*.pdb"):
-    pdb_file_with_original_chains = pdb_with_original_chains
 
   print "\n\tConvert .gro -> .pdb"
   print "\t\t(.gro file is for chimera/gromacs/vmd)"
@@ -925,13 +921,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if splited_starting_dir[i] == "phenix_regression":
       print "\tthis_is_test = True"
       this_is_test = True
-  if (this_is_test == False): # recover chain information
-    print "\n\tRecover chain information (since gromacs erased it). "
-    print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
-    for pdb_in_step8 in glob.glob("*.pdb"):
-      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb_in_step8 # worked perfectly with tRNA and Dieter's molecule
-      print "\t\tcommand: ", command_string
-      libtbx.easy_run.fully_buffered(command_string)
   
   print "\n\tMake a trajectory .gro file"
   command_string = "echo 0 > input_parameter" # to select system
@@ -972,7 +961,7 @@ def step_final(logfile, command_path, starting_dir):
   show_header("Step 9 (final): Arrange output")
   remake_and_move_to_this_folder(starting_dir, "output")
   
-  this_is_test = False
+  this_is_test = False # just initial value assignment
   splited_starting_dir = starting_dir.split("/")
   
   cp_command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
@@ -983,6 +972,7 @@ def step_final(logfile, command_path, starting_dir):
       this_is_test = True
       cp_command_string = "cp ../data/input_for_step_final/* ."
       libtbx.easy_run.fully_buffered(cp_command_string)
+      
   if (this_is_test == False):
     cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
     libtbx.easy_run.fully_buffered(cp_command_string)
@@ -1005,9 +995,35 @@ def step_final(logfile, command_path, starting_dir):
     cp_command_string = "cp ../steps/8_cryo_fit/user_provided*.gro ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
-    cp_command_string = "cp ../steps/8_cryo_fit/*_chain_recovered.pdb ."
+    cp_command_string = "cp ../steps/8_cryo_fit/*.pdb ."
     libtbx.easy_run.fully_buffered(cp_command_string)
 
+  pdb_file_with_original_chains = ''
+  for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
+    pdb_file_with_original_chains = pdb_with_original_chains
+    
+  if (this_is_test == False): # recover chain information
+    print "\n\tRecover chain information (since gromacs erased it). "
+    print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
+    for pdb in glob.glob("*.pdb"):
+      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with tRNA and Dieter's molecule
+      print "\t\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
+      
+      chain_recovered = pdb[:-4] + "_chain_recovered.pdb"
+      number_of_atoms_in_pdb_after_cryo_fit = know_number_of_atoms_in_input_pdb(pdb)
+      number_of_atoms_in_pdb_after_cryo_fit_chain_recovered = know_number_of_atoms_in_input_pdb(chain_recovered)
+      run_this = '' 
+      if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
+        print "\t\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, chain_recovery successful"
+        run_this = "rm " + pdb
+      else:
+        print "\t\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, chain_recovery not successful"
+        run_this = "rm " + chain_recovered
+      print "\t\trm: ", run_this
+      libtbx.easy_run.call(run_this)
+      
+  
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
@@ -1019,7 +1035,8 @@ def step_final(logfile, command_path, starting_dir):
     run_this = "python add_element_to_pdb.py " + pdb
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
-    
+  
+  
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   print "\n\tOutputs are in \"output\" folder"

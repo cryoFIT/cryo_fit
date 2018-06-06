@@ -17,6 +17,7 @@ if os.path.isfile(chain_recovered) == True:
    os.system(cmd)
 
 pdb_after_cryo_fit_in = open(pdb_after_cryo_fit)
+
 f_out = open(chain_recovered, 'w')
 
 def count_TER_before_this(pdb_before_cryo_fit, count_TER_until_this_line):

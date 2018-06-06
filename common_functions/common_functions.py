@@ -37,7 +37,7 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
     exit(1)
   
   temp_map_file_name = params.cryo_fit.Input.map_file_name
-  print "\t\tparams.cryo_fit.Input.map_file_name: ", temp_map_file_name
+  print "\t\tparams.cryo_fit.Input.map_file_name a user provided: ", temp_map_file_name
   
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
         temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
@@ -45,7 +45,7 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
     
     params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
   
-  print "\t\tparams.cryo_fit.Input.map_file_name: ", params.cryo_fit.Input.map_file_name
+  print "\t\tparams.cryo_fit.Input.map_file_name after a possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
   print "\t\tmap_file_with_pathways:",map_file_with_pathways
   if map_file_with_pathways[:-4] == ".map":
@@ -438,7 +438,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 # end of get_structure_factor_from_pdb_string function
 
 def get_users_cc(cc_record):
-  print "\tget user's cc"
+  print "\tGet user provided atomic model's cc"
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")
@@ -468,7 +468,7 @@ def know_number_of_atoms_in_input_pdb(starting_pdb):
     #print "\tcommand: ", command_string
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_atoms_in_input_pdb = int(num_ATOMs[0])
-    print "\n\tUser's input pdb file, ", starting_pdb, ", has ", number_of_atoms_in_input_pdb, " atoms"
+    print "\t\tThis pdb file, ", starting_pdb, ", has ", number_of_atoms_in_input_pdb, " atoms"
     return number_of_atoms_in_input_pdb
 # end of know_number_of_atoms_in_input_pdb()
 
