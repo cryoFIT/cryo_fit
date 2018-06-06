@@ -997,7 +997,12 @@ def step_final(logfile, command_path, starting_dir):
     
     cp_command_string = "cp ../steps/8_cryo_fit/*.pdb ."
     libtbx.easy_run.fully_buffered(cp_command_string)
-
+  
+  os.mkdir("trajectory")
+  run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
+  print "\t\tMove trajectory files into trajectory folder: ", run_this
+  libtbx.easy_run.call(run_this)
+      
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
@@ -1015,15 +1020,14 @@ def step_final(logfile, command_path, starting_dir):
       number_of_atoms_in_pdb_after_cryo_fit_chain_recovered = know_number_of_atoms_in_input_pdb(chain_recovered)
       run_this = '' 
       if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
-        print "\t\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, chain_recovery successful"
+        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, therefore chain_recovery is successful"
         run_this = "rm " + pdb
       else:
-        print "\t\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, chain_recovery not successful"
+        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, therefore chain_recovery is not successful"
         run_this = "rm " + chain_recovered
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
       
-  
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
@@ -1036,7 +1040,6 @@ def step_final(logfile, command_path, starting_dir):
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
   
-  
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   print "\n\tOutputs are in \"output\" folder"
@@ -1046,8 +1049,8 @@ def step_final(logfile, command_path, starting_dir):
   print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record draws a figure for cc change."
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course)"
-  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (for_cryo_fit.tpr), .xtc = (traj.xtc) -> OK -> (click play button)"
-  print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory.gro) -> Load "
+  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
+  print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load "
 
   if (returned != "success"):
     print "Step final (arrange output) didn't run successfully"
