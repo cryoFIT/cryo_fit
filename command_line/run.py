@@ -871,7 +871,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     logfile.write(write_this)
     
   cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
-  print "\t\tcc_has_been_increased in the last 10 cc evaluations:", cc_has_been_increased
+  print "\t\tcc_has_been_increased in the last 20 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
     print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
@@ -1286,9 +1286,9 @@ def run_cryo_fit(logfile, params, inputs):
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
         charge_group_moved = False # just initial value
-        print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n"
+        print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 20 steps\n"
         print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n"
-        logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 10 steps\n")
+        logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 20 steps\n")
         logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n")
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
         

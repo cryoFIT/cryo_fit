@@ -121,10 +121,10 @@ def check_whether_cc_has_been_increased(cc_record):
     former_cc = cc
   f_in.close()
 
-  if (len(cc_has_been_increased_array) < 15):
-    print "\t\tnumber of cc evaluations < 15"
+  if (len(cc_has_been_increased_array) < 20):
+    print "\t\tnumber of cc evaluations < 20"
     print "\t\t\tRe-run because usually first few evaluations of cc are fluctuating."
-    print "\t\t\tTherefore, consider as if the most recent ccs have been increased."
+    print "\t\t\tTherefore, just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
   
   #print "\t\tlen(cc_array):",len(cc_array)
@@ -132,7 +132,7 @@ def check_whether_cc_has_been_increased(cc_record):
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
   print "\t\tcc_last:", cc_last
-  for i in xrange(len(cc_array)-1, len(cc_array)-11, -1):
+  for i in xrange(len(cc_array)-1, len(cc_array)-21, -1):
     cc = cc_array[i]
     print "\t\ti:",i,"cc:",cc
     if cc > the_highest_cc:
@@ -145,14 +145,14 @@ def check_whether_cc_has_been_increased(cc_record):
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
   print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
-  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-11, -1):
+  for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-21, -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
-  print "\t\tNumber of cc increase in the last 10 steps:",cc_has_been_increased,", number of cc decrease in the last 10 steps:",cc_has_been_decreased
-  if (cc_has_been_decreased >= 9):
-    print "\t\tcc tends to decrease over the last 10 steps."
+  print "\t\tNumber of cc increase in the last 20 steps:",cc_has_been_increased,", number of cc decrease in the last 20 steps:",cc_has_been_decreased
+  if (cc_has_been_decreased >= 18):
+    print "\t\tcc tends to decrease over the last 20 steps."
     print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
     print "\t\tPossible solutions:"
@@ -163,16 +163,17 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\tNote: Increasing emweight_multiply_by may not help for a case when an atomic model is too small compared to a map"
     print "\t\tExit now"
     exit(1)
-  if (cc_has_been_increased > cc_has_been_decreased+2): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    cc_10th_last = cc_array[len(cc_array)-11]
-    print "\t\tcc_10th_last:", cc_10th_last, ", cc_last:", cc_last
-    if (cc_last > cc_10th_last):
-      print "\t\tcc_last > cc_10th_last"
-      return True # the last 10 cc values tend to be increased, so re-run with longer steps
+  if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
+    #cc_10th_last = cc_array[len(cc_array)-11]
+    cc_20th_last = cc_array[len(cc_array)-21]
+    print "\t\tcc_20th_last:", cc_20th_last, ", cc_last:", cc_last
+    if (cc_last > cc_20th_last):
+      print "\t\tcc_last > cc_20th_last"
+      return True # the last 20 cc values tend to be increased, so re-run with longer steps
     else:
       return False
   else:
-    return False # the last 10 cc values tend NOT to be increased
+    return False # the last 20 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
