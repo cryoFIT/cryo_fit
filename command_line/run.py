@@ -62,7 +62,7 @@ Usage example with step 7~8 only
     - phenix.cryo_fit tRNA.pdb tRNA.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
     
 Most useful options (GUI has more explanation about these):
-    - map_weight
+    - emweight_multiply_by
     - number_of_cores_to_use
     - number_of_steps_for_cryo_fit
     - number_of_steps_for_minimization
@@ -1045,7 +1045,7 @@ def step_final(logfile, command_path, starting_dir):
   returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
   
   print "\n\tOutputs are in \"output\" folder"
-  print "  \t\tIf cryo_fit fitted better than a user provided input atomic model, a model with the highest cc value is cryo_fitted_chain_recovered.pdb"
+  print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tTo draw a figure for cc, python <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
