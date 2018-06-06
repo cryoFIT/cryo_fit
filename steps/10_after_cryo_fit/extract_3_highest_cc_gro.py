@@ -1,4 +1,3 @@
-# This code runs @steps/8_cryo_fit
 import os, subprocess, sys
 from os.path import expanduser # to find home_dir
 args=sys.argv[1:]
@@ -6,7 +5,7 @@ this_is_test = args[0]
 
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart."
-    f = open('../../restart_record.txt', 'r')
+    f = open('../restart_record.txt', 'r')
     # count # of lines
     i = 0
     for line in f:
@@ -14,7 +13,7 @@ def adjust_step_number():
     #print "\t\t\t\t../../restart_record.txt has ", i, " number of lines"
     f.close()
     
-    f = open('../../restart_record.txt', 'r')
+    f = open('../restart_record.txt', 'r')
     j = 0
     last_step_to_be_added = '' # initial
     for line in f:
@@ -43,7 +42,7 @@ def extract_gro(target_step, i):
     for_cryo_fit_mdp_location = ''
     
     if this_is_test == "False":
-        for_cryo_fit_mdp_location = "../7_make_tpr_with_disre2/for_cryo_fit.mdp"
+        for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
     else:
         print "\tthis_is_test in extract_gro:", this_is_test
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
@@ -89,15 +88,16 @@ def extract_gro(target_step, i):
             cmd = "mv " + output_gro_name + " cryo_fitted.gro"
             print "\t\t\t\t\tcommand:", cmd, "\n"
             os.system(cmd)
+    os.remove("input_parameters")
 # end of extract_gro function
 
 if (__name__ == "__main__") :
     print "\n\t\textract_3_highest_cc_gro"
     
     # adjust step number if needed
-    if (os.path.isfile("../../restart_record.txt") == True):
+    if (os.path.isfile("../restart_record.txt") == True):
         adjust_step_number ()
-        os.remove("../../restart_record.txt") # only for development, keep this file
+        os.remove("../restart_record.txt") # only for development, keep this file
     
     result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     for i in range(len(result)):

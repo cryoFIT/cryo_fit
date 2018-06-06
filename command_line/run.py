@@ -889,11 +889,11 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.write(write_this_time)
   f_out.close()
   
+  '''
   print "\n\tExtract .gro files from the 3 highest cc values."
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
   print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
-  #print "\n\tExtracted .gro files are extracted_x_steps_x_ps.gro in steps/8_cryo_fit\n"
 
   print "\n\tConvert .gro -> .pdb"
   print "\t\t(.gro file is for chimera/gromacs/vmd)"
@@ -913,14 +913,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-  #print "\tExtracted .pdb files for each step are extracted_x_steps_x_ps.pdb in steps/8_cryo_fit\n"
-  
-  this_is_test = False
-  splited_starting_dir = starting_dir.split("/")
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      print "\tthis_is_test = True"
-      this_is_test = True
   
   print "\n\tMake a trajectory .gro file"
   command_string = "echo 0 > input_parameter" # to select system
@@ -930,6 +922,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   print "\t\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   os.remove("input_parameter")
+  '''
   
   f_in = open('cc_record')
   cc_record = list()
@@ -947,7 +940,14 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   if (os.path.isfile("../../state.cpt") == True):
     os.remove("../../state.cpt")
-    
+  
+  this_is_test = False
+  splited_starting_dir = starting_dir.split("/")
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      print "\tthis_is_test = True"
+      this_is_test = True
+      
   os.chdir( starting_dir )
   if (this_is_test == True):
     return this_is_test
@@ -976,27 +976,45 @@ def step_final(logfile, command_path, starting_dir):
   if (this_is_test == False):
     cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
     libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/cryo_fitted*.gro ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/extracted*.gro ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
+  
     cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
     cp_command_string = "cp ../steps/8_cryo_fit/traj.xtc ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
-    cp_command_string = "cp ../steps/8_cryo_fit/trajectory.gro ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/user_provided*.gro ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/*.pdb ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
+    print "\n\tExtract .gro files from the 3 highest cc values."
+    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.call(command_string)
+  
+    print "\n\tConvert .gro -> .pdb"
+    print "\t\t(.gro file is for chimera/gromacs/vmd)"
+    print "\t\t(.pdb file is for chimera/pymol/vmd)"
+    for extracted_gro in glob.glob("cryo_fitted*gro"):
+      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+      print "\t\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
+    for extracted_gro in glob.glob("extracted*gro"):
+      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+      print "\t\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
+    for extracted_gro in glob.glob("user_provided*gro"):
+      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+      print "\t\tcommand: ", command_string
+      libtbx.easy_run.fully_buffered(command_string)
+        
+    print "\n\tMake a trajectory .gro file"
+    command_string = "echo 0 > input_parameter" # to select system
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+    command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+    os.remove("input_parameter")
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
