@@ -889,41 +889,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.write(write_this_time)
   f_out.close()
   
-  '''
-  print "\n\tExtract .gro files from the 3 highest cc values."
-  command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
-  print "\t\tcommand: ", command_string
-  libtbx.easy_run.call(command_string)
-
-  print "\n\tConvert .gro -> .pdb"
-  print "\t\t(.gro file is for chimera/gromacs/vmd)"
-  print "\t\t(.pdb file is for chimera/pymol/vmd)"
-  for extracted_gro in glob.glob("cryo_fitted*gro"):
-    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-    command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-  for extracted_gro in glob.glob("extracted*gro"):
-    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-    command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-  for extracted_gro in glob.glob("user_provided*gro"):
-    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-    command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-  
-  print "\n\tMake a trajectory .gro file"
-  command_string = "echo 0 > input_parameter" # to select system
-  print "\t\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-  command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
-  print "\t\tcommand: ", command_string
-  libtbx.easy_run.fully_buffered(command_string)
-  os.remove("input_parameter")
-  '''
-  
   f_in = open('cc_record')
   cc_record = list()
   for line in f_in:
@@ -991,22 +956,13 @@ def step_final(logfile, command_path, starting_dir):
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for chimera/gromacs/vmd)"
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
-    for extracted_gro in glob.glob("cryo_fitted*gro"):
+    
+    for extracted_gro in glob.glob("*.gro"):
       home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
       command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
-    for extracted_gro in glob.glob("extracted*gro"):
-      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-      print "\t\tcommand: ", command_string
-      libtbx.easy_run.fully_buffered(command_string)
-    for extracted_gro in glob.glob("user_provided*gro"):
-      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-      print "\t\tcommand: ", command_string
-      libtbx.easy_run.fully_buffered(command_string)
-        
+      
     print "\n\tMake a trajectory .gro file"
     command_string = "echo 0 > input_parameter" # to select system
     print "\t\tcommand: ", command_string
@@ -1014,7 +970,6 @@ def step_final(logfile, command_path, starting_dir):
     command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-    os.remove("input_parameter")
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
@@ -1070,7 +1025,8 @@ def step_final(logfile, command_path, starting_dir):
   print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course),"
-  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
+  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS,"
+  print "  \t\t\t\t.tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
   print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load "
 
   if (returned != "success"):
