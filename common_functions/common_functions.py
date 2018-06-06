@@ -263,13 +263,13 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
   if (number_of_atoms_in_input_pdb < 2500): # pdb5khe.pdb
     number_of_steps_for_cryo_fit = 500 
   elif (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_cryo_fit = 5000 # 15,000 seems too large
+    number_of_steps_for_cryo_fit = 3000 # 15,000 seems too large
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_cryo_fit = 20000
+    number_of_steps_for_cryo_fit = 10000
   elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_cryo_fit = 50000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
+    number_of_steps_for_cryo_fit = 30000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_cryo_fit = 80000
+    number_of_steps_for_cryo_fit = 50000
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
