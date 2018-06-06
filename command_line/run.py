@@ -62,10 +62,10 @@ Usage example with step 7~8 only
     - phenix.cryo_fit tRNA.pdb tRNA.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
     
 Most useful options (GUI has more explanation about these):
+    - map_weight
     - number_of_cores_to_use
     - number_of_steps_for_cryo_fit
     - number_of_steps_for_minimization
-    - emweight_multiply_by
 """
 
 #master_params_str are used for default values of options in GUI
@@ -1012,7 +1012,7 @@ def step_final(logfile, command_path, starting_dir):
     print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
     for pdb in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with tRNA and Dieter's molecule
-      print "\t\tcommand: ", command_string
+      print "\n\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
       
       chain_recovered = pdb[:-4] + "_chain_recovered.pdb"
@@ -1020,10 +1020,12 @@ def step_final(logfile, command_path, starting_dir):
       number_of_atoms_in_pdb_after_cryo_fit_chain_recovered = know_number_of_atoms_in_input_pdb(chain_recovered)
       run_this = '' 
       if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
-        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, therefore chain_recovery is successful"
+        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
+        print "\t\ttherefore chain_recovery is successful"
         run_this = "rm " + pdb
       else:
-        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered, therefore chain_recovery is not successful"
+        print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
+        print "\t\ttherefore chain_recovery is not successful"
         run_this = "rm " + chain_recovered
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
@@ -1046,7 +1048,7 @@ def step_final(logfile, command_path, starting_dir):
   print "  \t\tIf cryo_fit fitted better than a user provided input atomic model, a model with the highest cc value is cryo_fitted_chain_recovered.pdb"
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
-  print "\n\t\tpython <user_phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record draws a figure for cc change."
+  print "\n\t\tTo draw a figure for cc, python <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course)"
   print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS, .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
