@@ -142,7 +142,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
     return True
 
-  step_number_for_judging = 20
+  step_number_for_judging = 30
   
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
@@ -152,12 +152,14 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
       cc_has_been_decreased = cc_has_been_decreased + 1
     else:
       cc_has_been_increased = cc_has_been_increased + 1
-  print "\t\tNumber of cc increase in the last 20 steps:",cc_has_been_increased,", number of cc decrease in the last 20 steps:",cc_has_been_decreased
+  print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
+  print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
   if (cc_has_been_decreased >= step_number_for_judging*0.8):
     write_this = "\t\tcc tends to decrease over the last ", step_number_for_judging," steps.\n"
     print write_this
     logfile.write(write_this)
     
+    '''
     print "Providing higher (better) resolution map help this problem"
     print "Another possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
@@ -171,18 +173,21 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     print write_this
     logfile.write(write_this)
     exit(1)
+    '''
+    return "re_run_with_higher_weight"
+    
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    #cc_10th_last = cc_array[len(cc_array)-11]
-    cc_20th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
-    #print "\t\tcc_20th_last:", cc_20th_last, ", cc_last:", cc_last
-    if (cc_last > cc_20th_last):
-        print "\t\tcc_last (",cc_last,") > cc_20th_last (", cc_20th_last, ")"
-        return True # the last 20 cc values tend to be increased, so re-run with longer steps
+    
+    cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    
+    if (cc_last > cc_30th_last):
+        print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
+        return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        print "\t\tcc_last (",cc_last,") < cc_20th_last (", cc_20th_last, ")"
+        print "\t\tcc_last (",cc_last,") < cc_30th_last (", cc_30th_last, ")"
         return False
   else:
-    return False # the last 20 cc values tend NOT to be increased
+    return False # the last 30 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
