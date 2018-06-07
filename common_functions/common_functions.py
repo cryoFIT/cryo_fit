@@ -45,9 +45,9 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
     
     params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
   
-  print "\t\tparams.cryo_fit.Input.map_file_name after a possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
+  print "\n\t\tparams.cryo_fit.Input.map_file_name after a possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
-  print "\t\tmap_file_with_pathways:",map_file_with_pathways
+  print "\n\t\tmap_file_with_pathways:",map_file_with_pathways
   if map_file_with_pathways[:-4] == ".map":
     map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
   
@@ -134,12 +134,12 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tcc_last:", cc_last
   for i in xrange(len(cc_array)-1, len(cc_array)-(step_number_for_judging+1), -1):
     cc = cc_array[i]
-    print "\t\ti:",i,"cc:",cc
+    print "\t\t",i,"th cc",cc
     if cc > the_highest_cc:
       the_highest_cc = cc
   print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
   if the_highest_cc == cc_last:
-    print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
+    print "\t\tDefinitely re-run with longer cryo_fit steps since the_highest_cc = cc_last"
     return True
 
   cc_has_been_increased = 0
@@ -157,7 +157,10 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps.\n"
     print write_this
     logfile.write(write_this)
-    write_this = "\t\tProviding higher (better) resolution map tends to help this problem."
+    write_this = "\t\tProviding higher (better) resolution map or enforcing stronger map weight tend to help this problem."
+    print write_this
+    logfile.write(write_this)
+    write_this = "\t\tHere, cryo_fit will try stronger map weight automatically."
     print write_this
     logfile.write(write_this)
     
@@ -751,6 +754,34 @@ def remove_water_for_gromacs(input_pdb_file_name):
     '''
 #end of remove_water_for_gromacs ()
 
+def renumber_cc_record_full(cc_record_full):
+   f_in = open(cc_record_full)
+   renumbered_cc_record_full = cc_record_full + "_renumbered"
+   f_out = open(renumbered_cc_record_full, "w")
+   old_step = -9
+   add_this_step = 0
+   step_gap = 0
+   for line in f_in:
+      print line   
+      splited = line.split(" ")
+      step = splited[1]
+      if (int(step) > int(old_step)):
+         if (int(step_gap) == 0):
+            if (int(old_step) == 0):
+               step_gap = int(step) - int(old_step)
+         new_step = int(step)+int(add_this_step)
+         new_line = splited[0] + " " + str(new_step) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
+         f_out.write(new_line)
+         old_step = step
+      else:
+         add_this_step = int(add_this_step) + int(old_step) + int(step_gap)
+         new_step = int(step)+int(add_this_step)
+         new_line = splited[0] + " " + str(new_step) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
+         f_out.write(new_line)
+         old_step = step
+   f_out.close()
+# end of renumber_cc_record_full
+
 def return_number_of_atoms_in_gro():
   for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
     command_string = "wc -l " + check_this_file
@@ -762,7 +793,7 @@ def return_number_of_atoms_in_gro():
 
 def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     command_string = '' # just initial
-    print "\trestart with longer cryo_fit steps:",restart
+    print "\trestarted with longer cryo_fit steps:",restart
     if (cores_to_use == 2):
         if (str(restart) == "False"):
             command_string = common_command_string + " -nt 2 -dd 2 1 1 "

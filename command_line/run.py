@@ -162,7 +162,7 @@ Options
     .type = int
     .short_caption = Number of steps for cryo_fit
     .help = Specify number of steps for cryo_fit. \
-           If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
+           If it is left blank, cryo_fit will estimate it automatically depending on molecule size and cc trend.
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
@@ -804,7 +804,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
               + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
               + " " + str(this_is_test) + " " + str(restart)
   print "\n\tcommand: ", command_string
-  print "\n\tA user can check progress of this step 8 at ", starting_dir + "/steps/8_cryo_fit\n"
+  print "\n\tA user can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   time_end_cryo_fit = time.time()
@@ -862,7 +862,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     logfile.write(write_this)
     
   cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
-  print "\t\tVerdict of cc_has_been_increased function in the last 40 cc evaluations:", cc_has_been_increased
+  print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
     print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
@@ -883,8 +883,9 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.write(write_this_time)
   f_out.close()
   
-  #f_in = open('cc_record')
-  f_in = open('../../cc_record_full')
+  renumber_cc_record_full("../../cc_record_full")
+  
+  f_in = open('../../cc_record_full_renumbered')
   cc_record = list()
   for line in f_in:
     splited = line.split()
@@ -1281,7 +1282,7 @@ def run_cryo_fit(logfile, params, inputs):
   
         charge_group_moved = False # just initial value
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 40 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
         write_this = "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit) + ")\n\n"
@@ -1302,7 +1303,7 @@ def run_cryo_fit(logfile, params, inputs):
       
       elif results == "re_run_with_higher_map_weight":
         emweight_multiply_by = emweight_multiply_by * 2
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 40 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
         write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (" + str(emweight_multiply_by) + ")\n\n"
