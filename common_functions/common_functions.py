@@ -121,18 +121,18 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     former_cc = cc
   f_in.close()
 
-  if (len(cc_has_been_increased_array) < 20):
-    print "\t\tnumber of cc evaluations < 20"
+  step_number_for_judging = 30
+  
+  if (len(cc_has_been_increased_array) < step_number_for_judging):
+    print "\t\tnumber of cc evaluations < ", step_number_for_judging
     print "\t\tRe-run because usually first few evaluations of cc are fluctuating."
     print "\t\tTherefore, just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
   
-  #print "\t\tlen(cc_array):",len(cc_array)
-  
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
   print "\t\tcc_last:", cc_last
-  for i in xrange(len(cc_array)-1, len(cc_array)-21, -1):
+  for i in xrange(len(cc_array)-1, len(cc_array)-(step_number_for_judging+1), -1):
     cc = cc_array[i]
     print "\t\ti:",i,"cc:",cc
     if cc > the_highest_cc:
@@ -142,8 +142,6 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     print "\t\tDefinitely re-run with longer steps since the_highest_cc = cc_last"
     return True
 
-  step_number_for_judging = 30
-  
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
   #print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
@@ -155,12 +153,15 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
   if (cc_has_been_decreased >= step_number_for_judging*0.8):
-    write_this = "\t\tcc tends to decrease over the last ", str(step_number_for_judging)," steps.\n"
-    print write_this
+    write_this = "cc tends to decrease over the last " + str(step_number_for_judging) + " steps."
+    print "\t\t", write_this
+    logfile.write(write_this)
+    write_this = "Providing higher (better) resolution map tends to help this problem."
+    print "\t\t", write_this
     logfile.write(write_this)
     
     '''
-    print "Providing higher (better) resolution map help this problem"
+    print "Providing higher (better) resolution map tends to help this problem"
     print "Another possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
     print "\t\tPossible solutions:"
@@ -177,9 +178,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     return "re_run_with_higher_map_weight"
     
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
-    
     if (cc_last > cc_30th_last):
         print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
