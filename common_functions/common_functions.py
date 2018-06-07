@@ -152,7 +152,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
       cc_has_been_increased = cc_has_been_increased + 1
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
-  if (cc_has_been_decreased >= step_number_for_judging*0.8):
+  #if (cc_has_been_decreased >= step_number_for_judging*0.8):
+  if (cc_has_been_decreased > cc_has_been_increased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps."
     print write_this
     logfile.write(write_this)
@@ -186,7 +187,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
         print "\t\tcc_last (",cc_last,") < cc_40th_last (", cc_40th_last, ")"
         return False
   else:
-    return False # the last 30 cc values tend NOT to be increased
+    return False # the last 40 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
