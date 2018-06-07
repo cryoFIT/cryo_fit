@@ -971,6 +971,10 @@ def step_final(logfile, command_path, starting_dir):
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
   
+  if (os.path.isfile("trajectory.gro") == False):
+    print "exit here"
+    STOP()
+  
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
   print "\n\tMove trajectory files into trajectory folder "
