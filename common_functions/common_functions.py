@@ -155,7 +155,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
   if (cc_has_been_decreased >= step_number_for_judging*0.8):
-    write_this = "\t\tcc tends to decrease over the last ", step_number_for_judging," steps.\n"
+    write_this = "\t\tcc tends to decrease over the last ", str(step_number_for_judging)," steps.\n"
     print write_this
     logfile.write(write_this)
     
@@ -174,7 +174,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     logfile.write(write_this)
     exit(1)
     '''
-    return "re_run_with_higher_weight"
+    return "re_run_with_higher_map_weight"
     
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     

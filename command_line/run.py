@@ -881,8 +881,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if (no_rerun == False):
       if cc_has_been_increased == True:
         return "re_run_with_longer_steps"
-      elif cc_has_been_increased == "re_run_with_higher_weight":
-        return "re_run_with_higher_weight"
+      elif cc_has_been_increased == "re_run_with_higher_map_weight":
+        return "re_run_with_higher_map_weight"
       else:
         print "\tcc has been saturated, so go ahead to the next step"
   
@@ -1225,7 +1225,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   cc_has_been_increased = True # just an initial value
   charge_group_moved = True # just an initial value
-  re_run_with_higher_weight = True # just an initial value
+  re_run_with_higher_map_weight = True # just an initial value
   
   returned = assign_map_name(params, starting_dir, inputs, params.cryo_fit.Input.map_file_name)
   map_file_with_pathways = returned[0]
@@ -1237,7 +1237,7 @@ def run_cryo_fit(logfile, params, inputs):
     
   restart = False # this is a proper initial assignment
   
-  while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_weight == True)):
+  while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
     if ((this_is_test == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
                                 and steps_list[6] == False and steps_list[7] == False)):
@@ -1253,30 +1253,35 @@ def run_cryo_fit(logfile, params, inputs):
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, tutorial, restart)
+      
       if (results == True): # this is a test
         print "This is a test, so break early"
         break  
+      
       if (model_file_without_pathways == "regression.pdb"): # for regression purpose
         logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
         return results
+      
       if results == "failed":
         return "failed" # flat failed
+      
       elif results == "re_run_w_smaller_MD_time_step":
         charge_group_moved = True
-        re_run_with_higher_weight = False
+        re_run_with_higher_map_weight = False
         print "\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n"
         logfile.write("\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n")
         if (time_step_for_cryo_fit < 0.0001): # to avoid infinite loop
           print "time_step_for_cryo_fit < 0.0001, exit now"
           break
         os.chdir( starting_dir )
+        
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
           logfile.write("re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n")
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
         restart = True
-        re_run_with_higher_weight = False
+        re_run_with_higher_map_weight = False
         # copy for a next restart step
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
@@ -1297,22 +1302,23 @@ def run_cryo_fit(logfile, params, inputs):
         
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
           print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
-          break # no need to use exit(1) since break will break this while loop
+          break # no need to use exit(1) since this break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
-      elif results == "re_run_with_higher_weight":
+      
+      elif results == "re_run_with_higher_map_weight":
         emweight_multiply_by = emweight_multiply_by * 2
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 20 steps\n"
         print write_this
         logfile.write(write_this)
-        write_this = "Therefore, step 7 & 8 will re-run with higher map weight (" + str(emweight_multiply_by) + ")\n\n"
+        write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (" + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
-        re_run_with_higher_weight = True
+        re_run_with_higher_map_weight = True
         
       else: # normal ending of cryo_fit
         charge_group_moved = False
         cc_has_been_increased = False
-        re_run_with_higher_weight = False
+        re_run_with_higher_map_weight = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
   this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
   if (this_is_test == False):
