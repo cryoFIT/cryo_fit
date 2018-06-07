@@ -108,7 +108,6 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   for line in f_in:
     splited = line.split(" ")
     cc = splited[4]
-
     if (float(cc) < 0.0001):
       print "\t\tcc: " + cc + " < 0.0001"
       print "\t\tExit now, since further cc will be 0.000 as well\n"
@@ -121,8 +120,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     former_cc = cc
   f_in.close()
 
-  step_number_for_judging = 40
-  
+  step_number_for_judging = 30
+  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  print "\t\tstep_number_for_judging:",step_number_for_judging
   if (len(cc_has_been_increased_array) < step_number_for_judging):
     print "\t\tnumber of cc evaluations < ", step_number_for_judging
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
@@ -144,7 +144,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
 
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
-  #print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
+  
   for i in xrange(len(cc_has_been_increased_array)-1, len(cc_has_been_increased_array)-(step_number_for_judging+1), -1):
     if cc_has_been_increased_array[i] == False:
       cc_has_been_decreased = cc_has_been_decreased + 1

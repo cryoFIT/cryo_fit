@@ -854,19 +854,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     else:
       return "re_run_w_smaller_MD_time_step"
     
-  '''
-  command_string = "cat md.log | grep correlation"
-  correlation_coefficients_change = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-  
-  print "\n\tCorrelation coefficient change during cryo_fit\n"
-  f_out = open('log.step_8', 'at+')
-  for i in range(len(correlation_coefficients_change)):
-    print "\t", correlation_coefficients_change[i]
-    f_out.write("\n")
-    f_out.write(correlation_coefficients_change[i])
-  print "\n"
-  '''
-  
   if (str(restart) == "False"):
     user_s_cc = get_users_cc("cc_record")
     user_s_cc = round(float(user_s_cc),3)
@@ -890,6 +877,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       else:
         print "\tcc has been saturated, so go ahead to the next step"
   
+  f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
   f_out.write(write_this_time)
