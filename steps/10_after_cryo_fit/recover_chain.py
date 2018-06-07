@@ -40,12 +40,10 @@ def retrieve_1st_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_re
    line_num = 0
    for line_before_cryo_fit in pdb_before_cryo_fit_in:
       line_num = line_num + 1
-      #if line_before_cryo_fit[:4] == "ATOM":
       if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
          res = line_before_cryo_fit[17:20]
          res_num = line_before_cryo_fit[23:27]
          #print "res:",res," res_num:",res_num, " in retrieve_1st_line_matching_pair()"
-         #if str(res) == str(seeking_res):
          if str(res.strip()) == str(seeking_res.strip()):
             if int(res_num) == int(seeking_res_num):
                first_line_num_matching_pair = line_num
@@ -60,11 +58,9 @@ def retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_nu
    for line_before_cryo_fit in pdb_before_cryo_fit_in:
       line_num = line_num + 1
       if line_num > after_this_line_num_in_ori_pdb:
-         #if line_before_cryo_fit[:4] == "ATOM":
          if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
             res = line_before_cryo_fit[17:20]
             res_num = line_before_cryo_fit[23:27]
-            #if str(res) == str(seeking_res):
             if str(res.strip()) == str(seeking_res.strip()):
                if int(res_num) == int(seeking_res_num):
                   first_line_num_matching_pair = line_num

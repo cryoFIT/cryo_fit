@@ -98,7 +98,7 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
   return model_file_with_pathways, model_file_without_pathways
 # end of assign_model_name()
 
-def check_whether_cc_has_been_increased(cc_record):
+def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\tCheck_whether_cc_has_been_increased"
   
   f_in = open(cc_record)
@@ -154,8 +154,12 @@ def check_whether_cc_has_been_increased(cc_record):
       cc_has_been_increased = cc_has_been_increased + 1
   print "\t\tNumber of cc increase in the last 20 steps:",cc_has_been_increased,", number of cc decrease in the last 20 steps:",cc_has_been_decreased
   if (cc_has_been_decreased >= step_number_for_judging*0.8):
-    print "\t\tcc tends to decrease over the last ", step_number_for_judging," steps."
-    print "The possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
+    write_this = "\t\tcc tends to decrease over the last ", step_number_for_judging," steps.\n"
+    print write_this
+    logfile.write(write_this)
+    
+    print "Providing higher (better) resolution map help this problem"
+    print "Another possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
     print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
     print "\t\tPossible solutions:"
     print "\t\t\t1) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
@@ -163,7 +167,9 @@ def check_whether_cc_has_been_increased(cc_record):
     print "\t\t\t3) Re-run after properly align the initial model to a map"
     print "\t\t\t4) Re-run with higher map_weight"
     print "\t\tNote: Increasing map_weight may not help for a case when an atomic model is too small compared to a map"
-    print "\t\tExit now"
+    write_this = "\t\tExit now"
+    print write_this
+    logfile.write(write_this)
     exit(1)
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     #cc_10th_last = cc_array[len(cc_array)-11]

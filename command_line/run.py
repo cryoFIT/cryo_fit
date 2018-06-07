@@ -870,7 +870,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     #print "\twrite_this:", write_this
     logfile.write(write_this)
     
-  cc_has_been_increased = check_whether_cc_has_been_increased("cc_record")
+  cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
   print "\t\tcc_has_been_increased in the last 20 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
@@ -973,7 +973,8 @@ def step_final(logfile, command_path, starting_dir):
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
-  print "\tMove trajectory files into trajectory folder: ", run_this
+  print "\n\tMove trajectory files into trajectory folder "
+  print "\t\tcommand: ", run_this
   libtbx.easy_run.call(run_this)
       
   pdb_file_with_original_chains = ''
