@@ -154,7 +154,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
   #if (cc_has_been_decreased >= step_number_for_judging*0.8):
   if (cc_has_been_decreased > cc_has_been_increased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps."
+    write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps.\n"
     print write_this
     logfile.write(write_this)
     write_this = "\t\tProviding higher (better) resolution map tends to help this problem."
