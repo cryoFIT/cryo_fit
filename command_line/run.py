@@ -733,8 +733,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/60)) + "\n" # to make cryo_fit step 8 faster
-              #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/20)) + "\n" # to make cryo_fit step 8 faster
+              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/80)) + "\n" # to make cryo_fit step 8 faster
               # when emsteps is too sparse, cc went to become worse
               fout.write(new_line)
           else:
@@ -841,6 +840,9 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   command_string = "cat md.log | grep correlation > cc_record"
   libtbx.easy_run.fully_buffered(command_string)
   
+  command_string = "cat md.log | grep correlation >> ../../cc_record_full"
+  libtbx.easy_run.fully_buffered(command_string)
+  
   returned = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
   
   if (returned != "success"):
@@ -852,6 +854,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     else:
       return "re_run_w_smaller_MD_time_step"
     
+  '''
   command_string = "cat md.log | grep correlation"
   correlation_coefficients_change = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
   
@@ -862,6 +865,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     f_out.write("\n")
     f_out.write(correlation_coefficients_change[i])
   print "\n"
+  '''
   
   if (str(restart) == "False"):
     user_s_cc = get_users_cc("cc_record")
@@ -871,7 +875,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     logfile.write(write_this)
     
   cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
-  print "\t\tcc_has_been_increased in the last 20 cc evaluations:", cc_has_been_increased
+  print "\t\tVerdict of cc_has_been_increased function in the last 40 cc evaluations:", cc_has_been_increased
   
   if (tutorial == True):
     print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
@@ -891,7 +895,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.write(write_this_time)
   f_out.close()
   
-  f_in = open('cc_record')
+  #f_in = open('cc_record')
+  f_in = open('../../cc_record_full')
   cc_record = list()
   for line in f_in:
     splited = line.split()
@@ -990,11 +995,11 @@ def step_final(logfile, command_path, starting_dir):
       run_this = '' 
       if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
-        print "\t\ttherefore chain_recovery is successful"
+        print "\t\tTherefore, chain_recovery is successful"
         run_this = "rm " + pdb
       else:
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
-        print "\t\ttherefore chain_recovery is not successful"
+        print "\t\tTherefore, chain_recovery is not successful"
         run_this = "rm " + chain_recovered
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
@@ -1288,7 +1293,7 @@ def run_cryo_fit(logfile, params, inputs):
   
         charge_group_moved = False # just initial value
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 20 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 40 steps\n"
         print write_this
         logfile.write(write_this)
         write_this = "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit) + ")\n\n"
@@ -1301,19 +1306,26 @@ def run_cryo_fit(logfile, params, inputs):
         restart_record.close()
         
         if (number_of_steps_for_cryo_fit > 1000000000000000 ): # to avoid infinite loop
-          print "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
+          write_this = "number_of_steps_for_cryo_fit > 1000000000000000, exit now"
+          print write_this
+          logfile.write(write_this)
           break # no need to use exit(1) since this break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
       
       elif results == "re_run_with_higher_map_weight":
         emweight_multiply_by = emweight_multiply_by * 2
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 30 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 40 steps\n"
         print write_this
         logfile.write(write_this)
         write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (" + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
         re_run_with_higher_map_weight = True
+        if (emweight_multiply_by > 1000000000000000 ): # to avoid infinite loop
+          write_this = "emweight_multiply_by > 1000000000000000, exit now"
+          print write_this
+          logfile.write(write_this)
+          break # no need to use exit(1) since this break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
         
       else: # normal ending of cryo_fit

@@ -121,7 +121,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     former_cc = cc
   f_in.close()
 
-  step_number_for_judging = 30
+  step_number_for_judging = 40
   
   if (len(cc_has_been_increased_array) < step_number_for_judging):
     print "\t\tnumber of cc evaluations < ", step_number_for_judging
@@ -178,12 +178,12 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     return "re_run_with_higher_map_weight"
     
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
-    if (cc_last > cc_30th_last):
-        print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
+    cc_40th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    if (cc_last > cc_40th_last):
+        print "\t\tcc_last (",cc_last,") > cc_40th_last (", cc_40th_last, ")"
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        print "\t\tcc_last (",cc_last,") < cc_30th_last (", cc_30th_last, ")"
+        print "\t\tcc_last (",cc_last,") < cc_40th_last (", cc_40th_last, ")"
         return False
   else:
     return False # the last 30 cc values tend NOT to be increased
@@ -274,15 +274,15 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 2500): # pdb5khe.pdb
-    number_of_steps_for_cryo_fit = 500 
+    number_of_steps_for_cryo_fit = 300 
   elif (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_cryo_fit = 3000 # 15,000 seems too large
+    number_of_steps_for_cryo_fit = 2000 # 15,000 seems too large
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_cryo_fit = 10000
+    number_of_steps_for_cryo_fit = 5000
   elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_cryo_fit = 30000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
+    number_of_steps_for_cryo_fit = 20000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_cryo_fit = 50000
+    number_of_steps_for_cryo_fit = 30000
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
@@ -457,6 +457,7 @@ def get_users_cc(cc_record):
     splited = line.split(" ")
     cc = splited[4]
     f_in.close()
+    print "\tUser provided atomic model's cc: ", cc
     return cc
 # end of get_users_cc(cc_record)
 
@@ -760,7 +761,7 @@ def return_number_of_atoms_in_gro():
 
 def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     command_string = '' # just initial
-    print "\trestart:",restart
+    print "\trestart with longer cryo_fit steps:",restart
     if (cores_to_use == 2):
         if (str(restart) == "False"):
             command_string = common_command_string + " -nt 2 -dd 2 1 1 "
