@@ -1307,13 +1307,14 @@ def run_cryo_fit(logfile, params, inputs):
       
       elif results == "re_run_with_higher_map_weight":
         emweight_multiply_by = emweight_multiply_by * 2
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 20 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be decreased over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
         write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (" + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
         re_run_with_higher_map_weight = True
+        os.chdir( starting_dir ) # needed for re-running
         
       else: # normal ending of cryo_fit
         charge_group_moved = False

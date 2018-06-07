@@ -125,8 +125,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   
   if (len(cc_has_been_increased_array) < step_number_for_judging):
     print "\t\tnumber of cc evaluations < ", step_number_for_judging
-    print "\t\tRe-run because usually first few evaluations of cc are fluctuating."
-    print "\t\tTherefore, just hypothetically consider as if the most recent CCs have been increased for now."
+    print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
+    print "\t\tTherefore, cryo_fit just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
   
   the_highest_cc = -99
@@ -153,11 +153,11 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
   if (cc_has_been_decreased >= step_number_for_judging*0.8):
-    write_this = "cc tends to decrease over the last " + str(step_number_for_judging) + " steps."
-    print "\t\t", write_this
+    write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps."
+    print write_this
     logfile.write(write_this)
-    write_this = "Providing higher (better) resolution map tends to help this problem."
-    print "\t\t", write_this
+    write_this = "\t\tProviding higher (better) resolution map tends to help this problem."
+    print write_this
     logfile.write(write_this)
     
     '''
