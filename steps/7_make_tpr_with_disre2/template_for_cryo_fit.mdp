@@ -81,7 +81,7 @@ emthresh                 = 0.0
 emffgrps                 = system 
 ; emwritefrequency is the frequency with which the simulated maps are written to file.  Warning: This can cause for extremely large amounts of data to be written.  
 ;-1 turns off writing of the densities
-emwritefrequency                 = 100000 
+emwritefrequency                 = 1000000
 ;Restraints
 define = -DDISRES
 disre           = simple

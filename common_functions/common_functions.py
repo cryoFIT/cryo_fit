@@ -121,20 +121,18 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   f_in.close()
 
   step_number_for_judging = 30
-  print "\t\tlen(cc_has_been_increased_array):",len(cc_has_been_increased_array)
-  print "\t\tstep_number_for_judging:",step_number_for_judging
   if (len(cc_has_been_increased_array) < step_number_for_judging):
-    print "\t\tnumber of cc evaluations < ", step_number_for_judging
+    print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < least_step_number_for_judging (", step_number_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
     print "\t\tTherefore, cryo_fit just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
   
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
-  print "\t\tcc_last:", cc_last
+  print "\t\tlast cc:", cc_last
   for i in xrange(len(cc_array)-1, len(cc_array)-(step_number_for_judging+1), -1):
     cc = cc_array[i]
-    print "\t\t",i,"th cc",cc
+    print "\t\t",i,"th cc:",cc
     if cc > the_highest_cc:
       the_highest_cc = cc
   print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
@@ -455,7 +453,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 # end of get_structure_factor_from_pdb_string function
 
 def get_users_cc(cc_record):
-  print "\tGet user provided atomic model's cc"
+  #print "\tGet user provided atomic model's cc"
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")
@@ -686,7 +684,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         first_line = True
         print "\t\t\tmap_file_name:", map_file_name
         new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
-        print "\t\t\tnew_map_file_name_w_ori_origins:", new_map_file_name_w_ori_origins
+        print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')
         for line in f_in:
@@ -762,7 +760,6 @@ def renumber_cc_record_full(cc_record_full):
    add_this_step = 0
    step_gap = 0
    for line in f_in:
-      print line   
       splited = line.split(" ")
       step = splited[1]
       if (int(step) > int(old_step)):

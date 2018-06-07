@@ -96,6 +96,7 @@ if (__name__ == "__main__") :
         adjust_step_number ()
         os.remove("../restart_record.txt") # only for development, keep this file
     
+    #result = os.popen("cat cc_record_full_renumbered | sort -nk5 -r | head -3").readlines()
     result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     for i in range(len(result)):
         splited = result[i].split()

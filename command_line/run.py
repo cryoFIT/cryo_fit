@@ -152,7 +152,7 @@ Options
     .short_caption = EM write frequency
     .help = Frequency with which the simulated maps are written to file. \
             If this frequency is too small, it can cause extremely large amounts of data to be written.\
-            If it is left blank, the cryo_fit will use default value of 100,000
+            If it is left blank, the cryo_fit will use default value of 1,000,000
   number_of_steps_for_minimization = None
     .type = int
     .short_caption = Number of steps for minimization
@@ -745,7 +745,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
           fout.write(new_line)
         elif splited[0] == "emwritefrequency":
-          if (emwritefrequency == None): # default is 100,000, because I don't see any usefulness of writing intermediate .sit file
+          if (emwritefrequency == None): # default is 1,000,000, because I don't see any usefulness of writing intermediate .sit file
             fout.write(line)
           else:
             new_line = "emwritefrequency = " + str(emwritefrequency) + "\n"
@@ -780,7 +780,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
 # end of step_7 (make tpr for cryo_fit) function
            
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
-       map_file_with_pathways, no_rerun, devel, tutorial, restart):
+       map_file_with_pathways, no_rerun, devel, tutorial, restart_w_longer_steps, re_run_with_higher_map_weight):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -789,7 +789,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
   libtbx.easy_run.fully_buffered(command_string)
   
-  if (str(restart) == "True"):
+  if (str(restart_w_longer_steps) == "True"):
     command_string = "cp ../../state.cpt . "
     libtbx.easy_run.fully_buffered(command_string)
   
@@ -802,7 +802,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(number_of_available_cores) \
               + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
-              + " " + str(this_is_test) + " " + str(restart)
+              + " " + str(this_is_test) + " " + str(restart_w_longer_steps)
   print "\n\tcommand: ", command_string
   print "\n\tA user can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
@@ -854,11 +854,10 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     else:
       return "re_run_w_smaller_MD_time_step"
     
-  if (str(restart) == "False"):
+  if ((str(restart_w_longer_steps) == "False") and (str(re_run_with_higher_map_weight) == "False")):
     user_s_cc = get_users_cc("cc_record")
     user_s_cc = round(float(user_s_cc),3)
-    write_this = "\nUser's provided atomic model has " + str(user_s_cc) + " cc\n\n"
-    #print "\twrite_this:", write_this
+    write_this = "\nUser's provided atomic model had " + str(user_s_cc) + " cc\n\n"
     logfile.write(write_this)
     
   cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
@@ -876,7 +875,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
         return "re_run_with_higher_map_weight"
       else:
         print "\tcc has been saturated, so go ahead to the next step"
-  
+    
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
@@ -894,6 +893,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     cc_record.append((float(step), float(cc)))
   f_in.close()
   
+  os.remove("../../cc_record_full")
+    
   results = dict()
   results['cc_record'] = cc_record # results should have ['cc_record'] only, if it has ['cc_has_been_increased'] as well, GUI will error
   
@@ -935,9 +936,12 @@ def step_final(logfile, command_path, starting_dir):
       libtbx.easy_run.fully_buffered(cp_command_string)
       
   if (this_is_test == False):
-    cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
+    cp_command_string = "mv ../cc_record_full_renumbered ."
     libtbx.easy_run.fully_buffered(cp_command_string)
   
+    cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    
     cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     
@@ -948,12 +952,12 @@ def step_final(logfile, command_path, starting_dir):
     command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
-  
+
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for chimera/gromacs/vmd)"
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
+    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     for extracted_gro in glob.glob("*.gro"):
-      home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
       command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
@@ -981,15 +985,19 @@ def step_final(logfile, command_path, starting_dir):
       chain_recovered = pdb[:-4] + "_chain_recovered.pdb"
       number_of_atoms_in_pdb_after_cryo_fit = know_number_of_atoms_in_input_pdb(pdb) # I need to use "pdb" not "pdb_file_with_original_chains"
       number_of_atoms_in_pdb_after_cryo_fit_chain_recovered = know_number_of_atoms_in_input_pdb(chain_recovered)
-      run_this = '' 
+      run_this = ''
+      write_this = '' 
       if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
         print "\t\tTherefore, chain_recovery is successful"
+        write_this = "\t\tchain_recovery is successful\n"
         run_this = "rm " + pdb
       else:
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
         print "\t\tTherefore, chain_recovery is not successful"
+        write_this = "\t\tchain_recovery is not successful\n"
         run_this = "rm " + chain_recovered
+      logfile.write(write_this)
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
       
@@ -1005,7 +1013,7 @@ def step_final(logfile, command_path, starting_dir):
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
   
-  returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record")
+  returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
   
   print "\n\tOutputs are in \"output\" folder"
   print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
@@ -1020,7 +1028,8 @@ def step_final(logfile, command_path, starting_dir):
   print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load "
 
   if (returned != "success"):
-    print "Step final (arrange output) didn't run successfully"
+    write_this = "Step final (arrange output) didn't run successfully"
+    print write_this
     logfile.write("Step final (arrange output) didn't run successfully\n")
     exit(1)
   
@@ -1229,7 +1238,8 @@ def run_cryo_fit(logfile, params, inputs):
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     tutorial = True
     
-  restart = False # this is a proper initial assignment
+  restart_w_longer_steps = False # this is a proper initial assignment
+  re_run_with_higher_map_weight = False # this is a proper initial assignment
   
   while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
     if ((this_is_test == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
@@ -1246,7 +1256,8 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, no_rerun, devel, tutorial, restart)
+             map_file_with_pathways, no_rerun, devel, tutorial, restart_w_longer_steps, \
+             re_run_with_higher_map_weight)
       
       if (results == True): # this is a test
         print "This is a test, so break early"
@@ -1265,26 +1276,32 @@ def run_cryo_fit(logfile, params, inputs):
         print "\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n"
         logfile.write("\tstep 7 & 8 will re-run with smaller time_step_for_cryo_fit (" + str(time_step_for_cryo_fit*0.5) + ")\n\n")
         if (time_step_for_cryo_fit < 0.0001): # to avoid infinite loop
-          print "time_step_for_cryo_fit < 0.0001, exit now"
+          write_this = "time_step_for_cryo_fit < 0.0001, exit now"
+          print write_this
+          logfile.write(write_this)
           break
         os.chdir( starting_dir )
         
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
-          logfile.write("re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n")
+          write_this = "re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n"
+          print write_this
+          logfile.write(write_this)
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
           return results
-        restart = True
+        restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
         # copy for a next restart step
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
         charge_group_moved = False # just initial value
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
+        
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
+        
         write_this = "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit) + ")\n\n"
         print write_this
         logfile.write(write_this)
@@ -1306,7 +1323,7 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
-        write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (" + str(emweight_multiply_by) + ")\n\n"
+        write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (e.g. " + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
         re_run_with_higher_map_weight = True
