@@ -10,7 +10,6 @@ def adjust_step_number():
     i = 0
     for line in f:
         i = i + 1
-    #print "\t\t\t\t../../restart_record.txt has ", i, " number of lines"
     f.close()
     
     f = open('../restart_record.txt', 'r')
@@ -28,9 +27,7 @@ def adjust_step_number():
     f_out = open('cc_record_adjusted_step', 'w')
     for line in f_in:
        splited = line.split()
-       #print "\t\t\t\told line:",line
        new_line = splited[0] + " " + str((int(last_step_to_be_added)+int(splited[1]))) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
-       #print "\t\t\t\tnew_line:",new_line
        f_out.write(new_line)
     f_in.close()
     f_out.close()

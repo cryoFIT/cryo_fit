@@ -541,6 +541,22 @@ def locate_Phenix_executable():
     return command_path
 # end of locate_Phenix_executable function
 
+def make_trajectory_gro(home_cryo_fit_bin_dir):
+    print "\n\tMake a trajectory.gro file"
+    current_directory = os.getcwd()
+
+    command_string = "echo 0 > input_parameter" # to select system
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+    command_string = home_cryo_fit_bin_dir + "/trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
+    print "\t\tcommand: ", command_string
+    libtbx.easy_run.fully_buffered(command_string)
+    
+    if (os.path.isfile("trajectory.gro") == False):
+        print "exit here"
+        STOP()
+# end of def make_trajectory_gro():
+    
 def minimize(cores_to_use, ns_type, common_command_string):
     command_string = common_command_string + " -nt 1 -dd 1 1 1 "
     print "\tcommand: ", command_string

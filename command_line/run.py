@@ -956,24 +956,13 @@ def step_final(logfile, command_path, starting_dir):
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for chimera/gromacs/vmd)"
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
-    
     for extracted_gro in glob.glob("*.gro"):
       home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
       command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
-      
-    print "\n\tMake a trajectory .gro file"
-    command_string = "echo 0 > input_parameter" # to select system
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-    command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.fully_buffered(command_string)
-  
-  if (os.path.isfile("trajectory.gro") == False):
-    print "exit here"
-    STOP()
+    
+    make_trajectory_gro(home_cryo_fit_bin_dir)
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
@@ -1291,7 +1280,7 @@ def run_cryo_fit(logfile, params, inputs):
         print "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 20 steps\n"
         print "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n"
         logfile.write("Step 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 20 steps\n")
-        logfile.write("Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n")
+        logfile.write("Therefore, step 7 & 8 will re-run with 3 times longer steps (" + str(number_of_steps_for_cryo_fit*3) + ")\n\n")
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 3
         
         restart_record = open("../../restart_record.txt", "a+")
