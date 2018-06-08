@@ -30,7 +30,8 @@
 
 import glob, os, sys
 
-def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, bool_remove_metals):
+def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, \
+               bool_remove_metals, logfile):
   output_pdb_file_name = leave_ATOM_END_HETATM_TER (input_pdb_file_name)
   
   if (bool_remove_metals == "True"):
@@ -47,7 +48,7 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   output_pdb_file_name = no_more_100k_atom_num (output_pdb_file_name)
   
   output_pdb_file_name = put_TER_between_chains (output_pdb_file_name)
-  output_pdb_file_name = clean_HETATM_7C4 (output_pdb_file_name)
+  output_pdb_file_name = clean_unusual_residue (output_pdb_file_name)
   output_pdb_file_name = clean_RNA_OP1 (output_pdb_file_name, bool_remove_MIA, bool_MIA_to_A)
   
   output_pdb_file_name = remove_water (output_pdb_file_name) # gromacs cannot handle water
@@ -100,7 +101,6 @@ def remove_metals(input_pdb_file_name):
   return output_pdb_file_name
 # end of remove_metals
 
-
 def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_resnum_starts_at_1.pdb"
@@ -135,7 +135,6 @@ def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 # end of start_resnum_at_1_at_each_chain
-
 
 def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -172,7 +171,6 @@ def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 # end of start_atom_num_at_1_at_each_chain
-
 
 def clean_RNA_for_chimera_derived_ribosome(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -211,7 +209,6 @@ def clean_RNA_for_chimera_derived_ribosome(input_pdb_file_name):
   return output_pdb_file_name
 # end of clean_RNA_for_chimera_derived_ribosome function
 
-
 def clean_RNA_residues_for_amber03(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_amber03.pdb"
@@ -247,7 +244,6 @@ def clean_RNA_residues_for_amber03(input_pdb_file_name):
   return output_pdb_file_name
 # end of clean_RNA_residues_for_amber03 function
 
-
 def clean_RNA_atoms_for_amber03(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_amber03.pdb"
@@ -265,7 +261,6 @@ def clean_RNA_atoms_for_amber03(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 # end of clean_RNA_atoms_for_amber03 function
-
 
 def remove_the_fourth_character(input_pdb_file_name):
   # remove the fourth character in residue part, it should be either two characters like RA or \
@@ -313,51 +308,51 @@ def put_TER_between_chains(input_pdb_file_name):
   return output_pdb_file_name
 # end of put_TER_between_chains function
 
-def clean_HETATM_7C4(input_pdb_file_name):
+def clean_unusual_residue(input_pdb_file_name):
+  if (os.path.isfile("../../unusual_residue_removed.txt") == True):
+    os.remove("../../unusual_residue_removed.txt")
+  f_report = open("../../unusual_residue_removed.txt", 'w')
+  
   f_in = open(input_pdb_file_name)
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_HETATM.pdb"
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_unusual.pdb"
   f_out = open(output_pdb_file_name, 'wt')
           
   for line in f_in:
     residue = line[17:20]
-    if residue == "7C4":
-      print residue, " removed"
+    if ((residue == "7C4") or (residue == "BMA") or (residue == "CSX")):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
       continue
-    elif residue == "BMA":
-      print residue, " removed"
+    elif residue == "ERY": # for emd_6057_pdb3j7z.pdb
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
       continue
-    elif residue == "CSX":
-      print residue, " removed"
-      continue
-    elif residue == "GDP":
-      print residue, " removed"
+    elif ((residue == "GDP") or (residue == "ILX")):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
       continue
     elif residue == "HYP": # needed to run emd_3981
-      print residue, " removed"
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
       continue
-    elif residue == "ILX":
-      print residue, " removed"
-      continue
-    elif residue == "NAG":
-      print residue, " removed"
-      continue
-    elif residue == "SEP":
-      print residue, " removed"
-      continue
-    elif residue == "TRX":
-      print residue, " removed"
-      continue
-    elif residue == "UNK":
-      print residue, " removed"
+    elif ((residue == "NAG") or (residue == "SEP") or (residue == "TRX") or (residue == "UNK")):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
       continue
     else:
       f_out.write(line)
   f_in.close()
   f_out.close()
+  f_report.close()
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of clean_HETATM_7C4 function
+# end of clean_unusual_residue function
 
 def remove_OXT(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
