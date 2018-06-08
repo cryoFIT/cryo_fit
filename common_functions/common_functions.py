@@ -150,17 +150,39 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
       cc_has_been_increased = cc_has_been_increased + 1
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
-  #if (cc_has_been_decreased >= step_number_for_judging*0.8):
-  if (cc_has_been_decreased > cc_has_been_increased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
+
+  if (cc_has_been_decreased > cc_has_been_increased*1.3):
+    msg=(
+    '\n\t\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.\n'
+    '\t\tProviding higher (better) resolution map or enforcing stronger map weight tend to help this problem.'
+    
+    '\n\t\tIf cryo_fit is provided a giant cryoem map with a tiny atomic model.'
+    '\t\t\tThen, the cryo_fit calculates the gradient of CC because of the large empty space not filled. '
+    '\t\t\tThe constraint forces for the model are not helping as they are very small.'
+    '\t\t\tThen, re-run cryo_fit with an atomic model that fits the majority of the map. '
+    '\t\t\tConsider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12'
+    
+    '\n\t\tIf the initial model is not properly aligned to a map, consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map'
+    
+    '\n\t\tHere, cryo_fit will try stronger map weight automatically.'
+    )
+    print (msg)
+    logfile.write(msg)
+    
+    '''
     write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps.\n"
     print write_this
     logfile.write(write_this)
     write_this = "\t\tProviding higher (better) resolution map or enforcing stronger map weight tend to help this problem."
     print write_this
     logfile.write(write_this)
+    write_this = "\t\tRe-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
+    print write_this
+    logfile.write(write_this)
     write_this = "\t\tHere, cryo_fit will try stronger map weight automatically."
     print write_this
     logfile.write(write_this)
+    '''
     
     '''
     print "Providing higher (better) resolution map tends to help this problem"

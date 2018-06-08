@@ -865,6 +865,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   if (tutorial == True):
     print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
+  
   if (tutorial == False):
     if (devel == True):
       no_rerun = True
@@ -1293,7 +1294,14 @@ def run_cryo_fit(logfile, params, inputs):
           return results
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
+        
         # copy for a next restart step
+        if (os.path.isfile("state.cpt") == False):
+          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb, exit now"
+          print write_this
+          logfile.write(write_this)
+          exit(1)
+        
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
