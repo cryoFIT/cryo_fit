@@ -347,6 +347,9 @@ def clean_HETATM_7C4(input_pdb_file_name):
     elif residue == "TRX":
       print residue, " removed"
       continue
+    elif residue == "UNK":
+      print residue, " removed"
+      continue
     else:
       f_out.write(line)
   f_in.close()
@@ -489,15 +492,6 @@ def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
   return output_pdb_file_name
 # end of clean_RNA_OP1 function
 
-def remove_former_files():
-  for to_be_removed_file in glob.glob("*_cleaned_for_gromacs*"):
-    cmd = "rm " + to_be_removed_file
-    os.system(cmd)
-  for to_be_removed_file in glob.glob("*_removed.pdb"):
-    cmd= "rm " + to_be_removed_file
-    os.system(cmd)
-# end of remove_former_files function
-
 def know_the_biggest_atom_num(input_pdb_file_name):
   # to solve truncation problem of 80S.mdfit_fitted_by_chimera_cleaned_for_gromacs_chain_2.pdb
   f_in = open(input_pdb_file_name)
@@ -550,6 +544,15 @@ def no_more_100k_atom_num(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 # end of no_more_100k_atom_num function
+
+def remove_former_files():
+  for to_be_removed_file in glob.glob("*_cleaned_for_gromacs*"):
+    cmd = "rm " + to_be_removed_file
+    os.system(cmd)
+  for to_be_removed_file in glob.glob("*_removed.pdb"):
+    cmd= "rm " + to_be_removed_file
+    os.system(cmd)
+# end of remove_former_files function
 
 if (__name__ == "__main__") :
   remove_former_files()
