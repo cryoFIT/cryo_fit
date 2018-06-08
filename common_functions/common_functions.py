@@ -876,11 +876,16 @@ def shift_origin_of_mrc_map_if_needed(map_data, model):
 def shorten_file_name_if_needed(model_file_without_pathways):
   print "\tShorten_file_name_if_needed"
 
-  if len(model_file_without_pathways) > 50:
-    print "\tThe length of model_file_without_pathways is too long for macOS as if nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
+  if len(model_file_without_pathways) > 30:
+    print "\tThe length of model_file_without_pathways (",len(model_file_without_pathways)
+    print ") is too long for macOS like nucleosome_w_H1_histone_5nl0_ATOM_TER_END_fitted_to_map_emd_3659.pdb"
     print "\tTherefore, cryo_fit will copy another short named file."
     extension = model_file_without_pathways[len(model_file_without_pathways)-4:len(model_file_without_pathways)]
-    new_model_file_without_pathways = model_file_without_pathways[:40] + extension
+    new_model_file_without_pathways = model_file_without_pathways[:20] + extension
+    
+    command_string = "mv " + model_file_without_pathways + " " +  new_model_file_without_pathways
+    print "\tcommand: ", command_string
+    libtbx.easy_run.call(command=command_string)
     
     return new_model_file_without_pathways
   return model_file_without_pathways

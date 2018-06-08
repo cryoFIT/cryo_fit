@@ -27,8 +27,19 @@
 # purpose 8-2 (if a developer wants):
 #### remove MIA
 
-
 import glob, os, sys
+from subprocess import check_output
+
+# this is needed to import all common functions
+path = check_output(["which", "phenix.cryo_fit"])
+splited = path.split("/")
+command_path = ''
+for i in range(len(splited)-3):
+  command_path = command_path + splited[i] + "/"
+command_path = command_path + "modules/cryo_fit/"
+common_functions_path = command_path + "common_functions/"
+sys.path.insert(0, common_functions_path)
+from common_functions import *
 
 def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, \
                bool_remove_metals):
@@ -45,12 +56,15 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   output_pdb_file_name = clean_RNA_atoms_for_amber03 (output_pdb_file_name)
   output_pdb_file_name = remove_the_fourth_character(output_pdb_file_name)
   
-  output_pdb_file_name = no_more_100k_atom_num (output_pdb_file_name)
+  output_pdb_file_name = shorten_file_name_if_needed(output_pdb_file_name)
   
+  output_pdb_file_name = no_more_100k_atom_num (output_pdb_file_name)
   output_pdb_file_name = put_TER_between_chains (output_pdb_file_name)
+  
+  output_pdb_file_name = shorten_file_name_if_needed(output_pdb_file_name)
+  
   output_pdb_file_name = clean_unusual_residue (output_pdb_file_name)
   output_pdb_file_name = clean_RNA_OP1 (output_pdb_file_name, bool_remove_MIA, bool_MIA_to_A)
-  
   output_pdb_file_name = remove_water (output_pdb_file_name) # gromacs cannot handle water
   
   #output_pdb_file_name = remove_OXT (output_pdb_file_name)
@@ -346,6 +360,11 @@ def clean_unusual_residue(input_pdb_file_name):
   f_report.close()
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
+  
+  returned_file_size = file_size("../../unusual_residue_removed.txt")
+  if (returned_file_size == 0):
+    os.remove("../../unusual_residue_removed.txt")
+          
   return output_pdb_file_name
 # end of clean_unusual_residue function
 
