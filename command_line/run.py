@@ -939,7 +939,7 @@ def step_final(logfile, command_path, starting_dir):
     cp_command_string = "mv ../cc_record_full_renumbered ."
     libtbx.easy_run.fully_buffered(cp_command_string)
   
-    cp_command_string = "cp ../steps/8_cryo_fit/cc_record ."
+    cp_command_string = "cp ../steps/8_cryo_fit/cc_record ." # needed for extract_3_highest_cc_gro
     libtbx.easy_run.fully_buffered(cp_command_string)
     
     cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ."
@@ -952,6 +952,8 @@ def step_final(logfile, command_path, starting_dir):
     command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
+  
+    os.remove("cc_record")
 
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for chimera/gromacs/vmd)"

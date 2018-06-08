@@ -758,20 +758,23 @@ def renumber_cc_record_full(cc_record_full):
    f_out = open(renumbered_cc_record_full, "w")
    old_step = -9
    add_this_step = 0
-   step_gap = 0
+   #step_gap = 0
+   # step_gap was useful for cc_record_full_renumbered alone, \
+   # but better not used for matching extracted.gro/pdb and cc_record_full_renumbered
    for line in f_in:
       splited = line.split(" ")
       step = splited[1]
       if (int(step) > int(old_step)):
-         if (int(step_gap) == 0):
-            if (int(old_step) == 0):
-               step_gap = int(step) - int(old_step)
+         #if (int(step_gap) == 0):
+         #   if (int(old_step) == 0):
+         #      step_gap = int(step) - int(old_step)
          new_step = int(step)+int(add_this_step)
          new_line = splited[0] + " " + str(new_step) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
          f_out.write(new_line)
          old_step = step
       else:
-         add_this_step = int(add_this_step) + int(old_step) + int(step_gap)
+         #add_this_step = int(add_this_step) + int(old_step) + int(step_gap)
+         add_this_step = int(add_this_step) + int(old_step)
          new_step = int(step)+int(add_this_step)
          new_line = splited[0] + " " + str(new_step) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
          f_out.write(new_line)
