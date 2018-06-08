@@ -47,8 +47,7 @@ run_this = home_cryo_fit_bin_dir + "/grompp -f minimization.mdp -c *.gro -p *.to
 print "\tcommand: ", run_this
 
 f_out = open('log.step_3_make_tpr', 'wt')
-write_this_input_command = home_cryo_fit_bin_dir + "\n"
-write_this_input_command = write_this_input_command + run_this + "\n"
+write_this_input_command = run_this + "\n"
 f_out.write(write_this_input_command)
 
 time_start = time.time()
@@ -58,6 +57,6 @@ time_end = time.time()
 #write_this_time = show_time("step_3_1_make_tpr", time_start, time_end)
 write_this_time = "step_3_make_tpr"
 write_this_time = write_this_time + show_time (time_start, time_end)
-write_this_time = "\n\n" + write_this_time + "\n"
+write_this_time = "\n" + write_this_time + "\n"
 f_out.write(write_this_time)
 f_out.close()

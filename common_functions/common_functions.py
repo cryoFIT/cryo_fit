@@ -154,51 +154,28 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   if (cc_has_been_decreased > cc_has_been_increased*1.3):
     msg=(
     '\n\t\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.\n'
-    '\t\tProviding higher (better) resolution map or enforcing stronger map weight tend to help this problem.'
     
-    '\n\t\tIf cryo_fit is provided a giant cryoem map with a tiny atomic model.'
-    '\t\t\tThen, the cryo_fit calculates the gradient of CC because of the large empty space not filled. '
-    '\t\t\tThe constraint forces for the model are not helping as they are very small.'
-    '\t\t\tThen, re-run cryo_fit with an atomic model that fits the majority of the map. '
-    '\t\t\tConsider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12'
+    '\t\tHere are possible causes and solutions\n'
     
-    '\n\t\tIf the initial model is not properly aligned to a map, consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map'
+    '\n\t\t\t 1) Providing higher (better) resolution map tend to help this problem.\n'
     
-    '\n\t\tHere, cryo_fit will try stronger map weight automatically.'
+    '\n\t\t\t 2) enforcing stronger map weight tend to help this problem.\n'
+    
+    '\n\t\t\t 3) If cryo_fit is provided a giant cryoem map with a tiny atomic model.\n'
+    '\t\t\t\t Then, the cryo_fit calculates the gradient of CC because of the large empty space not filled. \n'
+    '\t\t\t\t The constraint forces for the model are not helping as they are very small.\n'
+    '\t\t\t\t 3-1) Re-run cryo_fit with an atomic model that fits the majority of the map. \n'
+    '\t\t\t\t      Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. \n'
+    '\t\t\t\t      Consider to watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12  \n'
+    
+    '\n\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
+    
+    '\n\t\t\t 4) If the initial model is not properly aligned to a map, consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
+    
+    '\n\t\t Here, cryo_fit will try stronger map weight automatically.\n'
     )
     print (msg)
     logfile.write(msg)
-    
-    '''
-    write_this = "\t\tcc tends to decrease over the last " + str(step_number_for_judging) + " steps.\n"
-    print write_this
-    logfile.write(write_this)
-    write_this = "\t\tProviding higher (better) resolution map or enforcing stronger map weight tend to help this problem."
-    print write_this
-    logfile.write(write_this)
-    write_this = "\t\tRe-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
-    print write_this
-    logfile.write(write_this)
-    write_this = "\t\tHere, cryo_fit will try stronger map weight automatically."
-    print write_this
-    logfile.write(write_this)
-    '''
-    
-    '''
-    print "Providing higher (better) resolution map tends to help this problem"
-    print "Another possible cause of this problem is that cryo_fit is provided a giant cryoem map with a tiny atomic model."
-    print "When the cryo_fit calculates the gradient of CC because of the large empty space not filled the constraint forces are not helping as they are very small."
-    print "\t\tPossible solutions:"
-    print "\t\t\t1) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model"
-    print "\t\t\t2) Re-run cryo_fit with an atomic model that fits the majority of the map. We observed that cc has been decreased during the cryo_fit when a user tried to fit a small atomic model into a big map. Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12"
-    print "\t\t\t3) Re-run after properly align the initial model to a map"
-    print "\t\t\t4) Re-run with higher map_weight"
-    print "\t\tNote: Increasing map_weight may not help for a case when an atomic model is too small compared to a map"
-    write_this = "\t\tExit now"
-    print write_this
-    logfile.write(write_this)
-    exit(1)
-    '''
     return "re_run_with_higher_map_weight"
     
   if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
@@ -231,25 +208,28 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
           return "success"
     msg=(
     'Step 3 didn\'t successfully run\n'
-    '\nIf a user sees a message like\n\n'
-    '\t"Program grompp, VERSION 4.5.5 \n'
-    '\tSource code file: toppush.c, line: 1166\n\n'
+    '\n\tIf a user sees a message like\n\n'
+    '\t\t"Program grompp, VERSION 4.5.5 \n'
+    '\t\tSource code file: toppush.c, line: 1166\n\n'
     
-    '\tFatal error:\n'
-    '\tAtomtype CH3 not found\n'
-    '\tFor more information and tips for troubleshooting, please check the GROMACS\n'
-    '\twebsite at http://www.gromacs.org/Documentation/Errors"\n\n'
+    '\t\tFatal error:\n'
+    '\t\tAtomtype CH3 not found\n'
+    '\t\tFor more information and tips for troubleshooting, please check the GROMACS\n'
+    '\t\twebsite at http://www.gromacs.org/Documentation/Errors"\n\n'
     
-    'It means that user\'s input pdb file has a forcefield undefined ligand\n'
-    'Therefore, cryo_fit recommends either of two methods\n\n'
+    '\n\t\tor ERROR 9 [file emd_6057_pdb3j7z_cleaned_for_gromacs_by_pdb2gmx.top, line 1001060]:\n'
+    'No default Proper Dih. types"\n\n'
     
-    '\t1st method> Remove lines of the unusual ligand that brought that message from input pdb file.\n'
-    '\tThen, run again phenix.cryo_fit. \n'
-    '\tLigand fitting into cryo-EM map can be done later by phenix.ligandfit anyway.\n'
-    '\tOf course, if the ligand is really unusual, cif file from phenix.elbow is required for that phenix.ligandfit\n\n'
+    '\tIt means that user\'s input pdb file has a forcefield undefined ligand\n'
+    '\tTherefore, cryo_fit recommends either of two methods\n\n'
     
-    '\t2nd method> Add atomtypes of your ligand to amber03.ff of this cryo_fit distribution using http://davapc1.bioch.dundee.ac.uk/cgi-bin/prodrg and .../modules/cryo_fit/steps/0_prepare_cryo_fit/top2rtp/runme_top2rtp.py\n'
-    '\tThen, email me (doonam@lanl.gov), I want to recognize your contribution publicly and distribute updated force field\n'
+    '\t\t1st method> Remove lines of the unusual ligand that brought that message from input pdb file.\n'
+    '\t\tThen, run again phenix.cryo_fit. \n'
+    '\t\tLigand fitting into cryo-EM map can be done later by phenix.ligandfit anyway.\n'
+    '\t\tOf course, if the ligand is really unusual, cif file from phenix.elbow is required for that phenix.ligandfit\n\n'
+    
+    '\t\t2nd method> Add atomtypes of your ligand to amber03.ff of this cryo_fit distribution using http://davapc1.bioch.dundee.ac.uk/cgi-bin/prodrg and .../modules/cryo_fit/steps/0_prepare_cryo_fit/top2rtp/runme_top2rtp.py\n'
+    '\t\tThen, email me (doonam@lanl.gov), I want to recognize your contribution publicly and distribute updated force field\n'
     )
     print (msg)
     logfile.write(msg)
