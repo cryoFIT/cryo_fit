@@ -35,7 +35,6 @@ for i in range(len(splited)-3):
 cryo_fit_repository_dir = command_path + "modules/cryo_fit/"
 
 common_functions_path = cryo_fit_repository_dir + "common_functions/"
-#print "\tcommon_functions_path:", common_functions_path
 
 sys.path.insert(0, common_functions_path)
 from common_functions import *
@@ -54,7 +53,6 @@ time_start = time.time()
 libtbx.easy_run.call(command=run_this)
 time_end = time.time()
 
-#write_this_time = show_time("step_3_1_make_tpr", time_start, time_end)
 write_this_time = "step_3_make_tpr"
 write_this_time = write_this_time + show_time (time_start, time_end)
 write_this_time = "\n" + write_this_time + "\n"
