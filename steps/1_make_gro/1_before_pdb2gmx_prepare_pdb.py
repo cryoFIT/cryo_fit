@@ -31,7 +31,7 @@
 import glob, os, sys
 
 def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, \
-               bool_remove_metals, logfile):
+               bool_remove_metals):
   output_pdb_file_name = leave_ATOM_END_HETATM_TER (input_pdb_file_name)
   
   if (bool_remove_metals == "True"):
@@ -329,12 +329,7 @@ def clean_unusual_residue(input_pdb_file_name):
       f_report.write(write_this)
       print write_this
       continue
-    elif ((residue == "GDP") or (residue == "ILX")):
-      write_this = str(residue) + " removed\n"
-      f_report.write(write_this)
-      print write_this
-      continue
-    elif residue == "HYP": # needed to run emd_3981
+    elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
