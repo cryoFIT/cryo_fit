@@ -930,6 +930,8 @@ def step_final(logfile, command_path, starting_dir):
   cp_command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
+  logfile.close() # to write user's cc for now
+  
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = True
@@ -976,7 +978,10 @@ def step_final(logfile, command_path, starting_dir):
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
-    
+  
+  log_file_name = "cryo_fit.overall_log"
+  logfile = open(log_file_name, "w+") # append
+  
   if (this_is_test == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
     print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
@@ -1034,6 +1039,7 @@ def step_final(logfile, command_path, starting_dir):
     write_this = "Step final (arrange output) didn't run successfully"
     print write_this
     logfile.write("Step final (arrange output) didn't run successfully\n")
+    logfile.close()
     exit(1)
   
   for py in glob.glob("*.py"): # most users will not need *.py
@@ -1297,7 +1303,7 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb, exit now"
+          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. This means that map weight may be too high, exit now\n"
           print write_this
           logfile.write(write_this)
           exit(1)
@@ -1454,7 +1460,9 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\nTotal cryo_fit", time_took
   
   write_this = "\nTotal cryo_fit " + time_took + "\n"
+  logfile = open(log_file_name, "w+") # append
   logfile.write(write_this)
+  logfile.close()
     
   if (results == "failed") or (results == "re_run_w_smaller_MD_time_step"): # errored
     exit(1)

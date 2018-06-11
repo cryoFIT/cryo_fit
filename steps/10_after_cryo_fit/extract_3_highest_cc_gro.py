@@ -35,7 +35,7 @@ def adjust_step_number():
     os.system(command_string)
 # end of def adjust_step_number ()
     
-def extract_gro(target_step, i):
+def extract_gro(target_step, i, cc):
     for_cryo_fit_mdp_location = ''
     
     if this_is_test == "False":
@@ -75,18 +75,32 @@ def extract_gro(target_step, i):
     
     if (i == 0):
         print "\t\t\t\t", target_step, " step has the highest cc"
-        if (target_step == "0"): # works as expected
-            print "\t\t\t\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
-            cmd = "mv " + output_gro_name + " user_provided.gro"
-            print "\t\t\t\t\tcommand:", cmd, "\n"
-            os.system(cmd)
-        else:
+        #if (target_step == "0"): # works as expected
+        #    print "\t\t\t\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
+        #    cmd = "mv " + output_gro_name + " user_provided.gro"
+        #    print "\t\t\t\t\tcommand:", cmd, "\n"
+        #    os.system(cmd)
+        #else:
+        users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
+        if (float(cc) > float(users_cc)):
             print "\t\t\t\tso rename it to cryo_fitted.gro"
             cmd = "mv " + output_gro_name + " cryo_fitted.gro"
             print "\t\t\t\t\tcommand:", cmd, "\n"
             os.system(cmd)
     os.remove("input_parameters")
 # end of extract_gro function
+
+def get_users_cc_from_overall_log(log):
+  f_in = open(log)
+  for line in f_in:
+    splited_by_apostrophe = line.split("'")
+    if (splited_by_apostrophe[0] == "User"):
+        splited = line.split(" ")
+        cc = splited[5]
+        f_in.close()
+        print "\tUser provided atomic model's cc: ", cc
+        return cc
+# end of get_users_cc(cc_record)
 
 if (__name__ == "__main__") :
     print "\n\t\textract_3_highest_cc_gro"
@@ -96,10 +110,10 @@ if (__name__ == "__main__") :
         adjust_step_number ()
         os.remove("../restart_record.txt") # only for development, keep this file
     
-    #result = os.popen("cat cc_record_full_renumbered | sort -nk5 -r | head -3").readlines()
     result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]
+        cc = splited[4]
         print "\t\t\ttarget_step for extracting a gro file: ", target_step
-        extract_gro(target_step, i)
+        extract_gro(target_step, i, cc)

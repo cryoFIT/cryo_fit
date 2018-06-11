@@ -151,7 +151,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\t\tNumber of cc increase in the last ",step_number_for_judging," steps: ",cc_has_been_increased
   print "\t\tNumber of cc decrease in the last ",step_number_for_judging," steps: ",cc_has_been_decreased
 
-  if (cc_has_been_decreased > cc_has_been_increased*1.3):
+  if (cc_has_been_decreased > cc_has_been_increased*1.2):
     msg=(
     '\n\t\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.\n'
     
@@ -275,18 +275,19 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
   
+  # now number_of_steps_for_cryo_fit is less relevant to molecule size
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 2500): # pdb5khe.pdb
     number_of_steps_for_cryo_fit = 300 
   elif (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
-    number_of_steps_for_cryo_fit = 2000 # 15,000 seems too large
+    number_of_steps_for_cryo_fit = 3000 # 15,000 seems too large
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
-    number_of_steps_for_cryo_fit = 5000
+    number_of_steps_for_cryo_fit = 4000
   elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_cryo_fit = 20000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
+    number_of_steps_for_cryo_fit = 5000 # for beta-galactosidase, 30k steps was not enough to recover even starting cc
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_cryo_fit = 30000
+    number_of_steps_for_cryo_fit = 6000
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
 # end of determine_number_of_steps_for_cryo_fit function
@@ -562,8 +563,9 @@ def make_trajectory_gro(home_cryo_fit_bin_dir):
     libtbx.easy_run.fully_buffered(command_string)
     
     if (os.path.isfile("trajectory.gro") == False):
-        print "exit here"
+        print "no trajectory.gro file, exit here"
         STOP()
+    os.remove("input_parameter")
 # end of def make_trajectory_gro():
     
 def minimize(cores_to_use, ns_type, common_command_string):

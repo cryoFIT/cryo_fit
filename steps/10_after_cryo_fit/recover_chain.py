@@ -1,6 +1,5 @@
 #author:doonam
-
-import os, subprocess, sys
+import os, subprocess, sys, time
 
 if len (sys.argv) < 3:
    print "How to use: recover_chain.py pdb_in_step1.pdb cryo_fitted.pdb"
@@ -78,7 +77,6 @@ def retrieve_chain(seeking_res, seeking_res_num, TER_number):
       if TER_can == "TER":
          TER_counted = TER_counted + 1
          pass
-      #if line_before_cryo_fit[:4] == "ATOM" # not works for chimera fitted pdb
       if (line_before_cryo_fit[:4] == "ATOM") or (line_before_cryo_fit[:6] == "HETATM"):
          chain = line_before_cryo_fit[20:22]
          res_num = line_before_cryo_fit[23:27]
@@ -90,11 +88,13 @@ def retrieve_chain(seeking_res, seeking_res_num, TER_number):
                   return chain, after_this_line_num_in_ori_pdb #retrieved_chain
    pdb_before_cryo_fit_in.close()
    after_this_line_num_in_ori_pdb = line_num
+   print "chain not_retrieved for ", seeking_res, seeking_res_num, " TER:", TER_number
    return "not_retrieved", after_this_line_num_in_ori_pdb
 # end of retrieve_chain(seeking_res, seeking_res_num, TER_number):
 
 line_num = 0
 first_chain_retrieved = False
+start = time.time()
 for line in pdb_after_cryo_fit_in:
    line_num = line_num + 1
    if line[:5] == "CRYST" or line[:3] == "END" or line[:6] == "HETATM" or \
@@ -111,6 +111,7 @@ for line in pdb_after_cryo_fit_in:
          line_num_matching_pair = retrieve_line_matching_pair(pdb_before_cryo_fit, res, res_num, after_this_line_num_in_ori_pdb)
       #print "line_num_matching_pair:",line_num_matching_pair, " in main function"
       TER_number = count_TER_before_this(pdb_before_cryo_fit, line_num_matching_pair)
+      #print "TER_number:", TER_number
       retrieved_chain, after_this_line_num_in_ori_pdb = retrieve_chain(res, res_num, TER_number)
       first_chain_retrieved = True
       new_line = ''
@@ -119,6 +120,8 @@ for line in pdb_after_cryo_fit_in:
       else:
          new_line = line[:20] + retrieved_chain + line[22:]
       f_out.write(new_line)
-      
+end = time.time()
+time_took = "chain recovery finished in " + str(round((end-start), 2)) + " seconds (wallclock)."
+print time_took
 pdb_after_cryo_fit_in.close()
 f_out.close()
