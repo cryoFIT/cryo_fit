@@ -982,7 +982,7 @@ def step_final(logfile, command_path, starting_dir):
   log_file_name = "cryo_fit.overall_log"
   logfile = open(log_file_name, "w+") # append
   
-  '''
+  #'''
   if (this_is_test == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
     print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
@@ -1009,7 +1009,7 @@ def step_final(logfile, command_path, starting_dir):
       logfile.write(write_this)
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
-  '''
+  #'''
   
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):

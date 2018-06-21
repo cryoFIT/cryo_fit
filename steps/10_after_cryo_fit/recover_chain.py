@@ -65,9 +65,9 @@ def retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_nu
                   first_line_num_matching_pair = line_num
                   pdb_before_cryo_fit_in.close()
                   return first_line_num_matching_pair
-   print "line_matching_pair not found for"
-   print "\tseeking_res:", seeking_res, "seeking_res_num:",seeking_res_num
-   print "\tres:", res, "res_num:",res_num   
+   #print "line_matching_pair not found for"
+   #print "\tseeking_res:", seeking_res, "seeking_res_num:",seeking_res_num
+   #print "\tres:", res, "res_num:",res_num   
 # end of retrieve_line_matching_pair(pdb_before_cryo_fit, seeking_res, seeking_res_num):
 
 def retrieve_chain(seeking_res, seeking_res_num, TER_number):
