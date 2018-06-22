@@ -168,7 +168,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     '\t\t\t\t      Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. \n'
     '\t\t\t\t      Consider to watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12  \n'
     
-    '\n\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
+    '\n\t\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
     
     '\n\t\t\t 4) If the initial model is not properly aligned to a map, consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
     
