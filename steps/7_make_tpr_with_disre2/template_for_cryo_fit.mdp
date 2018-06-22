@@ -93,3 +93,8 @@ disre_tau       = 0
 ;freezedim = Y Y Y
 ;energygrps_excl     =  OPEND OPEND OPEND RNA
 ;avoids calculating nb interactions between ENDS and ENDS, ENDS and RNA
+; Simulated annealing
+annealing = periodic
+annealing_npoints = 6
+annealing_time = 0 50 100 150 200 250
+annealing_temp = 400 200 100 50 25 0.002
