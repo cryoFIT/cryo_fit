@@ -979,8 +979,8 @@ def step_final(logfile, command_path, starting_dir):
   for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
   
-  log_file_name = "cryo_fit.overall_log"
-  logfile = open(log_file_name, "w+") # append
+  log_file_name = "../cryo_fit.overall_log"
+  logfile = open(log_file_name, "a+") # append
   
   #'''
   if (this_is_test == False): # recover chain information
@@ -999,12 +999,12 @@ def step_final(logfile, command_path, starting_dir):
       if (number_of_atoms_in_pdb_after_cryo_fit == number_of_atoms_in_pdb_after_cryo_fit_chain_recovered):
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit = number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
         print "\t\tTherefore, chain_recovery is successful"
-        write_this = "\t\tchain_recovery is successful\n"
+        write_this = "\tchain_recovery is successful\n"
         run_this = "rm " + pdb
       else:
         print "\t\tnumber_of_atoms_in_pdb_after_cryo_fit != number_of_atoms_in_pdb_after_cryo_fit_chain_recovered"
         print "\t\tTherefore, chain_recovery is not successful"
-        write_this = "\t\tchain_recovery is not successful\n"
+        write_this = "\tchain_recovery is not successful\n"
         run_this = "rm " + chain_recovered
       logfile.write(write_this)
       print "\t\trm: ", run_this
@@ -1051,6 +1051,8 @@ def step_final(logfile, command_path, starting_dir):
   logfile.write("Step final (arrange output) is successfully ran\n")
   time_end = time.time()
   print "\nStep final", (show_time(time_start, time_end))
+  
+  os.chdir( starting_dir )
   return this_is_test
 # end of step_final (arrange output) function
 
@@ -1462,7 +1464,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   print "\nTotal cryo_fit", time_took
   
   write_this = "\nTotal cryo_fit " + time_took + "\n"
-  logfile = open(log_file_name, "w+") # append
+  logfile = open(log_file_name, "a+") # append
   logfile.write(write_this)
   logfile.close()
     
