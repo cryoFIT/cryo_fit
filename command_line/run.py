@@ -932,11 +932,16 @@ def step_final(logfile, command_path, starting_dir):
   
   logfile.close() # to write user's cc for now
   
+  home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find() # needed for both test and real_run
+  
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
       this_is_test = True
       cp_command_string = "cp ../data/input_for_step_final/* ."
       libtbx.easy_run.fully_buffered(cp_command_string)
+      
+      #os.chdir( "trajectory" )
+      make_trajectory_gro(home_cryo_fit_bin_dir)
       
   if (this_is_test == False):
     cp_command_string = "mv ../cc_record_full_renumbered ."
@@ -961,7 +966,7 @@ def step_final(logfile, command_path, starting_dir):
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for chimera/gromacs/vmd)"
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
-    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+    
     for extracted_gro in glob.glob("*.gro"):
       command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
