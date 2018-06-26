@@ -884,6 +884,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   f_out.close()
   
   renumber_cc_record_full("../../cc_record_full")
+  os.remove("../../cc_record_full")
   
   f_in = open('../../cc_record_full_renumbered')
   cc_record = list()
@@ -894,8 +895,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     cc_record.append((float(step), float(cc)))
   f_in.close()
   
-  os.remove("../../cc_record_full")
-    
   results = dict()
   results['cc_record'] = cc_record # results should have ['cc_record'] only, if it has ['cc_has_been_increased'] as well, GUI will error
   
@@ -989,7 +988,6 @@ def step_final(logfile, command_path, starting_dir):
   #'''
   if (this_is_test == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
-    print "\t\t(If the input pdb file is big like 60k atoms, this will take few hrs)."
     for pdb in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with tRNA and Dieter's molecule
       print "\n\t\tcommand: ", command_string
@@ -1027,7 +1025,11 @@ def step_final(logfile, command_path, starting_dir):
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
   
-  returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
+  returned = ''
+  if (this_is_test == True):
+    returned = check_whether_the_step_was_successfully_ran("Step final", "cryo_fitted_chain_recovered_cleaned_for_molprobity_new_element_added.pdb")
+  else:    
+    returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
   
   print "\n\tOutputs are in \"output\" folder"
   print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
