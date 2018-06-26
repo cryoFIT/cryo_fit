@@ -940,7 +940,6 @@ def step_final(logfile, command_path, starting_dir):
       cp_command_string = "cp ../data/input_for_step_final/* ."
       libtbx.easy_run.fully_buffered(cp_command_string)
       
-      #os.chdir( "trajectory" )
       make_trajectory_gro(home_cryo_fit_bin_dir)
       
   if (this_is_test == False):
@@ -1306,7 +1305,8 @@ def run_cryo_fit(logfile, params, inputs):
           print write_this
           logfile.write(write_this)
           this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
-          return results
+          exit(1)
+          #return results
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
         
