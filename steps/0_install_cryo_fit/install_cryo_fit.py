@@ -6,6 +6,23 @@ from subprocess import check_output, Popen, PIPE # for FFTW_INSTALL
 from os.path import expanduser # to find home_dir
 import platform
 
+# some header(s) among these are needed for libtbx.env.dist_path
+from cctbx import maptbx
+import iotbx.pdb
+import iotbx.pdb.mmcif
+from libtbx import phil
+import libtbx.phil.command_line
+from libtbx.utils import Sorry
+from libtbx.utils import multi_out
+import mmtbx.model
+import mmtbx.utils
+import shutil # for rmdir
+
+cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+print "cryo_fit_repository_dir:", cryo_fit_repository_dir
+
+
+'''  
 # this is needed to import all common functions
 path = check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
@@ -23,7 +40,16 @@ common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
 
 from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
-#from common_functions_without_libtbx import  *
+'''
+
+#'''
+common_functions_path = cryo_fit_repository_dir + "/common_functions/"
+sys.path.insert(0, common_functions_path)
+print "common_functions_path:",common_functions_path
+from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
+#'''
+
+
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
@@ -163,6 +189,8 @@ def get_FFTW_INSTALL_path (home_dir):
 
     
 def install_gromacs_cryo_fit(zipped_file, *args):
+  print cryo_fit_repository_dir
+  
   color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
   starting_dir = os.getcwd()
   color_print ("\nCurrent working directory: ", 'green')
@@ -183,6 +211,20 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   home_dir = expanduser("~")
   GMX_MD_INSTALL = home_dir + "/bin/" + gromacs_cryo_fit_file_name
     
+  
+  home_bin_dir = home_dir + "/bin"
+  if os.path.isdir(home_bin_dir):
+    command_string = home_bin_dir + " already exists as a folder"
+    print command_string, "\n"  
+  else:
+    command_string = "mkdir -p " + home_bin_dir
+    color_print ("\ncommand: ", 'green')
+    print command_string, "\n"
+    libtbx.easy_run.call(command=command_string)
+    
+  
+  
+  
   # to avoid network related warning message during GUI based cryo_fit in MacOS,
   # and to avoid some version related mpi failure (like Karissa's case),
   # enable_mpi = "N" by default, enable_mpi = "N" will support most cores
@@ -206,6 +248,24 @@ def install_gromacs_cryo_fit(zipped_file, *args):
       remake_GMX_MD_INSTALL(GMX_MD_INSTALL)
   
   src_dir = home_dir + "/src"
+  
+  #'''
+  if os.path.isfile(src_dir):
+    command_string = src_dir + " already exists as a file"
+    print command_string, "\n"
+    src_dir = home_dir + "/src2"
+    print "src_dir = home_dir + \"/src2\""
+  
+  if os.path.isdir(src_dir):
+    command_string = src_dir + " already exists as a folder"
+    print command_string, "\n"  
+  else:
+    command_string = "mkdir -p " + src_dir
+    color_print ("\ncommand: ", 'green')
+    print command_string, "\n"
+    libtbx.easy_run.call(command=command_string)
+  #'''
+  
   GMX_MD_SRC = home_dir + "/src/" + gromacs_cryo_fit_file_name
   color_print ("gromacs source code path: ", 'green')
   print GMX_MD_SRC, "\n"
@@ -222,7 +282,6 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     os.chdir(src_dir)
   
   else: #unzip
-    print "remove a former src folder"
     if os.path.isdir(GMX_MD_SRC):
       print GMX_MD_SRC
       color_print ("exists, so remove it\n", 'green')
@@ -231,7 +290,6 @@ def install_gromacs_cryo_fit(zipped_file, *args):
       color_print ("command: ", 'green')
       print command_string, "\n"
       libtbx.easy_run.call(command=command_string)
-      #os.system(command_string)
 
       print "\n", GMX_MD_INSTALL
       color_print ("was made", 'green')
@@ -242,7 +300,6 @@ def install_gromacs_cryo_fit(zipped_file, *args):
       color_print ("command: ", 'green')
       print command_string
       libtbx.easy_run.call(command=command_string)
-      #os.system(command_string)
   
     start_time_unzip = time.time()
     color_print ("\ncommand:  cd ~/src", 'green')
@@ -427,13 +484,14 @@ if (__name__ == "__main__") :
   total_start_time = time.time()
   
   args=sys.argv[1:]
+  
   if len(args) < 1:
-      print "Please specify your downloaded gromacs_cryo_fit zip file"
+      print "\nPlease specify your downloaded gromacs_cryo_fit zip file"
       print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <automatic> <debug>"
       print "Example usage: python install_cryo_fit.py ~/gromacs_cryo_fit.zip"
       print "If \"automatic\" equals 1, then all manual checkpoints will be bypassed to facilitate installation"
       print "If \"debug\" equals 1, then cryo_fit will be compiled with debug mode, so that gdb can be ran"
-      print "With 2013 macbook pro, the installation took 4 ~ 11 minutes"
+      print "\nWith 2013 macbook pro, the installation took 4 ~ 11 minutes"
       sys.exit("install_cryo_fit.py exits now.")
   elif len(args) == 1:
       zipped_file = args[0] # input cryo_fit zip file
