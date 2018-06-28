@@ -1,0 +1,48 @@
+
+Select the Force Field:
+From '/Users/doonam/bin/gromacs-4.5.5_cryo_fit/share/gromacs/top':
+ 1: AMBER03 protein, nucleic AMBER94 (Duan et al., J. Comp. Chem. 24, 1999-2012, 2003)
+ 2: AMBER94 force field (Cornell et al., JACS 117, 5179-5197, 1995)
+ 3: AMBER96 protein, nucleic AMBER94 (Kollman et al., Acc. Chem. Res. 29, 461-469, 1996)
+ 4: AMBER99 protein, nucleic AMBER94 (Wang et al., J. Comp. Chem. 21, 1049-1074, 2000)
+ 5: AMBER99SB protein, nucleic AMBER94 (Hornak et al., Proteins 65, 712-725, 2006)
+ 6: AMBER99SB-ILDN protein, nucleic AMBER94 (Lindorff-Larsen et al., Proteins 78, 1950-58, 2010)
+ 7: AMBERGS force field (Garcia & Sanbonmatsu, PNAS 99, 2782-2787, 2002)
+ 8: CHARMM27 all-atom force field (with CMAP) - version 2.0
+ 9: GROMOS96 43a1 force field
+10: GROMOS96 43a2 force field (improved alkane dihedrals)
+11: GROMOS96 45a3 force field (Schuler JCC 2001 22 1205)
+12: GROMOS96 53a5 force field (JCC 2004 vol 25 pag 1656)
+13: GROMOS96 53a6 force field (JCC 2004 vol 25 pag 1656)
+14: OPLS-AA/L all-atom force field (2001 aminoacid dihedrals)
+15: [DEPRECATED] Encad all-atom force field, using full solvent charges
+16: [DEPRECATED] Encad all-atom force field, using scaled-down vacuum charges
+17: [DEPRECATED] Gromacs force field (see manual)
+18: [DEPRECATED] Gromacs force field with hydrogens for NMR
+
+Using the Amber03 force field in directory amber03.ff
+
+
+Select the Water Model:
+Reading tRNA_tutorial_cleaned_for_gromacs.pdb...
+Read 4309 atoms
+Analyzing pdb file
+Splitting chemical chains based on TER records or chain id changing.
+There are 1 chains and 0 blocks of water and 201 residues with 4309 atoms
+
+  chain  #res #atoms
+  1 'A'   201   4309  
+
+Reading residue database... (amber03)
+Processing chain 1 'A' (4309 atoms, 201 residues)
+Identified residue RU1 as a starting terminus.
+Identified residue RG201 as a ending terminus.
+Checking for duplicate atoms....
+Now there are 201 residues with 6489 atoms
+		--------- PLEASE NOTE ------------
+You have successfully generated a topology from: tRNA_tutorial_cleaned_for_gromacs.pdb.
+The Amber03 force field is used.
+		--------- ETON ESAELP ------------
+
+gcq#311: "Good Music Saves your Soul" (Lemmy)
+

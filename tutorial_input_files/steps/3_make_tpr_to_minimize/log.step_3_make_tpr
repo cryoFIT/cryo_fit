@@ -1,0 +1,3 @@
+/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10
+
+step_3_make_tpr finished in 0.37 seconds (wallclock).

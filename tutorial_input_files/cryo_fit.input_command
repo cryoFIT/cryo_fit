@@ -1,0 +1,1 @@
+phenix.cryo_fit tRNA_tutorial.pdb tRNA_tutorial.map devel=True 

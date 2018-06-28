@@ -780,7 +780,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
 # end of step_7 (make tpr for cryo_fit) function
            
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
-       map_file_with_pathways, no_rerun, devel, tutorial, restart_w_longer_steps, re_run_with_higher_map_weight):
+       map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -863,20 +863,16 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
   print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
   
-  if (tutorial == True):
-    print "\tcryo_fit so meticulously finds better cc, so it may take a long time. Since the current run is just for tutorial, it will not continue for higher cc\n"
-  
-  if (tutorial == False):
-    if (devel == True):
+  if (devel == True):
       no_rerun = True
-    if (no_rerun == False):
-      if cc_has_been_increased == True:
-        return "re_run_with_longer_steps"
-      elif cc_has_been_increased == "re_run_with_higher_map_weight":
-        return "re_run_with_higher_map_weight"
-      else:
-        print "\tcc has been saturated, so go ahead to the next step"
-    
+  if (no_rerun == False):
+    if cc_has_been_increased == True:
+      return "re_run_with_longer_steps"
+    elif cc_has_been_increased == "re_run_with_higher_map_weight":
+      return "re_run_with_higher_map_weight"
+    else:
+      print "\tcc has been saturated, so go ahead to the next step"
+  
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
@@ -1253,9 +1249,13 @@ def run_cryo_fit(logfile, params, inputs):
   map_file_with_pathways = returned[0]
   map_file_without_pathways = returned[1]
   
-  tutorial = False
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
-    tutorial = True
+    no_rerun = True
+    number_of_steps_for_cryo_fit = 2000
+  
+  if (devel == True):
+    no_rerun = True
+    number_of_steps_for_cryo_fit = 100
     
   restart_w_longer_steps = False # this is a proper initial assignment
   re_run_with_higher_map_weight = False # this is a proper initial assignment
@@ -1275,7 +1275,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
-             map_file_with_pathways, no_rerun, devel, tutorial, restart_w_longer_steps, \
+             map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight)
       
       if (results == True): # this is a test

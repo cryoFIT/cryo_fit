@@ -1,0 +1,21 @@
+Overall log of cryo_fit
+
+Input parameters: ['tRNA_tutorial.pdb', 'tRNA_tutorial.map', 'devel=True']
+Input command: phenix.cryo_fit tRNA_tutorial.pdb tRNA_tutorial.map devel=True 
+
+Step 1 (Make gro and topology file by regular gromacs) is successfully ran
+Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran
+Step 3 (Make a tpr file for minimization) is successfully ran
+Step 4 (Minimize a gro file (to prevent "blowup" during MD Simulation)) is successfully ran
+Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran
+Step 6 (Make all charges of atoms be 0) is successfully ran
+Step 7 (Make a tpr file for cryo_fit) is successfully ran
+
+User's provided atomic model had 0.528 cc
+
+Step 8 (cryo_fit itself) is successfully ran
+	chain_recovery is successful
+	chain_recovery is successful
+Step final (arrange output) is successfully ran
+
+Total cryo_fit  finished in 2.24 minutes (wallclock).
