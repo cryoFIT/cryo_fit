@@ -1251,7 +1251,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     no_rerun = True
-    number_of_steps_for_cryo_fit = 2000
+    number_of_steps_for_cryo_fit = 3000
   
   if (devel == True):
     no_rerun = True
