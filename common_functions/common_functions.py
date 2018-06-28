@@ -542,6 +542,7 @@ def know_total_number_of_cores():
 # end of know_total_number_of_cores function
 
 def locate_Phenix_executable():
+    # will be replaced by cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
     path = check_output(["which", "phenix.cryo_fit"])
     splited = path.split("/")
     command_path = ''

@@ -393,11 +393,13 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      print "this_is_test = True"
-      cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
+  
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):  
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        print "this_is_test = True"
+        cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
 
   if (this_is_test == False):
     cp_command_string = "cp ../1_make_gro/*.gro ."
@@ -435,8 +437,9 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   return this_is_test
 # end of step_2 (clean gro) function
 
+
 def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-           time_step_for_minimization):
+           time_step_for_minimization, model_file_without_pathways):
   show_header("Step 3: Make a tpr file for minimization")
   os.chdir (starting_dir)
 
@@ -475,15 +478,18 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
-  this_is_test = False
+  this_is_test_for_tRNA = False
   splited_starting_dir = starting_dir.split("/")
   cp1_command_string = ''
   cp2_command_string = ''
+    
   for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp1_command_string = "cp ../../data/input_for_step_3/* ."
-  if (this_is_test == False):
+    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test_for_tRNA = True
+        cp1_command_string = "cp ../../data/input_for_step_3/* ."
+        
+  if (this_is_test_for_tRNA == False):
     if str(constraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "
     else:
@@ -499,14 +505,14 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   libtbx.easy_run.call(command_string)
   end = time.time()
 
-  #check_whether_the_step_was_successfully_ran("Step 3", "to_minimize.tpr")
   check_whether_the_step_3_was_successfully_ran(logfile, "to_minimize.tpr")
   print "Step 3", (show_time(start, end))
   os.chdir( starting_dir )
-  return this_is_test
+  return this_is_test_for_tRNA
 # end of step_3 (prepare minimization) function
 
-def step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use):
+
+def step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, model_file_without_pathways):
   show_header("Step 4: Minimize a gro file (to prevent \"blowup\" during Molecular Dynamics Simulation)")
   os.chdir (starting_dir)
   
@@ -519,10 +525,11 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp_command_string = "cp ../../data/input_for_step_4/* ."
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        cp_command_string = "cp ../../data/input_for_step_4/* ."
   if (this_is_test == False):
     cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   
@@ -623,7 +630,8 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, numbe
   return this_is_test
 # end of step_4 (minimization) function
     
-def step_5(command_path, starting_dir):
+    
+def step_5(command_path, starting_dir, model_file_without_pathways):
   show_header("Step 5: Make contact potential (constraints) and topology file with it")
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_constraints")
   
@@ -634,10 +642,13 @@ def step_5(command_path, starting_dir):
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp_command_string = "cp ../../data/input_for_step_5/* ."
+  
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        cp_command_string = "cp ../../data/input_for_step_5/* ."
+        
   if (this_is_test == False):
     cp_command_string = "cp ../4_minimize/*.gro ."
     # there will be minimized_c_term_renamed_by_resnum_oc.gro
@@ -659,7 +670,8 @@ def step_5(command_path, starting_dir):
   return this_is_test
 # end of step_5 (make constraints) function
 
-def step_6(command_path, starting_dir):
+
+def step_6(command_path, starting_dir, model_file_without_pathways):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
 
@@ -673,10 +685,12 @@ def step_6(command_path, starting_dir):
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
 
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp_command_string = "cp ../../data/input_for_step_6/* ."
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        cp_command_string = "cp ../../data/input_for_step_6/* ."
+        
   if (this_is_test == False):
     cp_command_string = "cp ../5_make_constraints/*including_disre2_itp.top ."
   # In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
@@ -697,8 +711,9 @@ def step_6(command_path, starting_dir):
   return this_is_test
 # end of step_6 (neutralize) function
     
+
 def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
-           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit):
+           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
@@ -710,10 +725,13 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   cp1_command_string = ''
   cp2_command_string = ''
   cp3_command_string = ''
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp1_command_string = "cp ../../data/input_for_step_7/* ."
+  
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        cp1_command_string = "cp ../../data/input_for_step_7/* ."
+        
   if (this_is_test == False):
     cp1_command_string = "cp ../5_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
     cp2_command_string = "cp ../5_make_constraints/disre2.itp ."
@@ -779,8 +797,9 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   return this_is_test
 # end of step_7 (make tpr for cryo_fit) function
            
+           
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
-       map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight):
+       map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight, model_file_without_pathways):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
   
@@ -795,10 +814,11 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      print "\tthis_is_test:", this_is_test
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        print "\tthis_is_test:", this_is_test
   
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(number_of_available_cores) \
               + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
@@ -913,7 +933,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     return results
 # end of step_8 (cryo_fit itself) function
 
-def step_final(logfile, command_path, starting_dir):
+def step_final(logfile, command_path, starting_dir, model_file_without_pathways):
   os.chdir( starting_dir )
   time_start = time.time()
   show_header("Step 9 (final): Arrange output")
@@ -929,13 +949,14 @@ def step_final(logfile, command_path, starting_dir):
   
   home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find() # needed for both test and real_run
   
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
-      cp_command_string = "cp ../data/input_for_step_final/* ."
-      libtbx.easy_run.fully_buffered(cp_command_string)
-      
-      make_trajectory_gro(home_cryo_fit_bin_dir)
+  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    for i in range(len(splited_starting_dir)):
+      if splited_starting_dir[i] == "phenix_regression":
+        this_is_test = True
+        cp_command_string = "cp ../data/input_for_step_final/* ."
+        libtbx.easy_run.fully_buffered(cp_command_string)
+        
+        make_trajectory_gro(home_cryo_fit_bin_dir)
       
   if (this_is_test == False):
     cp_command_string = "mv ../cc_record_full_renumbered ."
@@ -1200,19 +1221,19 @@ def run_cryo_fit(logfile, params, inputs):
   if str(constraint_algorithm_minimization) != "none_default": # this is default for "regression"
     if (steps_list[2] == True):
       this_is_test = step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, model_file_without_pathways)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
-      this_is_test = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
+      this_is_test = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, model_file_without_pathways)
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   else: #str(constraint_algorithm_minimization) = "none_default"
     if (steps_list[2] == True):
       step_3(logfile, command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, model_file_without_pathways)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
-      step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
+      step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, model_file_without_pathways)
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
       
     cp_command_string = "cp steps/4_minimize/minimized_c_term_renamed_by_resnum_oc.gro . "
@@ -1223,19 +1244,19 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[2] == True):
       step_3(logfile, command_path, starting_dir, ns_type, "none_default", number_of_steps_for_minimization, \
-             time_step_for_minimization)
+             time_step_for_minimization, model_file_without_pathways)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
       
     if (steps_list[3] == True):
-      step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use)
+      step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, model_file_without_pathways)
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   
   if (steps_list[4] == True):
-    this_is_test = step_5(command_path, starting_dir)
+    this_is_test = step_5(command_path, starting_dir, model_file_without_pathways)
     logfile.write("Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n")
   
   if (steps_list[5] == True):
-    this_is_test = step_6(command_path, starting_dir)
+    this_is_test = step_6(command_path, starting_dir, model_file_without_pathways)
     logfile.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
   if (this_is_test == True):
@@ -1251,7 +1272,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     no_rerun = True
-    number_of_steps_for_cryo_fit = 3000
+    number_of_steps_for_cryo_fit = 4000
   
   if (devel == True):
     no_rerun = True
@@ -1268,7 +1289,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[6] == True):
       this_is_test = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-             emwritefrequency, lincs_order, time_step_for_cryo_fit)
+             emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways)
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
       if (this_is_test == True):
         return 0 # return early for regression of step 7
@@ -1276,7 +1297,7 @@ def run_cryo_fit(logfile, params, inputs):
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
-             re_run_with_higher_map_weight)
+             re_run_with_higher_map_weight, model_file_without_pathways)
       
       if (results == True): # this is a test
         print "This is a test, so break early"
@@ -1306,7 +1327,7 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = "re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n"
           print write_this
           logfile.write(write_this)
-          this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
+          this_is_test = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
           exit(1)
           #return results
         restart_w_longer_steps = True
@@ -1366,7 +1387,7 @@ def run_cryo_fit(logfile, params, inputs):
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
-  this_is_test = step_final(logfile, command_path, starting_dir) # just to arrange final output
+  this_is_test = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
   if (this_is_test == False):
     return results
   
