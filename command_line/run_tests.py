@@ -15,7 +15,7 @@ cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 if (__name__ == "__main__") :
   
   # added by Nigel? temporarily disabled
-  #assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
+  assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
 
 # Locate phenix executable
   print "This cryo_fit.run executable comes from ", cryo_fit_repository_dir

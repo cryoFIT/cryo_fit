@@ -1,4 +1,0 @@
-/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/genrestr -f minimized_c_term_renamed_by_resnum_oc.gro -fc 500 500 500 -disre                    -cutoff 0.4 -o disre1.itp < pre_selected
-head -n 4 disre1.itp > disre2.itp
-awk '{ if (($1-$2) < -5) print $1,$2,$3,NR-9,$5,$6,$6,$8,$9}' disre1.itp >> disre2.itp
- sed -e s/POSRES/DISRES/g -e s/posre.itp/disre2.itp/g *.top > minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top

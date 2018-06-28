@@ -1,1 +1,0 @@
-/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/grompp -f for_cryo_fit.mdp -c *.gro -p *0_charge.top                  -o for_cryo_fit.tpr -maxwarn 10

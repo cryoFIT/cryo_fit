@@ -1,1 +1,0 @@
-/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/mdrun -v -s for_cryo_fit.tpr -mmff -emf /Users/doonam/bin/phenix-1.13rc1-2961/modules/cryo_fit/tutorial_input_files/tRNA_tutorial_converted_to_sit.sit -nosum  -noddcheck  -nt 4 -dd 2 2 1 

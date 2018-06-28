@@ -1,2 +1,0 @@
-/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/mdrun -v -s to_minimize.tpr -c minimized.gro  -nt 1 -dd 1 1 1 
-

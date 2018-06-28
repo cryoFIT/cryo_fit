@@ -1,4 +1,0 @@
-/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin/pdb2gmx -f tRNA_tutorial_cleaned_for_gromacs.pdb -o tRNA_tutorial_cleaned_for_gromacs_by_pdb2gmx.gro -p tRNA_tutorial_cleaned_for_gromacs_by_pdb2gmx.top -merge all  -missing -ignh < input_parameters >> md.out
-
-
-step_1_2_runme_make_gro finished in 5.38 seconds (wallclock).
