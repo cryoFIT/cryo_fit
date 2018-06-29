@@ -30,18 +30,6 @@ def add_path(home_dir, GMX_MD_INSTALL):
   add_this = "\n\nexport PATH=\"" + str(GMX_MD_INSTALL) + "/bin\":$PATH # added by cryo_fit installation\n\n"
   print "add_this:",add_this
   
-  # this credit goes to cryoSparc
-  BASH_RC_FILE = ''
-  if (platform.system() == "Darwin"):
-    BASH_RC_FILE = ".bash_profile"
-  elif (platform.system() != "Linux"):
-    BASH_RC_FILE = ".bashrc"
-  else:
-    print "This installer only supports Linux or OSX system"
-    exit(1)
-  
-  path_file = os.path.join(home_dir, BASH_RC_FILE)
-  '''
   path_file = os.path.join(home_dir, '.bash_profile')
   if (os.path.isfile(path_file) == True):
     print "~/.bash_profile exists"
@@ -51,19 +39,13 @@ def add_path(home_dir, GMX_MD_INSTALL):
       print "~/.bashrc exists"
     else:
       print "both ~/.bashrc and ~/.bash_profile do not exist"
-  '''
   
   f = open(path_file, 'a') # append
   f.write(add_this)
   f.close()
   
-  '''
-  command_string = "open -a Terminal ."
-  print command_string
-  libtbx.easy_run.call(command=command_string)
-  '''
   return path_file
-# end of add_path ()
+# end of add_path (home_dir, GMX_MD_INSTALL)
 
 
 def clean ():
@@ -136,7 +118,7 @@ def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, ent
     color_print ("      OpenMPI version < 1.4.1", 'green')
     color_print ("      MVAPICH2 version <= 1.4.1", 'green')
   
-  if (enter_all != True):
+  if (str(enter_all) != "True"):
     color_print ("Press Y or N and hit enter", 'green')
     configure_result = raw_input()
   else:
@@ -301,7 +283,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   color_print ("\t   make[1]: Nothing to be done for `all-am'.\n", 'green')
   
   make_result = ''
-  if (enter_all != True):
+  if (str(enter_all) != "True"):
     color_print ("Press Y or N and enter key.", 'green')
     make_result = raw_input()
   else:
@@ -358,7 +340,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   
   install_result = '' # just initial value
   
-  if (enter_all != True):
+  if (str(enter_all) != "True"):
     color_print ("Press Y or N and enter key.", 'green')
     install_result = raw_input()
   else:
@@ -398,7 +380,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   print "\nThe final installation of cryo_fit"
   color_print ((show_time (start_time_install, end_time_install)), 'green')
   
-  print_this = "Please source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (" + str(GMX_MD_INSTALL) + ")"
+  print_this = "\nPlease source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (" + str(GMX_MD_INSTALL) + ")"
   print print_this
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to continue.", 'green')
