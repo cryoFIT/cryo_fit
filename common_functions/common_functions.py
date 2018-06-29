@@ -198,13 +198,13 @@ def check_whether_install_is_done(check_this_file_w_path):
     if (os.path.isfile(check_this_file_w_path)):
       returned_file_size = file_size(check_this_file_w_path)
       if (returned_file_size > 0):
-        print "Successful installation. cryo_fit can find mdrun executable"
+        print "Successful installation because cryo_fit can find mdrun executable"
       else:
         print "Not successful installation, cryo_fit found mdrun executable, but it is empty"
         color_print ("exit now", 'red')
         exit(1)
     else:
-      print "Not successful installation, cryo_fit can't mdrun executable"
+      print "Not successful installation because cryo_fit can't mdrun executable"
       color_print ("exit now", 'red')
       exit(1)
 # end of check_whether_install_is_done()
