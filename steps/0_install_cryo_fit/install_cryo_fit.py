@@ -251,10 +251,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
         
   # Make
   core_numbers_to_use = ''
-  if (enter_all != True):
+  if (str(enter_all) != "True"):
     core_numbers_to_use = decide_number_of_cores_to_use(1)
   else:
-    core_numbers_to_use = 4
+    core_numbers_to_use = 3
   
   make_command_string = ''
   try:
@@ -359,21 +359,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("exit now", 'red')
     exit(1)
   else:
-    check_this_file = GMX_MD_INSTALL + "/bin/mdrun"
-    #check_this_file = "mdrun"
-    print "Check whether ", check_this_file, " exists."
-    returned_file_size = ''
-    if (os.path.isfile(check_this_file)):
-      returned_file_size = file_size(check_this_file)
-      if (returned_file_size > 0):
-        print "Successful installation. cryo_fit can find mdrun executable"
-      else:
-        print "Not successful installation, cryo_fit found mdrun executable, but it is empty"
-        color_print ("exit now", 'red')
-        exit(1)
-    else:
-      print "Not successful installation, cryo_fit can't find mdrun executable"
-  
+    check_this_file_w_path = GMX_MD_INSTALL + "/bin/mdrun"
+    check_whether_install_is_done(check_this_file_w_path)
   
   end_time_install = time.time()
   

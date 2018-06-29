@@ -1,5 +1,4 @@
 import os, subprocess, sys
-from os.path import expanduser # to find home_dir
 args=sys.argv[1:]
 this_is_test = args[0]
 
@@ -67,9 +66,7 @@ def extract_gro(target_step, i, cc):
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
     os.system("echo 0 > input_parameters") # to select system
     
-    home_dir = expanduser("~")
-    home_bin_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit/bin"
-    cmd = home_bin_cryo_fit_bin_dir + "/trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
+    cmd = "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     os.system(cmd)
     

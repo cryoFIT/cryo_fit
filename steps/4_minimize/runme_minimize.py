@@ -1,9 +1,12 @@
 import glob, os, subprocess, sys, time
 
 def prepare_minimize(number_of_available_cores, number_of_cores_to_use, ns_type):
-    home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+    #home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     
-    command_used = first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
+    #command_used = first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
+    #                                              number_of_cores_to_use)
+    
+    command_used = first_prepare_minimization(ns_type, number_of_available_cores, \
                                                   number_of_cores_to_use)
     
     f_out = open('log.step_4_1_minimization_used_command', 'wt')

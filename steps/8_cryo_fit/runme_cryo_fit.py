@@ -30,9 +30,7 @@ if (__name__ == "__main__") :
     cp_command_string = "cp ../../data/input_for_step_8/* ."
   libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
-  home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-  
-  write_this_input_command = first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores, \
+  write_this_input_command = first_prepare_cryo_fit(number_of_available_cores, \
                                                          number_of_cores_to_use, target_map_with_pathways, restart)
   
   f_out = open('log.step_8_cryo_fit_used_command', 'wt')

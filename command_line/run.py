@@ -950,16 +950,13 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways)
   
   logfile.close() # to write user's cc for now
   
-  home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find() # needed for both test and real_run
-  
   if (model_file_without_pathways != "regression_pdb5khe.pdb"):
     for i in range(len(splited_starting_dir)):
       if splited_starting_dir[i] == "phenix_regression":
         this_is_test = True
         cp_command_string = "cp ../data/input_for_step_final/* ."
         libtbx.easy_run.fully_buffered(cp_command_string)
-        
-        make_trajectory_gro(home_cryo_fit_bin_dir)
+        make_trajectory_gro()
       
   if (this_is_test == False):
     cp_command_string = "mv ../cc_record_full_renumbered ."
@@ -986,11 +983,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways)
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
     
     for extracted_gro in glob.glob("*.gro"):
-      command_string = home_cryo_fit_bin_dir + "/editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+      command_string = "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
     
-    make_trajectory_gro(home_cryo_fit_bin_dir)
+    make_trajectory_gro()
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
@@ -1005,7 +1002,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways)
   log_file_name = "../cryo_fit.overall_log"
   logfile = open(log_file_name, "a+") # append
   
-  #'''
   if (this_is_test == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
     for pdb in glob.glob("*.pdb"):
@@ -1031,7 +1027,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways)
       logfile.write(write_this)
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
-  #'''
   
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
@@ -1111,22 +1106,14 @@ def step_9(command_path, starting_dir):
 '''
   
 def run_cryo_fit(logfile, params, inputs):
-  
-  # (begin) check whether cryo_fit is installed to exit early for users who didn't install it yet
-  # works well at macOS commandline, macOS GUI and CentOS commandline
-  # not works at CentOS GUI
-  home_dir = expanduser("~")
-  home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit"
-  
-  print "\thome_cryo_fit_bin_dir:", home_cryo_fit_bin_dir
-  
-  if (os.path.exists(home_cryo_fit_bin_dir) != True):
-      print "\ncryo_fit can't find ", home_cryo_fit_bin_dir
-      print "Please install cryo_fit first."
-      print "Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-      print "Exit now."
-      exit(1)
-  # (end) check whether cryo_fit is installed to exit early for users who didn't install cryofit yet
+  accessible_mdrun = check_whether_mdrun_is_accessible()
+  if (accessible_mdrun == False):
+    print "cryo_fit can't find mdrun executable"
+    print_this = "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
+    print print_this
+    print "If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+    color_print ("exit now", 'red')
+    exit(1)
   
   show_header("Step 0: Prepare to run cryo_fit")
 

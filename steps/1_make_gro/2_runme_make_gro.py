@@ -38,10 +38,17 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
   run_this = '' # initial
   #home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls() # this could be a reason why \
                            # Karissa's macbook pro didn't work for step_1
+  '''
   home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
   common_command_script = home_cryo_fit_bin_dir + "/pdb2gmx -f " + input_pdb_file_name_without_folder + \
                           " -o " + output_gro_file_name_without_folder + " -p " + \
                           output_top_file_name_without_folder  + " -merge all  "
+  '''
+  
+  common_command_script = "pdb2gmx -f " + input_pdb_file_name_without_folder + \
+                          " -o " + output_gro_file_name_without_folder + " -p " + \
+                          output_top_file_name_without_folder  + " -merge all  "
+  
    # gmx pdb2gmx reads a .pdb (or .gro) file, reads some database files, adds hydrogens to the molecules and \
    # generates coordinates in GROMACS (GROMOS), or optionally .pdb, format and a topology in GROMACS format. \
    # These files can subsequently be processed to generate a run input file.

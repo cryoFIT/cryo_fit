@@ -39,8 +39,11 @@ common_functions_path = cryo_fit_repository_dir + "common_functions/"
 sys.path.insert(0, common_functions_path)
 from common_functions import *
 
+'''
 home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
 run_this = home_cryo_fit_bin_dir + "/grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10"
+'''
+run_this = "grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10"
   # -f, -c, -p are for input files of grompp
   # -o is for output file
 print "\tcommand: ", run_this

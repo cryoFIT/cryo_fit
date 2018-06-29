@@ -190,6 +190,34 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     return False # the last 40 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
 
+
+        
+def check_whether_install_is_done(check_this_file_w_path):
+    print "Check whether ", check_this_file_w_path, " exists."
+    returned_file_size = ''
+    if (os.path.isfile(check_this_file_w_path)):
+      returned_file_size = file_size(check_this_file_w_path)
+      if (returned_file_size > 0):
+        print "Successful installation. cryo_fit can find mdrun executable"
+      else:
+        print "Not successful installation, cryo_fit found mdrun executable, but it is empty"
+        color_print ("exit now", 'red')
+        exit(1)
+    else:
+      print "Not successful installation, cryo_fit can't mdrun executable"
+      color_print ("exit now", 'red')
+      exit(1)
+# end of check_whether_install_is_done()
+
+def check_whether_mdrun_is_accessible():
+    path = check_output(["which", "mdrun"])
+    splited = path.split("/")
+    if (len(splited)) != 0:
+        return True
+    else:
+        return False
+# end of check_whether_mdrun_is_accessible()
+
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     if (os.path.isfile(check_this_file)):
         returned_file_size = file_size(check_this_file)
@@ -384,9 +412,9 @@ def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cor
     return command_used
 # end of final_prepare_minimization function
 
-def first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores, number_of_cores_to_use, target_map, restart):
+def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart):
     
-    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
+    common_command_string = "mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                             target_map + " -nosum  -noddcheck "
     
                             # -c       : confout.gro  Output       Structure file: gro g96 pdb etc
@@ -409,9 +437,10 @@ def first_prepare_cryo_fit(home_bin_cryo_fit_bin_dir, number_of_available_cores,
     return command_used
 # end of first_prepare_cryo_fit function
 
-def first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
+def first_prepare_minimization(ns_type, number_of_available_cores, \
                                    number_of_cores_to_use):
-    common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "    
+    #common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "
+    common_command_string = "mdrun -v -s to_minimize.tpr -c minimized.gro "    
     command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
                                                                common_command_string)
         
@@ -553,14 +582,14 @@ def locate_Phenix_executable():
     return command_path
 # end of locate_Phenix_executable function
 
-def make_trajectory_gro(home_cryo_fit_bin_dir):
+def make_trajectory_gro():
     print "\n\tMake a trajectory.gro file"
     current_directory = os.getcwd()
 
     command_string = "echo 0 > input_parameter" # to select system
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
-    command_string = home_cryo_fit_bin_dir + "/trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
+    command_string = "trjconv -f traj.xtc -o trajectory.gro -s for_cryo_fit.tpr < input_parameter"
     print "\t\tcommand: ", command_string
     libtbx.easy_run.fully_buffered(command_string)
     

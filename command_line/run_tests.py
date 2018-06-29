@@ -14,14 +14,13 @@ cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 
 if (__name__ == "__main__") :
 
-    # added by Nigel so that this test runs in a clear path,, but,,,,???
-    assert len(os.listdir(os.getcwd()))==1, 'run in an empty directory'
+    # added by Nigel so that this test runs in a clear path
     print "os.listdir(os.getcwd()):",os.listdir(os.getcwd())
     print "len(os.listdir(os.getcwd())):",len(os.listdir(os.getcwd()))
+    assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
     
-    
-    # Locate phenix executable
-    print "This cryo_fit.run executable comes from ", cryo_fit_repository_dir
+    # Locate phenix.cryo_fit.run_tests executable
+    print "This phenix.cryo_fit.run_tests executable comes from ", cryo_fit_repository_dir
     
     splited = cryo_fit_repository_dir.split("/")
     regression_path = ''

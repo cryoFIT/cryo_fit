@@ -1,5 +1,4 @@
 import glob, os, sys
-from os.path import expanduser # to find home_dir
 
 ''' # only needed for development
 def remove_former_files():
@@ -16,11 +15,10 @@ def make_contact_potential(input_gro_file_name):
     #remove_former_files() # only needed for separate running other than python overall running
     os.system("echo 0 > pre_selected ") # make file pre_selected with content 0
     
-    bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
-    home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
+    #home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
     
     f_out = open('log.step_5', 'wt')
-    command_used = home_cryo_fit_bin_dir + "/genrestr -f " + input_gro_file_name + " -fc 500 500 500 -disre \
+    command_used = "genrestr -f " + input_gro_file_name + " -fc 500 500 500 -disre \
                    -cutoff 0.4 -o disre1.itp < pre_selected"
     # gmx genrestr produces an #include file for a topology containing a list of atom numbers and three force constants for thhe x-, y-, and z-direction based on the contents of the -f file. A single isotropic force constant may be given on the command line instead of three components.
     # -fc          vector 1000 1000 1000  force constants (kJ/mol nm^2)
