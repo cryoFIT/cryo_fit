@@ -1107,13 +1107,6 @@ def step_9(command_path, starting_dir):
   
 def run_cryo_fit(logfile, params, inputs):
   accessible_mdrun = check_whether_mdrun_is_accessible()
-  if (accessible_mdrun == False):
-    print "cryo_fit can't find mdrun executable"
-    print_this = "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
-    print print_this
-    print "If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-    color_print ("exit now", 'red')
-    exit(1)
   
   show_header("Step 0: Prepare to run cryo_fit")
 

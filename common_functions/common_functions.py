@@ -212,10 +212,15 @@ def check_whether_install_is_done(check_this_file_w_path):
 def check_whether_mdrun_is_accessible():
     path = check_output(["which", "mdrun"])
     splited = path.split("/")
-    if (len(splited)) != 0:
-        return True
+    if (len(splited)) == 0:
+        print "cryo_fit can't find mdrun executable"
+        print_this = "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
+        print print_this
+        print "If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        color_print ("exit now", 'red')
+        exit(1)
     else:
-        return False
+        print "mdrun is accessible"
 # end of check_whether_mdrun_is_accessible()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
