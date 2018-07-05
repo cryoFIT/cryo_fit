@@ -190,37 +190,45 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     return False # the last 40 cc values tend NOT to be increased
 # end of check_whether_cc_has_been_increased function
 
-
         
 def check_whether_install_is_done(check_this_file_w_path):
     print "Check whether ", check_this_file_w_path, " exists."
     returned_file_size = ''
+    succesful_installation = True
     if (os.path.isfile(check_this_file_w_path)):
       returned_file_size = file_size(check_this_file_w_path)
       if (returned_file_size > 0):
-        print "Successful installation because cryo_fit can find mdrun executable"
+        print "Successful installation because cryo_fit can find ", check_this_file_w_path
       else:
-        print "Not successful installation, cryo_fit found mdrun executable, but it is empty"
+        print "Not successful installation, cryo_fit found ", check_this_file_w_path, " but it is empty"
+        succesful_installation = False
+    else:
+        print "Not successful installation because cryo_fit can't find ", check_this_file_w_path
+    
+    if (succesful_installation == False):
+        print "For troubleshooting, step-by-step installation is recommended."
+        print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <install_path> <install_at_one_queue>"
+        print "Example usage: python ~/bin/phenix-1.13rc1-2961/modules/cryo_fit/steps/0_install_cryo_fit/install_cryo_fit.py ~/Downloads/gromacs_cryo_fit.zip ~/cryo_fit False"
         color_print ("exit now", 'red')
         exit(1)
-    else:
-      print "Not successful installation because cryo_fit can't mdrun executable"
-      color_print ("exit now", 'red')
-      exit(1)
 # end of check_whether_install_is_done()
 
 def check_whether_mdrun_is_accessible():
-    path = check_output(["which", "mdrun"])
-    splited = path.split("/")
-    if (len(splited)) == 0:
+    try:
+        path = subprocess.check_output(["which", "mdrun"])
+        splited = path.split("/")
+        if ((len(splited)) != 0):
+            print "mdrun is accessible"
+            return 1
+    except:
         print "cryo_fit can't find mdrun executable"
-        print_this = "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
-        print print_this
-        print "If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        print "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
+        print "For example, if user's gromacs_cryo_fit is installed at /Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin, "
+        print "add \"export PATH=\"/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it"
+        print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
         color_print ("exit now", 'red')
         exit(1)
-    else:
-        print "mdrun is accessible"
+        
 # end of check_whether_mdrun_is_accessible()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):

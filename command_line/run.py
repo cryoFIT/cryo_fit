@@ -1106,7 +1106,7 @@ def step_9(command_path, starting_dir):
 '''
   
 def run_cryo_fit(logfile, params, inputs):
-  accessible_mdrun = check_whether_mdrun_is_accessible()
+  check_whether_mdrun_is_accessible()
   
   show_header("Step 0: Prepare to run cryo_fit")
 

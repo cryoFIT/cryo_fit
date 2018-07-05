@@ -26,27 +26,32 @@ sys.path.insert(0, common_functions_path)
 print "common_functions_path:",common_functions_path
 from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
 
-def add_path(home_dir, GMX_MD_INSTALL):
-  add_this = "\n\nexport PATH=\"" + str(GMX_MD_INSTALL) + "/bin\":$PATH # added by cryo_fit installation\n\n"
-  print "add_this:",add_this
+def add_path(home_dir, GMX_MD_INSTALL, shell):
   
-  path_file = os.path.join(home_dir, '.bash_profile')
-  if (os.path.isfile(path_file) == True):
-    print "~/.bash_profile exists"
-  else:
-    path_file = os.path.join(home_dir, '.bashrc')
+  if (shell == "bash"):
+    add_this = "\n\nexport PATH=\"" + str(GMX_MD_INSTALL) + "/bin\":$PATH # added by cryo_fit installation\n\n"
+    
+    path_file = os.path.join(home_dir, '.bash_profile')
     if (os.path.isfile(path_file) == True):
-      print "~/.bashrc exists"
+      print "~/.bash_profile exists"
+      print "\ncryo_fit_installation will add ", add_this, " to ~/.bash_profile"
     else:
-      print "both ~/.bashrc and ~/.bash_profile do not exist"
-  
-  f = open(path_file, 'a') # append
-  f.write(add_this)
-  f.close()
-  
-  return path_file
-# end of add_path (home_dir, GMX_MD_INSTALL)
-
+      path_file = os.path.join(home_dir, '.bashrc')
+      if (os.path.isfile(path_file) == True):
+        print "~/.bashrc exists"
+        print "\ncryo_fit_installation will add ", add_this, " to ~/.bashrc"
+      else:
+        print "both ~/.bashrc and ~/.bash_profile do not exist"
+        path_file = None
+    if (path_file != None):
+      f = open(path_file, 'a') # append
+      f.write(add_this)
+      f.close()
+    return path_file
+  else:
+    print "User may use cshell or zshell"
+    return GMX_MD_INSTALL
+# end of add_path (home_dir, GMX_MD_INSTALL, shell)
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
@@ -249,7 +254,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     
   configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
-  # Make
+  ################### Make
   core_numbers_to_use = ''
   if (str(enter_all) != "True"):
     core_numbers_to_use = decide_number_of_cores_to_use(1)
@@ -346,8 +351,6 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   else:
     install_result = "Y"
   
-  path_file = add_path(home_dir, GMX_MD_INSTALL)
-  
   if (install_result != "Y" and install_result != "y"):
     color_print ("I'm sorry to hear that your Installation didn't go well", 'red')
     color_print ("The installation SHOULD NOT have been ended with this kind of message", 'red')
@@ -367,8 +370,14 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   print "\nThe final installation of cryo_fit"
   color_print ((show_time (start_time_install, end_time_install)), 'green')
   
-  print_this = "\nPlease source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (" + str(GMX_MD_INSTALL) + ")"
-  print print_this
+  path_file = add_path(home_dir, GMX_MD_INSTALL, shell)
+  
+  if (shell == "bash"):
+    print_this = "\nPlease source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (which is " + str(GMX_MD_INSTALL) + ")"
+    print print_this
+  else:
+    print "Please add " , GMX_MD_INSTALL, " into your PATH to run cryo_fit"
+    
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to continue.", 'green')
     raw_input()
@@ -398,32 +407,38 @@ def make_GMX_MD_INSTALL_if_not_exists(GMX_MD_INSTALL):
     libtbx.easy_run.call(command=command_string)
 # end of make_GMX_MD_INSTALL_if_not_exists ()
 
+def id_shell():
+  from os import environ
+  print "User is using ", environ['SHELL'] , " shell"
+  splited = environ['SHELL'].split("/")
+  shell = splited[2]
+  return shell
+  
 if (__name__ == "__main__") :
   total_start_time = time.time()
+  shell = id_shell()
   
   args=sys.argv[1:]
   
   if len(args) < 2:
       print "\nPlease specify your downloaded gromacs_cryo_fit zip file and path that you want to install gromacs_cryo_fit"
       print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <install_path>"
-      print "Example usage: python install_cryo_fit.py ~/Downloads/gromacs_cryo_fit.zip ~/cryo_fit"
-      #print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <automatic> <debug>"
-      #print "If \"automatic\" is True, then all manual checkpoints will be bypassed to facilitate installation"
-      #print "If \"debug\" is True, then cryo_fit will be compiled with debug mode, so that gdb can be ran"
+      print "Example usage: python ~/bin/phenix-1.13rc1-2961/modules/cryo_fit/steps/0_install_cryo_fit/install_cryo_fit.py ~/Downloads/gromacs_cryo_fit.zip ~/cryo_fit"
       print "\nWith 2013 macbook pro, this installation took 4 ~ 11 minutes"
       sys.exit("install_cryo_fit.py exits now.")
   
   else:
     zipped_file = args[0] # input cryo_fit zip file
+    if zipped_file[len(zipped_file)-4:len(zipped_file)] != ".zip":
+      print "please provide .zip file as gromacs_cryo_fit installation file"
+      print "exit now"
+      exit(1)
     install_path = args[1]
-    enter_all = ''
+    enter_all = True
     if (len(args) >= 3):
-      # for devel
-      enter_all = args[2] # enter Y to all Y/N questions
-    else:
-      enter_all = False # enter Y to all Y/N questions
-    debug = False # if True, -g will be added
-    install_gromacs_cryo_fit(zipped_file, install_path, enter_all)
+      enter_all = args[2] # if True,e enter Y to all Y/N questions
+    debug = False # if True, -g will be added, with a hope that gdb can be ran
+    install_gromacs_cryo_fit(zipped_file, install_path, enter_all, shell)
   
   total_end_time = time.time()
   print "\nTotal cryo_fit installation"
