@@ -228,7 +228,6 @@ def check_whether_mdrun_is_accessible():
         print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
         color_print ("exit now", 'red')
         exit(1)
-        
 # end of check_whether_mdrun_is_accessible()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
