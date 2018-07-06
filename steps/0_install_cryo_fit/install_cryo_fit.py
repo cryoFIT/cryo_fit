@@ -26,9 +26,10 @@ sys.path.insert(0, common_functions_path)
 print "common_functions_path:",common_functions_path
 from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
 
-def add_path(home_dir, GMX_MD_INSTALL, shell):
+def add_path(GMX_MD_INSTALL, shell):
   
   if (shell == "bash"):
+    home_dir = expanduser("~")
     add_this = "\n\nexport PATH=\"" + str(GMX_MD_INSTALL) + "/bin\":$PATH # added by cryo_fit installation\n\n"
     
     path_file = os.path.join(home_dir, '.bash_profile')
@@ -51,7 +52,8 @@ def add_path(home_dir, GMX_MD_INSTALL, shell):
   else:
     print "User may use cshell or zshell"
     return GMX_MD_INSTALL
-# end of add_path (home_dir, GMX_MD_INSTALL, shell)
+  # adding PATH for pdb2gmx at phenix/build/bin and cryo_fit/bin at the same causes segfault (7/6/2018)
+# end of add_path (GMX_MD_INSTALL, shell)
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
@@ -192,23 +194,16 @@ def get_FFTW_INSTALL_path (home_dir):
 
     
 def install_gromacs_cryo_fit(zipped_file, *args):
-  
   color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
   
   starting_dir = os.getcwd()
   color_print ("\nCurrent start working directory: ", 'green')
   print starting_dir
-
-  bypass_unzipping = 0
-  if zipped_file[len(zipped_file)-4:len(zipped_file)] != ".zip":
-    bypass_unzipping = 1
     
   splited = zipped_file.split("/")
   wo_ext = str(splited[len(splited)-1])
   splited = wo_ext.split(".zip")
   gromacs_cryo_fit_file_name = splited[0]
-
-  home_dir = expanduser("~")
   
   GMX_MD_INSTALL = os.path.abspath(install_path) # abs path is needed for configure  
   
@@ -221,40 +216,46 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   enable_mpi = "N" # "mpi will not be enabled during configuration. Threads will be used instead."
   enable_fftw = "N"
   
-  make_GMX_MD_INSTALL_if_not_exists(GMX_MD_INSTALL)
+  make_this_folder_if_not_exists(GMX_MD_INSTALL)
+  GMX_MD_INSTALL  = os.path.join(GMX_MD_INSTALL, "bin_keep_this_for_executables")
+  make_this_folder_if_not_exists(GMX_MD_INSTALL)
   
-  GMX_MD_SRC  = os.path.join(starting_dir, gromacs_cryo_fit_file_name) # so that any case can be handled
+  #GMX_MD_SRC  = os.path.join(starting_dir, gromacs_cryo_fit_file_name) # this works, but a user (even I) may delete this, then gromacs will issue segfault
+  GMX_MD_SRC  = os.path.join(install_path, "source_keep_this_otherwise_segfault") # so that any case can be handled
+  make_this_folder_if_not_exists(GMX_MD_SRC)
   
-  print "bypass_unzipping:", bypass_unzipping
-  if bypass_unzipping == 1:
-    color_print ("\ncommand:  cd ~/src", 'green')
-    os.chdir(src_dir)
+  command_string = "cp " + zipped_file + " " + GMX_MD_SRC
+  os.chdir(GMX_MD_SRC)
+
+
+  ################### unzip ###################
+  command_string = "unzip " + zipped_file
+  color_print ("\ncommand: ", 'green')
+  print command_string
+
+  color_print ("\nIf you see", 'green')
+  print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
+  color_print ("Doonam recommends to press A\n", 'green')
   
-  else: #unzip
-    start_time_unzip = time.time()
+  print "enter_all:", enter_all
+  if (str(enter_all) != "True"):
+    color_print ("\nHit enter key to continue.", 'green')
+    raw_input()
   
-    command_string = "unzip " + zipped_file
-    color_print ("\ncommand: ", 'green')
-    print command_string
+  start_time_unzip = time.time()
+  libtbx.easy_run.call(command=command_string)
+  end_time_unzip = time.time()
+  message = "unzipping " + zipped_file
+  print message
+  color_print ((show_time(start_time_unzip, end_time_unzip)), 'green')
+
   
-    color_print ("\nIf you see", 'green')
-    print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
-    color_print ("Doonam recommends to press A\n", 'green')
-    
-    print "enter_all:", enter_all
-    if (str(enter_all) != "True"):
-      color_print ("\nHit enter key to continue.", 'green')
-      raw_input()
-    libtbx.easy_run.call(command=command_string)
-    
-    end_time_unzip = time.time()
-    message = "unzipping " + zipped_file
-    print message
-    color_print ((show_time(start_time_unzip, end_time_unzip)), 'green')
-    
+  ################### configure ###################
+  GMX_MD_SRC = os.path.join(GMX_MD_SRC, gromacs_cryo_fit_file_name) # redefine GMX_MD_SRC for configure
   configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all)
         
-  ################### Make
+
+  ################### Make ###################
   core_numbers_to_use = ''
   if (str(enter_all) != "True"):
     core_numbers_to_use = decide_number_of_cores_to_use(1)
@@ -278,7 +279,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     raw_input()
   
   start_time_make = time.time()
-  os.system(make_command_string)
+  libtbx.easy_run.call(command=make_command_string)
   end_time_make = time.time()
   
   print '#'*105
@@ -318,7 +319,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("\nHit enter key to continue.", 'green')
     raw_input()
 
-  # Installation of cryo_fit (all gromacs executables)
+  ################### Installation of all gromacs executables ###################
   start_time_install = time.time()
   make_install_command_string = ''
   
@@ -370,7 +371,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   print "\nThe final installation of cryo_fit"
   color_print ((show_time (start_time_install, end_time_install)), 'green')
   
-  path_file = add_path(home_dir, GMX_MD_INSTALL, shell)
+  path_file = add_path(GMX_MD_INSTALL, shell)
   
   if (shell == "bash"):
     print_this = "\nPlease source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (which is " + str(GMX_MD_INSTALL) + ")"
@@ -395,9 +396,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     ######## Doonam needs to code to edit .bashrc automatically
     raw_input()
   '''
-# end of install_gromacs_cryo_fit ()
+##################### end of install_gromacs_cryo_fit ()
 
-def make_GMX_MD_INSTALL_if_not_exists(GMX_MD_INSTALL):
+
+def make_this_folder_if_not_exists(GMX_MD_INSTALL):
   if os.path.isdir(GMX_MD_INSTALL):
     print GMX_MD_INSTALL, "already exists"
   else:
@@ -405,7 +407,8 @@ def make_GMX_MD_INSTALL_if_not_exists(GMX_MD_INSTALL):
     color_print ("\ncommand: ", 'green')
     print command_string, "\n"
     libtbx.easy_run.call(command=command_string)
-# end of make_GMX_MD_INSTALL_if_not_exists ()
+#################### end of make_this_folder_if_not_exists ()
+
 
 def id_shell():
   from os import environ
@@ -413,7 +416,9 @@ def id_shell():
   splited = environ['SHELL'].split("/")
   shell = splited[2]
   return shell
-  
+#################### end of id_shell ()
+
+
 if (__name__ == "__main__") :
   total_start_time = time.time()
   shell = id_shell()
