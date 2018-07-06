@@ -369,8 +369,8 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starti
   if (this_step_was_successfully_ran == "failed"):
     logfile.write("Step 1 didn't run successfully")
     logfile.close()
-    color_print (("Step 1 didn't run successfully"), 'red')
-    color_print (("\nUser's command "), 'red')
+    print "Step 1 didn't run successfully"
+    print "\nUser's command was"
     f_in = open('../../cryo_fit.input_command')
     for line in f_in:
       print line
@@ -1106,7 +1106,7 @@ def step_9(command_path, starting_dir):
 '''
   
 def run_cryo_fit(logfile, params, inputs):
-  check_whether_mdrun_is_accessible()
+  #check_whether_mdrun_is_accessible()
   
   show_header("Step 0: Prepare to run cryo_fit")
 

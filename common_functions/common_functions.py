@@ -226,7 +226,7 @@ def check_whether_mdrun_is_accessible():
         print "For example, if user's gromacs_cryo_fit is installed at /Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin, "
         print "add \"export PATH=\"/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it"
         print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-        color_print ("exit now", 'red')
+        print "exit now"
         exit(1)
 # end of check_whether_mdrun_is_accessible()
 
