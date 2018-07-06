@@ -6,44 +6,23 @@ from libtbx.utils import Sorry
 from libtbx.utils import multi_out
 from subprocess import check_output
 
-''' # may not work at Karissa's macbook?
+# some header(s) among these are needed for libtbx.env.dist_path
+from cctbx import maptbx
+import iotbx.pdb
+import iotbx.pdb.mmcif
+import mmtbx.model
+import mmtbx.utils
+
+cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+common_functions_path = os.path.join(cryo_fit_repository_dir, 'common_functions')
+print common_functions_path
+sys.path.insert(0, common_functions_path)
+from common_functions import *
+
 args=sys.argv[1:]
-command_path = args[0]
-common_functions_path = command_path + "/command_line/"
-sys.path.insert(0, common_functions_path)
-from common_functions import *
-'''
+cryo_fit_path = args[0]
 
-#cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
-# Suddenly 02/07/2018, this doesn't work with
-'''command:  python runme_make_tpr.py
-Traceback (most recent call last):
-  File "runme_make_tpr.py", line 16, in <module>
-    cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
-  File "/Users/doonam/bin/phenix-1.13rc1-2961/modules/cctbx_project/libtbx/env_config.py", line 508, in dist_path
-    result = self.module_dist_paths[module_name]
-KeyError: 'cryo_fit'
-Step 3  didn't successfully ran
-'''
-
-#cryo_fit_repository_dir = libtbx.env.dist_path("phenix.cryo_fit") # should work, but work now
-path = check_output(["which", "phenix.cryo_fit"])
-splited = path.split("/")
-command_path = ''
-for i in range(len(splited)-3):
-  command_path = command_path + splited[i] + "/"
-cryo_fit_repository_dir = command_path + "modules/cryo_fit/"
-
-common_functions_path = cryo_fit_repository_dir + "common_functions/"
-
-sys.path.insert(0, common_functions_path)
-from common_functions import *
-
-'''
-home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-run_this = home_cryo_fit_bin_dir + "/grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10"
-'''
-run_this = "grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10"
+run_this = cryo_fit_path + "grompp -f minimization.mdp -c *.gro -p *.top -o to_minimize.tpr -maxwarn 10"
   # -f, -c, -p are for input files of grompp
   # -o is for output file
 print "\tcommand: ", run_this
@@ -51,11 +30,13 @@ print "\tcommand: ", run_this
 f_out = open('log.step_3_make_tpr', 'wt')
 write_this_input_command = run_this + "\n"
 f_out.write(write_this_input_command)
+f_out.close()
 
 time_start = time.time()
 libtbx.easy_run.call(command=run_this)
 time_end = time.time()
 
+f_out = open('log.step_3_make_tpr', 'a+')
 write_this_time = "step_3_make_tpr"
 write_this_time = write_this_time + show_time (time_start, time_end)
 write_this_time = "\n" + write_this_time + "\n"

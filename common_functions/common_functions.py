@@ -218,16 +218,26 @@ def check_whether_mdrun_is_accessible():
         path = subprocess.check_output(["which", "mdrun"])
         splited = path.split("/")
         if ((len(splited)) != 0):
-            print "mdrun is accessible"
-            return 1
+            print "\tmdrun is accessible"
+            mdrun_path = ''
+            for i in range(len(splited)-1):
+                mdrun_path = mdrun_path + splited[i] + "/"
+            print "\tUser's mdrun executable comes from ", mdrun_path
+            return mdrun_path
     except:
-        print "cryo_fit can't find mdrun executable"
-        print "\nPlease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
+        print "cryo_fit can't find mdrun executable for now"
+        
+        print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+        
+        print "\nIf this run is for commandline running... "
+        print "Please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
         print "For example, if user's gromacs_cryo_fit is installed at /Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin, "
         print "add \"export PATH=\"/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it"
-        print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-        print "exit now"
-        exit(1)
+        
+        print "\nIf this run is for Phenix GUI running... "
+        print "gromacs_cryo_fit installation path will assign PATH soon"
+
+        return False
 # end of check_whether_mdrun_is_accessible()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
@@ -424,9 +434,9 @@ def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cor
     return command_used
 # end of final_prepare_minimization function
 
-def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart):
+def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart, cryo_fit_path):
     
-    common_command_string = "mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
+    common_command_string = cryo_fit_path + "mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                             target_map + " -nosum  -noddcheck "
     
                             # -c       : confout.gro  Output       Structure file: gro g96 pdb etc
@@ -447,18 +457,17 @@ def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, ta
     command_used = final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart)
     command_used = command_used + "\n"    
     return command_used
-# end of first_prepare_cryo_fit function
+####################### end of first_prepare_cryo_fit function
 
 def first_prepare_minimization(ns_type, number_of_available_cores, \
-                                   number_of_cores_to_use):
-    #common_command_string = home_bin_cryo_fit_bin_dir + "/mdrun -v -s to_minimize.tpr -c minimized.gro "
-    common_command_string = "mdrun -v -s to_minimize.tpr -c minimized.gro "    
+                                   number_of_cores_to_use, cryo_fit_path):
+    common_command_string = cryo_fit_path + "mdrun -v -s to_minimize.tpr -c minimized.gro "    
     command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
                                                                common_command_string)
         
     command_used = command_used + "\n"    
     return command_used
-# end of first_prepare_minimization function
+####################### end of first_prepare_minimization function
 
 def get_fc(complete_set, xray_structure):
   f_calc = complete_set.structure_factors_from_scatterers(
@@ -583,7 +592,12 @@ def know_total_number_of_cores():
 # end of know_total_number_of_cores function
 
 def locate_Phenix_executable():
-    # will be replaced by cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+    cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+    cryo_fit_repository_dir = cryo_fit_repository_dir + "/" # for later
+    print "\tcryo_fit_repository_dir:",cryo_fit_repository_dir
+    return cryo_fit_repository_dir
+    
+    ''' # not needed but keep for other applications
     path = check_output(["which", "phenix.cryo_fit"])
     splited = path.split("/")
     command_path = ''
@@ -591,7 +605,9 @@ def locate_Phenix_executable():
       command_path = command_path + splited[i] + "/"
     command_path = command_path + "modules/cryo_fit/"
     print "\tUser's phenix.cryo_fit executable comes from ", command_path
+    STOP()
     return command_path
+    '''
 # end of locate_Phenix_executable function
 
 def make_trajectory_gro():

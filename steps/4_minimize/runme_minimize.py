@@ -1,13 +1,9 @@
 import glob, os, subprocess, sys, time
 
-def prepare_minimize(number_of_available_cores, number_of_cores_to_use, ns_type):
-    #home_bin_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-    
-    #command_used = first_prepare_minimization(home_bin_cryo_fit_bin_dir, ns_type, number_of_available_cores, \
-    #                                              number_of_cores_to_use)
-    
+def prepare_minimize(number_of_available_cores, number_of_cores_to_use, ns_type, cryo_fit_path):
+        
     command_used = first_prepare_minimization(ns_type, number_of_available_cores, \
-                                                  number_of_cores_to_use)
+                                                  number_of_cores_to_use, cryo_fit_path)
     
     f_out = open('log.step_4_1_minimization_used_command', 'wt')
     f_out.write(command_used)
@@ -27,6 +23,7 @@ if (__name__ == "__main__"):
     ns_type = args[2]
     number_of_available_cores = int(args[3])
     number_of_cores_to_use = args[4]
+    cryo_fit_path = args[5]
     
-    prepare_minimize(number_of_available_cores, number_of_cores_to_use, ns_type)
+    prepare_minimize(number_of_available_cores, number_of_cores_to_use, ns_type, cryo_fit_path)
 # end of if (__name__ == "__main__")

@@ -3,11 +3,12 @@ from subprocess import check_output
 
 args=sys.argv[1:]
 command_path = args[0]
+cryo_fit_path = args[1]
 common_functions_path = command_path + "/common_functions/"
 sys.path.insert(0, common_functions_path)
 from common_functions import *
 
-command_string = "grompp -f for_cryo_fit.mdp -c *.gro -p *0_charge.top \
+command_string = cryo_fit_path + "grompp -f for_cryo_fit.mdp -c *.gro -p *0_charge.top \
                  -o for_cryo_fit.tpr -maxwarn 10"       
                   # -f, -c, -p are for input files of grompp
                   # -o is for an output file

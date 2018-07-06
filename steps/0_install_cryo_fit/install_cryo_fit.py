@@ -1,5 +1,3 @@
-# This script was built to be ran outside of phenix directory.
-# Therefore, it uses os.system instead of libtbx.easy_run.fully_buffered
 import glob, os, subprocess, sys, time
 from os.path import exists
 from subprocess import check_output, Popen, PIPE # for FFTW_INSTALL
@@ -16,7 +14,6 @@ from libtbx.utils import Sorry
 from libtbx.utils import multi_out
 import mmtbx.model
 import mmtbx.utils
-import shutil # for rmdir
 
 cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 print "cryo_fit_repository_dir:", cryo_fit_repository_dir
@@ -52,7 +49,7 @@ def add_path(GMX_MD_INSTALL, shell):
   else:
     print "User may use cshell or zshell"
     return GMX_MD_INSTALL
-  # adding PATH for pdb2gmx at phenix/build/bin and cryo_fit/bin at the same causes segfault (7/6/2018)
+  # adding PATH for pdb2gmx at phenix/build/bin and cryo_fit/bin at the same causes forcefield error or segfault (7/6/2018)
 # end of add_path (GMX_MD_INSTALL, shell)
 
 def clean ():
@@ -111,7 +108,6 @@ def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, ent
       color_print ("\nHit enter key to configure.", 'green')
       raw_input()
     libtbx.easy_run.call(command=command_string)
-    #os.system(command_string) # sometimes this is needed because libtbx.easy_run doesn't work
   
   print '#'*105
   color_print ("\n\nCheck whether it was configured without any error.", 'green')
@@ -216,11 +212,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   enable_mpi = "N" # "mpi will not be enabled during configuration. Threads will be used instead."
   enable_fftw = "N"
   
-  make_this_folder_if_not_exists(GMX_MD_INSTALL)
-  GMX_MD_INSTALL  = os.path.join(GMX_MD_INSTALL, "bin_keep_this_for_executables")
-  make_this_folder_if_not_exists(GMX_MD_INSTALL)
+  #make_this_folder_if_not_exists(GMX_MD_INSTALL)
+  #GMX_MD_INSTALL  = os.path.join(GMX_MD_INSTALL, "bin_keep_this_for_executables")
+  #make_this_folder_if_not_exists(GMX_MD_INSTALL)
   
-  #GMX_MD_SRC  = os.path.join(starting_dir, gromacs_cryo_fit_file_name) # this works, but a user (even I) may delete this, then gromacs will issue segfault
   GMX_MD_SRC  = os.path.join(install_path, "source_keep_this_otherwise_segfault") # so that any case can be handled
   make_this_folder_if_not_exists(GMX_MD_SRC)
   

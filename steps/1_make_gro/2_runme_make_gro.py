@@ -14,7 +14,7 @@ def remove_former_files():
 '''
 
 def make_gro_top(input_pdb_file_name, force_field, *args):
-  print "\tMake gro and topology files from a given pdb file." 
+  print "\n\tMake gro and topology files from a given pdb file." 
   
   splited = input_pdb_file_name.split("/")
   input_pdb_file_name_without_folder = splited[len(splited)-1]
@@ -36,16 +36,8 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
   
   f_out = open('log.step_1_2_runme_make_gro', 'wt')
   run_this = '' # initial
-  #home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls() # this could be a reason why \
-                           # Karissa's macbook pro didn't work for step_1
-  '''
-  home_cryo_fit_bin_dir = know_home_cryo_fit_bin_dir_by_ls_find()
-  common_command_script = home_cryo_fit_bin_dir + "/pdb2gmx -f " + input_pdb_file_name_without_folder + \
-                          " -o " + output_gro_file_name_without_folder + " -p " + \
-                          output_top_file_name_without_folder  + " -merge all  "
-  '''
   
-  common_command_script = "pdb2gmx -f " + input_pdb_file_name_without_folder + \
+  common_command_script = cryo_fit_path + "pdb2gmx -f " + input_pdb_file_name_without_folder + \
                           " -o " + output_gro_file_name_without_folder + " -p " + \
                           output_top_file_name_without_folder  + " -merge all  "
   
@@ -61,8 +53,12 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
   else:
     run_this = common_command_script + " -noignh < input_parameters >> md.out"
   print "\tcommand: ", run_this
+  #STOP()
   time_start = time.time()
-  libtbx.easy_run.call(run_this)
+  
+  libtbx.easy_run.call(run_this) 
+
+  
   time_end = time.time()
   write_this_input_command = run_this + "\n"
   f_out.write(write_this_input_command)
@@ -77,7 +73,7 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
 if (__name__ == "__main__") :
   #remove_former_files() # only needed for development
   args=sys.argv[1:]
-  if len(args)<1:
+  if len(args) < 5:
     count = 0
     for pdb_file in glob.glob("*.pdb"):
       input_pdb_file_name = pdb_file # if there is only 1 pdb file in this folder, use it
@@ -87,26 +83,19 @@ if (__name__ == "__main__") :
         print "Example usage: clean_pdb_for_gromacs.py input.pdb"
         sys.exit("clean_pdb_for_gromacs exits now (expecting a pdb file at next run)")
     make_top(input_pdb_file_name)
-  elif len(args) == 1: # no pdb specified, just force field specified
-    for pdb_file in glob.glob("*.pdb"):
-      input_pdb_file_name = pdb_file # if there is only 1 pdb file in this folder, use it
-      command_path = args[0]
-      force_field = args[1] # pdb input file
-      print "\tinput pdb file: ", input_pdb_file_name
-      print "\tforce_field: ", force_field
-      make_top(input_pdb_file_name, force_field)  
-  elif len(args) == 4: # will be used by python
+  else: # will be used by python
     for pdb_file in glob.glob("*.pdb"):
       input_pdb_file_name = pdb_file # if there is only 1 pdb file in this folder, use it
       command_path = args[0]
       force_field = args[1] # pdb input file
       bool_ignh = args[2]
       bool_missing = args[3]
+      cryo_fit_path = args[4]
       
       common_functions_path = command_path + "/common_functions/"
       sys.path.insert(0, common_functions_path)
       from common_functions import *
-      make_gro_top(input_pdb_file_name, force_field, bool_ignh, bool_missing)
+      make_gro_top(input_pdb_file_name, force_field, bool_ignh, bool_missing, cryo_fit_path)
   bool_gro = 0
   for gro_file in glob.glob("*.gro"):
       bool_gro = 1
