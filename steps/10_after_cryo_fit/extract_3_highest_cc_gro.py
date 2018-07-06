@@ -1,6 +1,4 @@
 import os, subprocess, sys
-args=sys.argv[1:]
-this_is_test = args[0]
 
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart."
@@ -34,7 +32,7 @@ def adjust_step_number():
     os.system(command_string)
 # end of def adjust_step_number ()
     
-def extract_gro(target_step, i, cc):
+def extract_gro(target_step, i, cc, cryo_fit_path):
     for_cryo_fit_mdp_location = ''
     
     if this_is_test == "False":
@@ -66,7 +64,7 @@ def extract_gro(target_step, i, cc):
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
     os.system("echo 0 > input_parameters") # to select system
     
-    cmd = "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
+    cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     os.system(cmd)
     
@@ -100,6 +98,10 @@ def get_users_cc_from_overall_log(log):
 # end of get_users_cc(cc_record)
 
 if (__name__ == "__main__") :
+    args=sys.argv[1:]
+    this_is_test = args[0]
+    cryo_fit_path = args[1]
+
     print "\n\t\textract_3_highest_cc_gro"
     
     # adjust step number if needed
@@ -113,4 +115,4 @@ if (__name__ == "__main__") :
         target_step = splited[1]
         cc = splited[4]
         print "\t\t\ttarget_step for extracting a gro file: ", target_step
-        extract_gro(target_step, i, cc)
+        extract_gro(target_step, i, cc, cryo_fit_path)

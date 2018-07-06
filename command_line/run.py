@@ -947,7 +947,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     return results
 # end of step_8 (cryo_fit itself) function
 
-def step_final(logfile, command_path, starting_dir, model_file_without_pathways):
+def step_final(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
   os.chdir( starting_dir )
   time_start = time.time()
   show_header("Step 9 (final): Arrange output")
@@ -983,7 +983,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways)
     libtbx.easy_run.fully_buffered(cp_command_string)
     
     print "\n\tExtract .gro files from the 3 highest cc values."
-    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test)
+    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
   
@@ -1388,7 +1388,8 @@ def run_cryo_fit(logfile, params, inputs):
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
-  this_is_test = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
+  this_is_test = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
+                            cryo_fit_path) # just to arrange final output
   if (this_is_test == False):
     return results
   

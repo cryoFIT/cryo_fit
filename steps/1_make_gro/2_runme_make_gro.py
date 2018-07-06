@@ -52,14 +52,13 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
     run_this = common_command_script + " -ignh < input_parameters >> md.out"
   else:
     run_this = common_command_script + " -noignh < input_parameters >> md.out"
+  
   print "\tcommand: ", run_this
-  #STOP()
+  
   time_start = time.time()
-  
   libtbx.easy_run.call(run_this) 
-
-  
   time_end = time.time()
+  
   write_this_input_command = run_this + "\n"
   f_out.write(write_this_input_command)
   
@@ -68,7 +67,7 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
   f_out.write(write_this_time)
   
   f_out.close()
-# end of make_gro_top function
+########### end of make_gro_top function
 
 if (__name__ == "__main__") :
   #remove_former_files() # only needed for development
