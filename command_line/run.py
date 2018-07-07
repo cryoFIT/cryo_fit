@@ -179,19 +179,8 @@ Options
     .help = Default value is 0.001. Try 0.0005 if a user see this error during minimization
     "Fatal error: A charge group moved too far between two domain decomposition steps \
     This usually means that your system is not well equilibrated"
-  # number_of_threads_to_use = *2 4 8 12 16 24 32
-  #   .type = choice
-  #   .short_caption = Number of threads to use
-  #   .help = Specify number of threads to use for cryo_fit. \
-  #           number_of_threads_to_use = 1 is NOT allowed since it resulted in segfault during mdrun
 }
-#Output
-#{
-  #output_file_name_prefix = None
-  #  .type = str
-  #  .short_caption = Output prefix
-  #  .help = Prefix for output filename
-#}
+
 devel = False
   .type = bool
   .short_caption = If true, just quick check for sanity
@@ -994,11 +983,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     print "\t\t(.pdb file is for chimera/pymol/vmd)"
     
     for extracted_gro in glob.glob("*.gro"):
-      command_string = "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
+      command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
     
-    make_trajectory_gro()
+    make_trajectory_gro(cryo_fit_path)
   
   os.mkdir("trajectory")
   run_this = "mv for_cryo_fit.tpr trajectory.gro traj.xtc trajectory"
@@ -1064,6 +1053,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\n\t\tTo draw a figure for cc,"
   print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
+  print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
   print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course),"
   print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS,"
   print "  \t\t\t\t.tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
@@ -1273,7 +1263,8 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     no_rerun = True
-    number_of_steps_for_cryo_fit = 4000
+    number_of_steps_for_cryo_fit = 5000
+    #number_of_steps_for_cryo_fit = 100 # temp for devel
   
   if (devel == True):
     no_rerun = True

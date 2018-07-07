@@ -45,9 +45,9 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
     
     params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
   
-  print "\n\t\tparams.cryo_fit.Input.map_file_name after a possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
+  print "\t\tparams.cryo_fit.Input.map_file_name after a possible mrc_to_sit: ", params.cryo_fit.Input.map_file_name
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
-  print "\n\t\tmap_file_with_pathways:",map_file_with_pathways
+  print "\t\tmap_file_with_pathways:",map_file_with_pathways
   if map_file_with_pathways[:-4] == ".map":
     map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
   
@@ -157,9 +157,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     
     '\t\tHere are possible causes and solutions\n'
     
-    '\n\t\t\t 1) Providing higher (better) resolution map tend to help this problem.\n'
+    '\n\t\t\t 1) Providing higher (better) resolution map tends to help this problem.\n'
     
-    '\n\t\t\t 2) enforcing stronger map weight tend to help this problem.\n'
+    '\n\t\t\t 2) Enforcing stronger map weight tends to help this problem.\n'
     
     '\n\t\t\t 3) If cryo_fit is provided a giant cryoem map with a tiny atomic model.\n'
     '\t\t\t\t Then, the cryo_fit calculates the gradient of CC because of the large empty space not filled. \n'
