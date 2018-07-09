@@ -15,8 +15,8 @@ cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
 if (__name__ == "__main__") :
 
     # added by Nigel so that this test runs in a clear path
-    print "os.listdir(os.getcwd()):",os.listdir(os.getcwd())
-    print "len(os.listdir(os.getcwd())):",len(os.listdir(os.getcwd()))
+    #print "os.listdir(os.getcwd()):",os.listdir(os.getcwd())
+    #print "len(os.listdir(os.getcwd())):",len(os.listdir(os.getcwd()))
     assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
     
     # Locate phenix.cryo_fit.run_tests executable

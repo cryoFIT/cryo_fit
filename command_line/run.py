@@ -477,21 +477,22 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   cp1_command_string = ''
+  cp2_command_string = ''
   this_is_test = check_whether_this_is_test(starting_dir)
-  if (this_is_test == True):
-    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+    cp1_command_string = "cp ../2_clean_gro/*.gro . "  
+    cp2_command_string = "cp ../1_make_gro/*.top . "
+  else:
+    if (this_is_test == True):
       cp1_command_string = "cp ../../data/input_for_step_3/* ."
     else:
-      cp2_command_string = "cp ../1_make_gro/*.top . "
-      libtbx.easy_run.fully_buffered(cp2_command_string)
-  else:
-    if str(constraint_algorithm_minimization) != "none_default":
-      cp1_command_string = "cp ../2_clean_gro/*.gro . "
-    else:
-      cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
+      if str(constraint_algorithm_minimization) != "none_default":
+        cp1_command_string = "cp ../2_clean_gro/*.gro . "
+      else:
+        cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
     cp2_command_string = "cp ../1_make_gro/*.top . "
-    libtbx.easy_run.fully_buffered(cp2_command_string)
-  libtbx.easy_run.fully_buffered(cp1_command_string) #copy step_2 output
+  libtbx.easy_run.fully_buffered(cp1_command_string)
+  libtbx.easy_run.fully_buffered(cp2_command_string)
   
   command_string = "python runme_make_tpr.py " + str(cryo_fit_path)
   print "\tcommand: ", command_string
@@ -517,6 +518,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
 
+  '''
   this_is_test = False
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
@@ -528,6 +530,15 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   if (this_is_test == False):
     cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   
+  libtbx.easy_run.fully_buffered(cp_command_string)
+  '''
+  
+  this_is_test = check_whether_this_is_test(starting_dir)
+  if (this_is_test == True):
+    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+      cp_command_string = "cp ../../data/input_for_step_4/* ."
+  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+    cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
