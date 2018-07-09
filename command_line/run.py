@@ -298,19 +298,21 @@ def validate_params(params): # validation for GUI
   return True
 # end of validate_params function
 
-def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starting_pdb_without_path, \
-           force_field, ignh, missing, remove_metals, cryo_fit_path, *args):
-  show_header("Step 1: Make gro and topology file by regular gromacs")
-  remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
-
-  this_is_test = False
+def check_whether_this_is_test(starting_dir):
   splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
   for i in range(len(splited_starting_dir)):
     if splited_starting_dir[i] == "phenix_regression":
-      this_is_test = True
       print "\tthis_is_test = True"
-    
+      return True
+  return False
+######## end of check_whether_this_is_test(starting_dir)
+      
+def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starting_pdb_without_path, \
+           force_field, ignh, missing, remove_metals, cryo_fit_path, *args):
+  show_header("Step 1: Make gro and topology file by regular gromacs")
+  remake_and_move_to_this_folder(starting_dir, "steps/1_make_gro")
+  
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
   
@@ -378,6 +380,8 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, starti
     print "Please email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))
+  
+  this_is_test = check_whether_this_is_test(starting_dir)
   return this_is_test
 # end of step_1 function
 
@@ -387,20 +391,14 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   os.chdir (starting_dir)
   remake_and_move_to_this_folder(starting_dir, "steps/2_clean_gro")
 
-  this_is_test = False
-  splited_starting_dir = starting_dir.split("/")
   cp_command_string = ''
-  
-  if (model_file_without_pathways != "regression_pdb5khe.pdb"):  
-    for i in range(len(splited_starting_dir)):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test = True
-        print "this_is_test = True"
-        cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
-
-  if (this_is_test == False):
+  this_is_test = check_whether_this_is_test(starting_dir)
+  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     cp_command_string = "cp ../1_make_gro/*.gro ."
-  
+  elif (this_is_test == True):
+    cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
+  else:
+    cp_command_string = "cp ../1_make_gro/*.gro ."
   libtbx.easy_run.fully_buffered(cp_command_string) #copy step_1 output
 
   start_time_renaming = time.time()
@@ -956,7 +954,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
         this_is_test = True
         cp_command_string = "cp ../data/input_for_step_final/* ."
         libtbx.easy_run.fully_buffered(cp_command_string)
-        make_trajectory_gro()
+        make_trajectory_gro(cryo_fit_path)
       
   if (this_is_test == False):
     cp_command_string = "mv ../cc_record_full_renumbered ."
