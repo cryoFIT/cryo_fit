@@ -517,21 +517,6 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
 
   cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
-
-  '''
-  this_is_test = False
-  splited_starting_dir = starting_dir.split("/")
-  cp_command_string = ''
-  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-    for i in range(len(splited_starting_dir)):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test = True
-        cp_command_string = "cp ../../data/input_for_step_4/* ."
-  if (this_is_test == False):
-    cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
-  
-  libtbx.easy_run.fully_buffered(cp_command_string)
-  '''
   
   this_is_test = check_whether_this_is_test(starting_dir)
   if (this_is_test == True):
@@ -645,21 +630,13 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
   cp_command_string = "cp " + command_path + "steps/5_make_constraints/runme_make_contact_potential.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
-  this_is_test = False
-  splited_starting_dir = starting_dir.split("/")
-  cp_command_string = ''
-  
-  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-    for i in range(len(splited_starting_dir)):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test = True
-        cp_command_string = "cp ../../data/input_for_step_5/* ."
-        
-  if (this_is_test == False):
+  this_is_test = check_whether_this_is_test(starting_dir)
+  if (this_is_test == True):
+    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+      cp_command_string = "cp ../../data/input_for_step_5/* ."
+  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
     cp_command_string = "cp ../4_minimize/*.gro ."
-    # there will be minimized_c_term_renamed_by_resnum_oc.gro
-  
-  libtbx.easy_run.fully_buffered(cp_command_string) #copy step_4 output
+  libtbx.easy_run.fully_buffered(cp_command_string)
   
   command_string = "python runme_make_contact_potential.py *.gro " + str(command_path) + " " + str(cryo_fit_path)
   print "\tcommand: ", command_string
