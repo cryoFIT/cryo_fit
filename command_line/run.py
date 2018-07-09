@@ -476,27 +476,23 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
-  this_is_test_for_tRNA = False
-  splited_starting_dir = starting_dir.split("/")
   cp1_command_string = ''
-  cp2_command_string = ''
-    
-  for i in range(len(splited_starting_dir)):
+  this_is_test = check_whether_this_is_test(starting_dir)
+  if (this_is_test == True):
     if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test_for_tRNA = True
-        cp1_command_string = "cp ../../data/input_for_step_3/* ."
-        
-  if (this_is_test_for_tRNA == False):
+      cp1_command_string = "cp ../../data/input_for_step_3/* ."
+    else:
+      cp2_command_string = "cp ../1_make_gro/*.top . "
+      libtbx.easy_run.fully_buffered(cp2_command_string)
+  else:
     if str(constraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "
     else:
       cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
     cp2_command_string = "cp ../1_make_gro/*.top . "
     libtbx.easy_run.fully_buffered(cp2_command_string)
-  
   libtbx.easy_run.fully_buffered(cp1_command_string) #copy step_2 output
-
+  
   command_string = "python runme_make_tpr.py " + str(cryo_fit_path)
   print "\tcommand: ", command_string
   start = time.time()
@@ -506,7 +502,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   check_whether_the_step_3_was_successfully_ran(logfile, "to_minimize.tpr")
   print "Step 3", (show_time(start, end))
   os.chdir( starting_dir )
-  return this_is_test_for_tRNA
+  return this_is_test
 # end of step_3 (prepare minimization) function
 
 
