@@ -48,6 +48,7 @@ def add_path(GMX_MD_INSTALL, shell):
     return path_file
   else:
     print "User may use cshell or zshell"
+    print "Cshell needs to edit ~/.csh"
     return GMX_MD_INSTALL
   # adding PATH for pdb2gmx at phenix/build/bin and cryo_fit/bin at the same causes forcefield error or segfault (7/6/2018)
 # end of add_path (GMX_MD_INSTALL, shell)
