@@ -1082,7 +1082,7 @@ def run_cryo_fit(logfile, params, inputs):
     cryo_fit_path = cryo_fit_path + "/" # for later steps
   else:
     cryo_fit_path = mdrun_path
-  print "cryo_fit_path:",cryo_fit_path
+  print "\tcryo_fit_path:",cryo_fit_path
   
   show_header("Step 0: Prepare to run cryo_fit")
 
