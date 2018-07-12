@@ -86,8 +86,8 @@ Input{
     .style = bold input_file
   cryo_fit_path = None
     .type = path
-    .short_caption = gromacs_cryo_fit installation path
-    .help = Path to gromacs_cryo_fit installation.
+    .short_caption = gromacs_cryo_fit executable path
+    .help = Path that has gromacs_cryo_fit executables such as mdrun.
     .style = bold directory
 }
 Steps
@@ -162,12 +162,12 @@ Options
     .type = int
     .short_caption = Number of steps for minimization
     .help = Specify number of steps for minimization. \
-           If it is left blank, cryo_fit will estimate it automatically depending on molecule size.
+           If this is left blank, cryo_fit will estimate it depending on molecule size.
   number_of_steps_for_cryo_fit = None
     .type = int
     .short_caption = Number of steps for cryo_fit
-    .help = Specify number of steps for cryo_fit. \
-           If it is left blank, cryo_fit will estimate it automatically depending on molecule size and cc trend.
+    .help = It should be > 100. \
+           This is the initial number of steps for cryo_fit. Eventually, cryo_fit may increase it depending on molecule size and cc trend.
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
@@ -1232,6 +1232,7 @@ def run_cryo_fit(logfile, params, inputs):
   if (model_file_without_pathways == "tRNA_tutorial.pdb"):
     no_rerun = True
     number_of_steps_for_cryo_fit = 5000
+    #number_of_steps_for_cryo_fit = 100 # for devel
   
   if (devel == True):
     no_rerun = True
