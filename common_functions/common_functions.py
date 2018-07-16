@@ -49,10 +49,11 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, 
   map_file_with_pathways = os.path.abspath(params.cryo_fit.Input.map_file_name)
   print "\t\tmap_file_with_pathways:",map_file_with_pathways
   
-  if map_file_with_pathways[:-5] == ".ccp4":
-    map_file_with_pathways = map_file_with_pathways[:-5] + "_converted_to_sit.sit"
-  if map_file_with_pathways[:-4] == ".map":
+  if ((map_file_with_pathways[len(map_file_with_pathways)-4:len(map_file_with_pathways)] == ".map") or
+      (map_file_with_pathways[len(map_file_with_pathways)-4:len(map_file_with_pathways)] == ".mrc")):
     map_file_with_pathways = map_file_with_pathways[:-4] + "_converted_to_sit.sit"
+  elif (map_file_with_pathways[len(map_file_with_pathways)-5:len(map_file_with_pathways)] == ".ccp4"):
+    map_file_with_pathways = map_file_with_pathways[:-5] + "_converted_to_sit.sit"
   
   # assign map_file_without_pathways
   splited_map_file_name = map_file_with_pathways.split("/")
@@ -640,7 +641,14 @@ def minimize(cores_to_use, ns_type, common_command_string):
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\n\tConvert mrc format map to situs format map"
     
-    new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
+    # (old) new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
+    new_map_file_name = ''
+    if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
+        (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
+        new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
+    elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
+        new_map_file_name = map_file_name[:-5] + "_converted_to_sit.sit"
+    
     f_out = open(new_map_file_name, 'wt')
     user_input_map = map_file_name
     # Compute a target map
@@ -749,7 +757,15 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         # reassign shifted_origin into original ones (not necessarily to 0,0,0)
         first_line = True
         print "\t\t\tmap_file_name:", map_file_name
-        new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+        
+        #new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+        new_map_file_name_w_ori_origins = ''
+        if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
+            (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
+            new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+        elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
+            new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered.sit"
+    
         print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')
