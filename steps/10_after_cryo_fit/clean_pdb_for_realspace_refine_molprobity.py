@@ -31,11 +31,15 @@ def clean(input_pdb_file_name):
   f_out = open(output_pdb_file_name, 'wt')
           
   for line in f_in:
-    CRYST = line[:5]
+    CRYST_MODEL = line[:5]
+    ENDMDL = line[:6]
     element = line[13:14]
     atom = line[13:16]
     
-    if CRYST == "CRYST":
+    if ((CRYST_MODEL == "CRYST") or (CRYST_MODEL == "MODEL")): # remove CRYST for real_space_refine, remove MODEL for molprobity
+      print "\t\t\t omitted ", line
+      continue
+    elif (ENDMDL == "ENDMDL"): # remove for molprobity
       print "\t\t\t omitted ", line
       continue
     elif atom == "OC2":
@@ -44,6 +48,8 @@ def clean(input_pdb_file_name):
     elif (line[0:4] != "ATOM") and (line[0:6] != "HETATM"):
       f_out.write(line)
     else: # most cases
+      if (element == "H"): # for debug molprobity
+        continue
       new_line = line[:75] + "  " + element + line[79:] + "\n"
       new_line = new_line[:17] + new_line[17:20].replace(' RA', ' A ') + new_line[20:] #residue = line[17:20]
       new_line = new_line[:17] + new_line[17:20].replace(' RU', ' U ') + new_line[20:]

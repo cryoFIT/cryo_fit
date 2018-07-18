@@ -1002,24 +1002,9 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
   
-  '''
-  print "\n\tChange OC1 and OC2 so that molprobity can run"
-  for pdb in glob.glob("*.pdb"):
-    run_this = "python clean_pdb_for_molprobity.py " + pdb
-    print "\t\tcommand: ", run_this
-    libtbx.easy_run.call(run_this)
-  
-  
-  print "\n\tAdd element to each line"
-  for pdb in glob.glob("*.pdb"):
-    run_this = "python add_element_to_pdb.py " + pdb
-    print "\t\tcommand: ", run_this
-    libtbx.easy_run.call(run_this)
-  '''
-  
   returned = ''
   if (this_is_test == True):
-    returned = check_whether_the_step_was_successfully_ran("Step final", "cryo_fitted_chain_recovered_cleaned_for_molprobity_new_element_added.pdb")
+    returned = check_whether_the_step_was_successfully_ran("Step final", "cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb")
   else:    
     returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
   
