@@ -4,10 +4,10 @@
 import glob, os, sys
 
 def clean_main(input_pdb_file_name):
-  print "\n\tFor realspace_refine, remove CRYST line to avoid error \"Crystal symmetry mismatch between different files\""
-  print "\t\t\t   U instead of RU to avoid error"
-  print "\t\t\t   add element at the end of each line"
-  print "\n\tFor molprobity, change OC1 and OC2"
+  print "\n\t\tFor realspace_refine, remove CRYST line to avoid error \"Crystal symmetry mismatch between different files\""
+  print "\t\t\t\t     U instead of RU to avoid error"
+  print "\t\t\t\t     add element at the end of each line"
+  print "\n\t\tFor molprobity, change OC1 and OC2"
 
   output_pdb_file_name = clean (input_pdb_file_name) 
   
@@ -34,26 +34,21 @@ def clean(input_pdb_file_name):
     CRYST = line[:5]
     element = line[13:14]
     atom = line[13:16]
-    residue = line[17:20]
     
     if CRYST == "CRYST":
-      print "\t\t omitted ", line
+      print "\t\t\t omitted ", line
       continue
     elif atom == "OC2":
-      print "\t\t omitted OC2 for molpribity running"
+      print "\t\t\t omitted OC2 for molprobity running"
       continue
     elif (line[0:4] != "ATOM") and (line[0:6] != "HETATM"):
       f_out.write(line)
     else: # most cases
-      new_line = line[:75] + "  " + element + line[79:] + "\n"  
-      if (residue == " RA"): 
-        new_line = new_line[:17] + new_line[17:20].replace(' RA', ' A ') + new_line[20:]
-      elif (residue == " RU"): 
-        new_line = new_line[:17] + new_line[17:20].replace(' RU', ' U ') + new_line[20:]
-      elif (residue == " RG"):
-        new_line = new_line[:17] + new_line[17:20].replace(' RG', ' G ') + new_line[20:]
-      elif (residue == " RC"):
-        new_line = new_line[:17] + new_line[17:20].replace(' RC', ' C ') + new_line[20:]
+      new_line = line[:75] + "  " + element + line[79:] + "\n"
+      new_line = new_line[:17] + new_line[17:20].replace(' RA', ' A ') + new_line[20:] #residue = line[17:20]
+      new_line = new_line[:17] + new_line[17:20].replace(' RU', ' U ') + new_line[20:]
+      new_line = new_line[:17] + new_line[17:20].replace(' RG', ' G ') + new_line[20:]
+      new_line = new_line[:17] + new_line[17:20].replace(' RC', ' C ') + new_line[20:]
       new_line = deal_OC1(atom, new_line)
       f_out.write(new_line)
       
