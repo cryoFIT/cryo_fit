@@ -996,17 +996,26 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
       print "\t\trm: ", run_this
       libtbx.easy_run.call(run_this)
   
+  print "\n\tClean pdb for realspace_refine and molprobity"
+  for pdb in glob.glob("*.pdb"):
+    run_this = "python clean_pdb_for_realspace_refine_molprobity.py " + pdb
+    print "\t\tcommand: ", run_this
+    libtbx.easy_run.call(run_this)
+  
+  '''
   print "\n\tChange OC1 and OC2 so that molprobity can run"
   for pdb in glob.glob("*.pdb"):
     run_this = "python clean_pdb_for_molprobity.py " + pdb
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
   
+  
   print "\n\tAdd element to each line"
   for pdb in glob.glob("*.pdb"):
     run_this = "python add_element_to_pdb.py " + pdb
     print "\t\tcommand: ", run_this
     libtbx.easy_run.call(run_this)
+  '''
   
   returned = ''
   if (this_is_test == True):

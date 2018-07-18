@@ -174,7 +174,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     
     '\n\t\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
     
-    '\n\t\t\t 4) If the initial model is not properly aligned to a map, consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
+    '\n\t\t\t 4) If the initial model is not properly aligned to a map, \n'
+    '  \t\t\t     consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
     
     '\n\t\t Here, cryo_fit will try stronger map weight automatically.\n'
     )
