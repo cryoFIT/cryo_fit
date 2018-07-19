@@ -18,13 +18,14 @@ def clean_main(input_pdb_file_name):
   os.system(cmd)
   
   return final_output_pdb_file_name
-# end of clean_main function
+##################################### end of clean_main function
+
 
 def deal_OC1(atom, new_line):
   if atom == "OC1":
     new_line = new_line[:13] + "OXT" + new_line[16:]
   return new_line 
-#end of def deal_OC1(atom)
+##################################### end of def deal_OC1(atom)
 
 
 def clean(input_pdb_file_name):
@@ -63,7 +64,7 @@ def clean(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of clean function
+##################################### end of clean function
 
 if (__name__ == "__main__") :
   args=sys.argv[1:]
