@@ -7,7 +7,9 @@ def clean_main(input_pdb_file_name):
   print "\n\t\tFor realspace_refine, remove CRYST line to avoid error \"Crystal symmetry mismatch between different files\""
   print "\t\t\t\t      U instead of RU to avoid error"
   print "\t\t\t\t      add element at the end of each line"
-  print "\n\t\tFor molprobity, change OC1 and OC2"
+  print "\n\t\tFor molprobity, change OC1 and OC2 to avoid error"
+  print "\t\t\t\t      Omit MODEL and ENDMDL lines to avoid error"
+  print "\t\t\tOmit hydrogen since it is not essential to run real_space_refine and molprobity"
 
   output_pdb_file_name = clean (input_pdb_file_name) 
   
@@ -46,6 +48,7 @@ def clean(input_pdb_file_name):
       f_out.write(line)
     else: # most cases
       if (element == "H"):
+        print "\t\t\t omiited hydrogen since it is not essential to run real_space_refine and molprobity"
         continue
       new_line = line[:75] + "  " + element + line[79:] + "\n"
       new_line = new_line[:17] + new_line[17:20].replace(' RA', ' A ') + new_line[20:] #residue = line[17:20]
