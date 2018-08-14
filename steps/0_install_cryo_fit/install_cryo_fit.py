@@ -5,7 +5,7 @@ from os.path import expanduser # to find home_dir
 import platform
 
 # some header(s) among these are needed for libtbx.env.dist_path
-from cctbx import maptbx
+#from cctbx import maptbx # commented for Jun Dong at Centos 7
 import iotbx.pdb
 import iotbx.pdb.mmcif
 from libtbx import phil
