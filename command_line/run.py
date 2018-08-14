@@ -849,6 +849,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print "Step 8 (Run cryo_fit) didn't run successfully"
     logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
     searched = search_charge_in_md_log()
+    print "searched:", searched
     if searched == 0: # no "charge group... " message in md.log
       return "failed"
     else:
