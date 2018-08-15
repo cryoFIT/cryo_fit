@@ -219,6 +219,19 @@ def check_whether_install_is_done(check_this_file_w_path):
 # end of check_whether_install_is_done()
 
 def check_whether_mdrun_is_accessible():
+    long_message  = """
+        cryo_fit can't find mdrun executable for now
+        
+        If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html
+        
+        If this run is for commandline running,
+        Please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
+        For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
+        add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
+        
+        If this run is for Phenix GUI running, there's nothing user should do, because
+        gromacs_cryo_fit installation path will assign PATH automatically soon
+        """
     try:
         path = subprocess.check_output(["which", "mdrun"])
         splited = path.split("/")
@@ -229,19 +242,11 @@ def check_whether_mdrun_is_accessible():
                 mdrun_path = mdrun_path + splited[i] + "/"
             print "\tUser's mdrun executable comes from ", mdrun_path
             return mdrun_path
+        else:
+            print long_message
+            return False
     except:
-        print "cryo_fit can't find mdrun executable for now"
-        
-        print "\nIf it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-        
-        print "\nIf this run is for commandline running... "
-        print "Please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included"
-        print "For example, if user's gromacs_cryo_fit is installed at /Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin, "
-        print "add \"export PATH=\"/Users/doonam/bin/gromacs-4.5.5_cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it"
-        
-        print "\nIf this run is for Phenix GUI running... "
-        print "gromacs_cryo_fit installation path will assign PATH soon"
-
+        print long_message
         return False
 # end of check_whether_mdrun_is_accessible()
 

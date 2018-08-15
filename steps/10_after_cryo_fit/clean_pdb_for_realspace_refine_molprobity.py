@@ -48,9 +48,9 @@ def clean(input_pdb_file_name):
     elif (line[0:4] != "ATOM") and (line[0:6] != "HETATM"):
       f_out.write(line)
     else: # most cases
-      if (element == "H"):
-        print "\t\t\t omiited hydrogen since it is not essential to run real_space_refine and molprobity"
-        continue
+      #if (element == "H"):
+      #  print "\t\t\t omiited hydrogen since it is not essential to run real_space_refine and molprobity"
+      #  continue
       new_line = line[:75] + "  " + element + line[79:] + "\n"
       new_line = new_line[:17] + new_line[17:20].replace(' RA', ' A ') + new_line[20:] #residue = line[17:20]
       new_line = new_line[:17] + new_line[17:20].replace(' RU', ' U ') + new_line[20:]

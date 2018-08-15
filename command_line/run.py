@@ -47,7 +47,7 @@ How to use
 Input:
     - A .cif or .pdb file
          A template/starting structure that is aligned to a target cryo EM 
-         density map structurally (for example by USCF chimera)
+         density map structurally (for example by USCF Chimera)
     - A .ccp4 (MRC) or .map (MRC) or .sit (Situs) file, a cryo EM density map 
     
 Output folder:
@@ -948,8 +948,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     os.remove("cc_record")
 
     print "\n\tConvert .gro -> .pdb"
-    print "\t\t(.gro file is for chimera/gromacs/vmd)"
-    print "\t\t(.pdb file is for chimera/pymol/vmd)"
+    print "\t\t(.gro file is for Chimera/Gromacs/VMD)"
+    print "\t\t(.pdb file is for Chimera/ChimeraX/Pymol/VMD)"
     
     for extracted_gro in glob.glob("*.gro"):
       command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
@@ -1017,11 +1017,26 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
-  print "\n\t\tTo see a trajectory movie (a user can open a map at the same time of course),"
-  print "  \t\t\t<UCSF Chimera 1.13 or later> Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS,"
-  print "  \t\t\t\t.tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)"
-  print "  \t\t\t<VMD 1.9.3 or later> File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load "
-
+  trajectory_message = '''
+                To see a trajectory movie (a user can open a map at the same time of course)
+                   
+                   <UCSF Chimera 1.13 or later>
+                     Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
+                     .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)
+                   
+                   <UCSF ChimeraX 0.8 (2018-08-14) or later>
+                     File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
+                     coordset slider #1
+                     open .../output/trajectory/traj.xtc structureModel #1
+                     File -> Open -> .../user.map
+                     Click black play button to play
+                     Click red record button to record movie as .mp4 file
+                     
+                   <VMD 1.9.3 or later>
+                     File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load
+  '''
+  print trajectory_message
+  
   if (returned != "success"):
     write_this = "Step final (arrange output) didn't run successfully"
     print write_this
@@ -1073,8 +1088,12 @@ def run_cryo_fit(logfile, params, inputs):
   mdrun_path = check_whether_mdrun_is_accessible()
   cryo_fit_path = ''
   if (mdrun_path == False):
-    cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
-    cryo_fit_path = cryo_fit_path + "/" # for later steps
+    if (params.cryo_fit.Input.cryo_fit_path != None):
+      cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
+      cryo_fit_path = cryo_fit_path + "/" # for later steps
+    else:
+      print "exit now"
+      exit(1)
   else:
     cryo_fit_path = mdrun_path
   print "\tcryo_fit_path:",cryo_fit_path

@@ -81,7 +81,10 @@ if (__name__ == "__main__") :
         print "Specify one input PDB file"
         print "Example usage: clean_pdb_for_gromacs.py input.pdb"
         sys.exit("clean_pdb_for_gromacs exits now (expecting a pdb file at next run)")
-    make_top(input_pdb_file_name)
+    force_field = args[1] # pdb input file
+    bool_ignh = args[2]
+    bool_missing = args[3]
+    make_gro_top(input_pdb_file_name, force_field, bool_ignh, bool_missing)
   else: # will be used by python
     for pdb_file in glob.glob("*.pdb"):
       input_pdb_file_name = pdb_file # if there is only 1 pdb file in this folder, use it
