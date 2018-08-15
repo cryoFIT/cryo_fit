@@ -1031,7 +1031,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
                      File -> Open -> .../user.map
                      Click black play button to play
                      Click red record button to record movie as .mp4 file
-                     
+                      
                    <VMD 1.9.3 or later>
                      File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load
   '''
