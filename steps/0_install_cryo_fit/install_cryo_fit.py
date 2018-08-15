@@ -5,10 +5,7 @@ from os.path import expanduser # to find home_dir
 import platform
 
 # some header(s) among these are needed for libtbx.env.dist_path
-# I commented "from cctbx import maptbx" for Jun Dong at Centos 7
-# I confirmed that "from cctbx import maptbx" is not needed for libtbx.env.dist_path and cryo_fit installation
-import iotbx.pdb
-import iotbx.pdb.mmcif
+# I confirmed that "from cctbx import maptbx", "import iotbx.pdb",  "import iotbx.pdb.mmcif" are not needed for libtbx.env.dist_path and cryo_fit installation
 from libtbx import phil
 import libtbx.phil.command_line
 from libtbx.utils import Sorry

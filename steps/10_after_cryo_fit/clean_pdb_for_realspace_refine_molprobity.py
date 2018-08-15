@@ -48,6 +48,7 @@ def clean(input_pdb_file_name):
     elif (line[0:4] != "ATOM") and (line[0:6] != "HETATM"):
       f_out.write(line)
     else: # most cases
+      #8/15/2018, I confirmed that having hydrogen from cryo_fit is totally OK for following real_space_refine and molprobity
       #if (element == "H"):
       #  print "\t\t\t omiited hydrogen since it is not essential to run real_space_refine and molprobity"
       #  continue
