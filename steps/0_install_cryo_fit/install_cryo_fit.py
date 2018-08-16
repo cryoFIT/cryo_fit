@@ -433,6 +433,7 @@ if (__name__ == "__main__") :
       print "exit now"
       exit(1)
     install_path = args[1]
+    install_path  = os.path.join(install_path, "cryo_fit") # so that it will be more organized
     enter_all = True
     if (len(args) >= 3):
       enter_all = args[2] # if True,e enter Y to all Y/N questions
