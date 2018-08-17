@@ -222,15 +222,11 @@ def check_whether_mdrun_is_accessible():
     long_message  = """
         cryo_fit can't find mdrun executable for now
         
-        If it is not installed in the first place, refer http://www.phenix-online.org/documentation/reference/cryo_fit.html
+        If gromacs_cryo_fit is not installed, install it according to http://www.phenix-online.org/documentation/reference/cryo_fit.html
         
-        If this run is for commandline running,
-        Please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
+        If gromacs_cryo_fit is installed, please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
         For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
         add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
-        
-        If this run is for Phenix GUI running, there's nothing user should do, because
-        gromacs_cryo_fit installation path will assign PATH automatically soon
         """
     try:
         path = subprocess.check_output(["which", "mdrun"])

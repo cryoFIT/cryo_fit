@@ -1101,7 +1101,7 @@ def run_cryo_fit(logfile, params, inputs):
       cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
       cryo_fit_path = cryo_fit_path + "/" # for later steps
     else:
-      print "exit now"
+      print "\texit now"
       exit(1)
   else:
     cryo_fit_path = mdrun_path
