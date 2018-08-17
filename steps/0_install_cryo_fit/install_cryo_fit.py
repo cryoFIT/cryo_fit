@@ -371,7 +371,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     print_this = "\nPlease source " + str(path_file) + " or open a new terminal so that " + str(path_file) + " can recognize cryo_fit path (which is " + str(GMX_MD_INSTALL) + ")"
     print print_this
   else:
-    print "Please add " , GMX_MD_INSTALL, " into your PATH to run cryo_fit"
+    print "Please add " , GMX_MD_INSTALL, " into your PATH and source ", str(path_file)
     
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to continue.", 'green')

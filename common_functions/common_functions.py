@@ -527,6 +527,14 @@ def get_users_cc(cc_record):
     return cc
 # end of get_users_cc(cc_record)
 
+def id_shell():
+  from os import environ
+  print "User is using ", environ['SHELL'] , " shell"
+  splited = environ['SHELL'].split("/")
+  shell = splited[2]
+  return shell
+#################### end of id_shell ()
+
 def kill_mdrun_mpirun_in_linux():
     color_print ("\tkill any existing mdrun jobs (gromacs)", 'green')
     command_string = "top -b -d 1 | head -200 > top_200"
@@ -552,6 +560,7 @@ def know_number_of_atoms_in_input_pdb(starting_pdb):
     return number_of_atoms_in_input_pdb
 # end of know_number_of_atoms_in_input_pdb()
 
+''' # no longer needed
 def know_output_bool_enable_mpi_by_ls():
     # used exit early for users who didn't install cryofit yet as well
     output_bool_enable_mpi = ''
@@ -565,6 +574,7 @@ def know_output_bool_enable_mpi_by_ls():
     output_bool_enable_mpi = False
     return output_bool_enable_mpi
 # end of know_output_bool_enable_mpi_by_ls function
+'''
 
 def know_home_cryo_fit_bin_dir_by_ls_find(): # really used
     home_dir = expanduser("~")

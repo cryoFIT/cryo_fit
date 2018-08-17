@@ -373,8 +373,17 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     f_in = open('../../cryo_fit.input_command')
     for line in f_in:
       print line
-
-    bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
+    
+    print "\nPlease install cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
+    print "\nIf you installed cryo_fit already,"
+    shell = id_shell()
+    if (shell == "bash"):
+      print_this = "\nplease source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit executables (such as mdrun) can be recognized automatically."
+      print print_this
+    else:
+      print "Please add cryo_fit executable path (for example, /Users/doonam/bin/cryo_fit/bin) into your $PATH and source ~/.bash_profile or ~/.bashrc"
+    
+    #bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     
     print "\nphenix.cryo_fit alone without any arguments introduces full options."
     print "Please email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
@@ -576,8 +585,8 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
     
   returned = check_whether_the_step_was_successfully_ran("Step 4-1", final_gro_file_name)
   if returned == "failed":
-    bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
-    if bool_enable_mpi == True:
+    #bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
+    #if bool_enable_mpi == True:
       color_print ("\n<Case 1> When Doonam encountered this error message", 'red')
       color_print ("\t\"[simplednlanlgov.local:14805] [[58528,0],0] usock_peer_recv_connect_ack: received different version from [[58528,1],0]: 2.1.1 instead of 2.1.0\"", 'red')
       color_print ("\t\"-------------------------------------------------------\"", 'red')
@@ -611,7 +620,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
       color_print ("Otherwise, a user may reinstall openmpi by python \
                    <user_phenix>/modules/cryo_fit/command_line/install_openmpi.py openmpi-2.1.1.tar.gz", 'green')
       color_print ("and use newly installed mpirun by setting PATH.", 'green')
-    exit(1)
+      exit(1)
   print "Step 4-1", (show_time(start, end))
   
   print "\nStep 4-2: Add C prefix to terminal amino acids to minimized.gro for grompp by gromacs"
