@@ -56,10 +56,10 @@ Output folder:
     and current biomolecule structure
       
 Usage example with minimum input requirements (all other options will run with default values):
-    - phenix.cryo_fit tRNA.pdb tRNA.map
+    - phenix.cryo_fit GTPase_activation_center.pdb GTPase_activation_center.map
 
 Usage example with step 7~8 only
-    - phenix.cryo_fit tRNA.pdb tRNA.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
+    - phenix.cryo_fit GTPase_activation_center.pdb GTPase_activation_center.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
     
 Most useful options (GUI has more explanation about these):
     - emweight_multiply_by
@@ -212,7 +212,7 @@ missing = True
 ns_type = *grid simple
   .type = choice
   .short_caption = Method to determine neighbor list (simple, grid) during minimization
-  .help = "Grid" is needed for domain decomposition (dd) for faster execution and ran well with tRNA, \
+  .help = "Grid" is needed for domain decomposition (dd) for faster execution and ran well with GTPase_activation_center, \
           beta-galactosidase, and nucleosome, but "simple" was needed for trouble-shooting of 80S ribosome.
 number_of_cores_to_use = 2 4 8 12 16 24 32 *max
   .type = choice
@@ -342,7 +342,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   print "\tCurrent working directory: %s" % cw_dir
   
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)  
-  if (number_of_atoms_in_input_pdb < 7000): # tRNA for development (transmin1_gro.pdb). This is just for short test purpose only
+  if (number_of_atoms_in_input_pdb < 7000): # GTPase_activation_center for development (transmin1_gro.pdb). This is just for short test purpose only
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 7 seconds to make a gro file.\n"
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 4 minutes to make a gro file.\n"
@@ -983,7 +983,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   if (this_is_test == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
     for pdb in glob.glob("*.pdb"):
-      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with tRNA and Dieter's molecule
+      command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with GTPase_activation_center and Dieter's molecule
       print "\n\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
       
@@ -1184,26 +1184,26 @@ def run_cryo_fit(logfile, params, inputs):
   
   number_of_available_cores = know_total_number_of_cores()
   number_of_available_cores = number_of_available_cores[:-1] # to remove "\n" at the end
-  test_for_tRNA = False # by default
+  test_for_GTPase_activation_center = False # by default
   
   if ((platform.system() == "Linux") and (kill_mdrun_mpirun_in_linux == True)):
     kill_mdrun_mpirun_in_linux()    
   if (steps_list[0] == True):
-    test_for_tRNA = step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, ignh, missing, remove_metals, cryo_fit_path)
+    test_for_GTPase_activation_center = step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, ignh, missing, remove_metals, cryo_fit_path)
     logfile.write("Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n")
     
   if (steps_list[1] == True):
-    test_for_tRNA = step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, \
+    test_for_GTPase_activation_center = step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
     logfile.write("Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n")
   
   if str(constraint_algorithm_minimization) != "none_default": # this is default for "regression"
     if (steps_list[2] == True):
-      test_for_tRNA = step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
+      test_for_GTPase_activation_center = step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
              time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path)
       logfile.write("Step 3 (Make a tpr file for minimization) is successfully ran\n")
     if (steps_list[3] == True):
-      test_for_tRNA = step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
+      test_for_GTPase_activation_center = step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
                             number_of_cores_to_use, model_file_without_pathways, cryo_fit_path)
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   else: #str(constraint_algorithm_minimization) = "none_default"
@@ -1234,15 +1234,15 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write("Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n")
   
   if (steps_list[4] == True):
-    test_for_tRNA = step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path)
+    test_for_GTPase_activation_center = step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path)
     logfile.write("Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n")
   
   if (steps_list[5] == True):
-    test_for_tRNA = step_6(command_path, starting_dir, model_file_without_pathways)
+    test_for_GTPase_activation_center = step_6(command_path, starting_dir, model_file_without_pathways)
     logfile.write("Step 6 (Make all charges of atoms be 0) is successfully ran\n")
   
-  if (test_for_tRNA == True):
-    return 0 # return early for tRNA regression of step 1~6
+  if (test_for_GTPase_activation_center == True):
+    return 0 # return early for GTPase_activation_center regression of step 1~6
   
   cc_has_been_increased = True # just an initial value
   charge_group_moved = True # just an initial value
@@ -1252,7 +1252,7 @@ def run_cryo_fit(logfile, params, inputs):
   map_file_with_pathways = returned[0]
   map_file_without_pathways = returned[1]
   
-  if (model_file_without_pathways == "tRNA_tutorial.pdb"):
+  if (model_file_without_pathways == "GTPase_activation_center_tutorial.pdb"):
     no_rerun = True
     number_of_steps_for_cryo_fit = 5000
     #number_of_steps_for_cryo_fit = 100 # for devel
@@ -1265,17 +1265,17 @@ def run_cryo_fit(logfile, params, inputs):
   re_run_with_higher_map_weight = False # this is a proper initial assignment
   
   while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
-    if ((test_for_tRNA == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
+    if ((test_for_GTPase_activation_center == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
                                 and steps_list[6] == False and steps_list[7] == False)):
       break
     
     if (steps_list[6] == True):
-      test_for_tRNA = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
+      test_for_GTPase_activation_center = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
              emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path)
       logfile.write("Step 7 (Make a tpr file for cryo_fit) is successfully ran\n")
       
-      if (test_for_tRNA == True):
+      if (test_for_GTPase_activation_center == True):
         return 0 # return early for regression of step 7
     
     if (steps_list[7] == True):
@@ -1283,10 +1283,10 @@ def run_cryo_fit(logfile, params, inputs):
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
       
-      if (results == True): # this is a test for tRNA
-        test_for_tRNA = True
-        print "This is a test for tRNA, so break early of this step 7 & 8 loop"
-        return 0 # return early for tRNA regression of step 8
+      if (results == True): # this is a test for GTPase_activation_center
+        test_for_GTPase_activation_center = True
+        print "This is a test for GTPase_activation_center, so break early of this step 7 & 8 loop"
+        return 0 # return early for GTPase_activation_center regression of step 8
       
       if results == "failed":
         return "failed" # flatly failed
@@ -1308,7 +1308,7 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = "re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n"
           print write_this
           logfile.write(write_this)
-          test_for_tRNA = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
+          test_for_GTPase_activation_center = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
           exit(1)
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
@@ -1368,9 +1368,9 @@ def run_cryo_fit(logfile, params, inputs):
         re_run_with_higher_map_weight = False
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
   
-  test_for_tRNA = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
+  test_for_GTPase_activation_center = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                             cryo_fit_path) # just to arrange final output
-  if (test_for_tRNA == False):
+  if (test_for_GTPase_activation_center == False):
     return results
   
   # keep for now for this cc draw

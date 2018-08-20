@@ -37,8 +37,8 @@ if (__name__ == "__main__") :
     libtbx.easy_run.call(command=command_string)
   
     
-    ############# test 2, tutorial tRNA, each steps ###############
-    regression_path_2 = os.path.join(regression_path, 'phenix_regression/cryo_fit/tRNA')
+    ############# test 2, tutorial GTPase_activation_center, each steps ###############
+    regression_path_2 = os.path.join(regression_path, 'phenix_regression/cryo_fit/GTPase_activation_center')
     print "regression_path_2:", regression_path_2
     os.chdir(regression_path_2)
     
@@ -52,11 +52,11 @@ if (__name__ == "__main__") :
     libtbx.easy_run.call(command=command_string)
   
   
-    ##########  don't run this test 3, tutorial_tRNA for all steps, since it takes 2 minutes #####
-    ########## tutorial_tRNA for each steps run individually anyway ##########
+    ##########  don't run this test 3, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
+    ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########
     '''
-    pdb_file_name = 'tRNA_tutorial.pdb'
-    map_file_name = 'tRNA_tutorial.map'
+    pdb_file_name = 'GTPase_activation_center_tutorial.pdb'
+    map_file_name = 'GTPase_activation_center_tutorial.map'
   
     # added by Nigel? temporarily disabled since on Doonam's macbook pro can't run this
     
