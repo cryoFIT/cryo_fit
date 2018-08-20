@@ -342,7 +342,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   print "\tCurrent working directory: %s" % cw_dir
   
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)  
-  if (number_of_atoms_in_input_pdb < 7000): # GTPase_activation_center for development (transmin1_gro.pdb). This is just for short test purpose only
+  if (number_of_atoms_in_input_pdb < 7000): # GTPase_activation_center for development.
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 7 seconds to make a gro file.\n"
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
     print "\tApproximately, for this number of atoms, one 3.1 GHz Intel Core i7 took 4 minutes to make a gro file.\n"
