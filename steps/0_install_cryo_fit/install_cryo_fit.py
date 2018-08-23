@@ -4,6 +4,19 @@ from subprocess import check_output, Popen, PIPE # for FFTW_INSTALL
 from os.path import expanduser # to find home_dir
 import platform
 
+def id_shell():
+  from os import environ
+  print "User is using ", environ['SHELL'] , " shell"
+  splited = environ['SHELL'].split("/")
+  shell = splited[2]
+  return shell
+#################### end of id_shell ()
+
+shell = id_shell()
+if shell == "csh":
+  print "Cshell may not import libtbx properly, you may consider to change your shell to bash and install again"
+  print "\nHit enter key to continue."
+  raw_input()
 # some header(s) among these are needed for libtbx.env.dist_path
 # I confirmed that "from cctbx import maptbx", "import iotbx.pdb",  "import iotbx.pdb.mmcif" are not needed for libtbx.env.dist_path and cryo_fit installation
 from libtbx import phil
@@ -18,7 +31,7 @@ print "cryo_fit_repository_dir:", cryo_fit_repository_dir
 
 common_functions_path = cryo_fit_repository_dir + "/common_functions/"
 sys.path.insert(0, common_functions_path)
-print "common_functions_path:",common_functions_path
+print "common_functions_path:", common_functions_path
 from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
 
 def add_path(GMX_MD_INSTALL, shell):
@@ -404,16 +417,8 @@ def make_this_folder_if_not_exists(GMX_MD_INSTALL):
 #################### end of make_this_folder_if_not_exists ()
 
 
-def id_shell():
-  from os import environ
-  print "User is using ", environ['SHELL'] , " shell"
-  splited = environ['SHELL'].split("/")
-  shell = splited[2]
-  return shell
-#################### end of id_shell ()
-
-
 if (__name__ == "__main__") :
+  print "main"
   total_start_time = time.time()
   shell = id_shell()
   
