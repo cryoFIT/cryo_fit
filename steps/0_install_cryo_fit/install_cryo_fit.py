@@ -17,9 +17,9 @@ if shell == "csh":
   print "Cshell may not import libtbx properly, you may consider to change your shell to bash and install again"
   print "\nHit enter key to continue."
   raw_input()
+  
 # some header(s) among these are needed for libtbx.env.dist_path
-# I confirmed that "from cctbx import maptbx", "import iotbx.pdb",  "import iotbx.pdb.mmcif" are not needed for libtbx.env.dist_path and cryo_fit installation
-from libtbx import phil
+from libtbx import phil # with cshell, Doonam and Jun Dong can't import this! (with bash, no problem)
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from libtbx.utils import multi_out
