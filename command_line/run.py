@@ -11,8 +11,7 @@
 # 6_Make_0_charge
 # 7_Make_tpr_for_EM_map_fitting
 # 8_EM_map_fitting_itself
-# 9_Arrange_outputs
-# (not used now) # 9_Draw_a_figure_of_cc
+# 9_Arrange_outputs (including draw_a_figure_of_cc)
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
 from iotbx import file_reader
@@ -124,10 +123,6 @@ Steps
     .type = bool
     .short_caption = 7. Fit to a cryo-EM map
     .help = Fit a user given structure into a user given cryo-EM map
-  step_9 = False
-    .type = bool
-    .short_caption = 8. Show cc (optional)
-    .help = Show correlation coefficient change
 }
 Options
 {
@@ -285,7 +280,6 @@ def validate_params(params): # validation for GUI
     raise Sorry("Map file should be given")
   if (params.cryo_fit.Input.model_file_name is None):
     raise Sorry("Model file should be given")
-  
   
   file_reader.any_file(
     file_name = params.cryo_fit.Input.model_file_name).check_file_type(expected_type = 'pdb')
@@ -923,7 +917,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   this_is_test = False # just initial value assignment
   splited_starting_dir = starting_dir.split("/")
   
-  cp_command_string = "cp " + command_path + "steps/10_after_cryo_fit/*.py ."
+  cp_command_string = "cp " + command_path + "steps/9_after_cryo_fit/*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   logfile.close() # to write user's cc for now
@@ -950,6 +944,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     libtbx.easy_run.fully_buffered(cp_command_string)
     
     print "\n\tExtract .gro files from the 3 highest cc values."
+    if os.path.isfile("extract_3_highest_cc_gro.py") == False:
+      print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
     command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
@@ -1023,7 +1019,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tTo draw a figure for cc,"
-  print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_draw_cc_commandline/draw_cc.py cc_record"
+  print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
   trajectory_message = '''
@@ -1068,9 +1064,9 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 ''' not used now, but keep
 def step_9(command_path, starting_dir):
   show_header("Step 9: Show Correlation Coefficient")
-  remake_and_move_to_this_folder(starting_dir, "steps/9_draw_cc_commandline")
+  remake_and_move_to_this_folder(starting_dir, "steps/9_after_cryo_fit/draw_cc")
   
-  command_string = "cp " + command_path + "steps/9_draw_cc_commandline/draw_cc.py ."
+  command_string = "cp " + command_path + "steps/9_after_cryo_fit/draw_cc/draw_cc.py ."
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -1120,7 +1116,7 @@ def run_cryo_fit(logfile, params, inputs):
   bool_step_6 = params.cryo_fit.Steps.step_6
   bool_step_7 = params.cryo_fit.Steps.step_7
   bool_step_8 = params.cryo_fit.Steps.step_8
-  bool_step_9 = params.cryo_fit.Steps.step_9
+  #bool_step_9 = params.cryo_fit.Steps.step_9
   
   returned = assign_model_name(params, starting_dir, inputs, params.cryo_fit.Input.model_file_name)
   model_file_with_pathways = returned[0]
@@ -1164,7 +1160,7 @@ def run_cryo_fit(logfile, params, inputs):
     params.cryo_fit.Options.number_of_steps_for_cryo_fit
   
   steps_list = [bool_step_1, bool_step_2, bool_step_3, bool_step_4, bool_step_5, bool_step_6, bool_step_7\
-                , bool_step_8, bool_step_9]
+                , bool_step_8]
   print "\tsteps_list: ", steps_list # this is shown in GUI
   make_new_steps_folder = True
   for i in range(len(steps_list)-1): # don't care step_8 for now
@@ -1254,7 +1250,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (model_file_without_pathways == "GTPase_activation_center_tutorial.pdb"):
     no_rerun = True
-    number_of_steps_for_cryo_fit = 5000
+    number_of_steps_for_cryo_fit = 70000
     #number_of_steps_for_cryo_fit = 100 # for devel
   
   if (devel == True):
