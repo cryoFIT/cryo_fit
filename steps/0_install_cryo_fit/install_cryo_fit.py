@@ -19,7 +19,7 @@ if shell == "csh":
   raw_input()
   
 # some header(s) among these are needed for libtbx.env.dist_path
-from libtbx import phil # with cshell, Doonam and Jun Dong can't import this! (with bash, no problem)
+from libtbx import phil # with cshell, Doonam and Jun Dong can't import libtbx! (with bash, no problem)
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from libtbx.utils import multi_out

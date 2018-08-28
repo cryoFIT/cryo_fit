@@ -972,7 +972,7 @@ def show_time(time_start, time_end):
     else:
       time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
     return time_took
-# end of show_time function
+############### end of show_time function
 
 def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx, retranslate_to_original):
     #print "\ttranslate_pdb_file_by_xyz"

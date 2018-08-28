@@ -264,7 +264,7 @@ def print_author():
   print """\
  %s
   cryo_fit %s 
-    - Doo Nam Kim, Serdal Kirmizialtin, Nigel Moriarty, Tom Terwilliger, Billy Poon
+    - Doo Nam Kim, Nigel Moriarty, Serdal Kirmizialtin, Tom Terwilliger, Billy Poon, Karissa Sanbonmatsu
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
 
