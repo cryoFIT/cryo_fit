@@ -126,7 +126,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
 
   step_number_for_judging = 30
   if (len(cc_has_been_increased_array) < step_number_for_judging):
-    print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < least_step_number_for_judging (", step_number_for_judging, ")"
+    print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < step_number_for_judging (", step_number_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
     print "\t\tTherefore, cryo_fit just hypothetically consider as if the most recent CCs have been increased for now."
     return True 
@@ -169,13 +169,13 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     '\t\t\t\t Then, the cryo_fit calculates the gradient of CC because of the large empty space not filled. \n'
     '\t\t\t\t The constraint forces for the model are not helping as they are very small.\n'
     '\t\t\t\t 3-1) Re-run cryo_fit with an atomic model that fits the majority of the map. \n'
-    '\t\t\t\t      Consider to fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. \n'
-    '\t\t\t\t      Consider to watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12  \n'
+    '\t\t\t\t      Fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. \n'
+    '\t\t\t\t      Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12  \n'
     
     '\n\t\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
     
     '\n\t\t\t 4) If the initial model is not properly aligned to a map, \n'
-    '  \t\t\t     consider to fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
+    '  \t\t\t     fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
     
     '\n\t\t Here, cryo_fit will try stronger map weight automatically.\n'
     )
@@ -183,17 +183,18 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
     
-  if (cc_has_been_increased > cc_has_been_decreased*1.3): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    cc_40th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
-    if (cc_last > cc_40th_last):
-        print "\t\tcc_last (",cc_last,") > cc_40th_last (", cc_40th_last, ")"
+  #if (cc_has_been_increased > cc_has_been_decreased*1.4): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
+  if (cc_has_been_increased > cc_has_been_decreased*1.5): # for development purpose
+    cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    if (cc_last > cc_30th_last):
+        print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        print "\t\tcc_last (",cc_last,") < cc_40th_last (", cc_40th_last, ")"
+        print "\t\tcc_last (",cc_last,") < cc_30th_last (", cc_30th_last, ")"
         return False
   else:
-    return False # the last 40 cc values tend NOT to be increased
-# end of check_whether_cc_has_been_increased function
+    return False # the last 30 cc values tend NOT to be increased
+############################ end of check_whether_cc_has_been_increased function
 
         
 def check_whether_install_is_done(check_this_file_w_path):
@@ -216,7 +217,7 @@ def check_whether_install_is_done(check_this_file_w_path):
         print "Example usage: python ~/bin/phenix-1.13rc1-2961/modules/cryo_fit/steps/0_install_cryo_fit/install_cryo_fit.py ~/Downloads/gromacs_cryo_fit.zip ~/cryo_fit False"
         color_print ("exit now", 'red')
         exit(1)
-# end of check_whether_install_is_done()
+######################### end of check_whether_install_is_done()
 
 def check_whether_mdrun_is_accessible():
     long_message  = """
@@ -244,7 +245,7 @@ def check_whether_mdrun_is_accessible():
     except:
         print long_message
         return False
-# end of check_whether_mdrun_is_accessible()
+######################## end of check_whether_mdrun_is_accessible()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     if (os.path.isfile(check_this_file)):
@@ -256,7 +257,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     if (step_name == "Step 4" or step_name == "Step 8"):
       return "failed"
     exit(1)
-# end of check_whether_the_step_was_successfully_ran function
+######################## end of check_whether_the_step_was_successfully_ran function
 
 def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     if (os.path.isfile(check_this_file)):
@@ -291,7 +292,7 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     print (msg)
     logfile.write(msg)
     exit(1)
-# end of check_whether_the_step_was_successfully_ran function
+######################## end of check_whether_the_step_was_successfully_ran function
 
 def cif_as_pdb(file_name):  
     try:
@@ -792,7 +793,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         return new_map_file_name_w_ori_origins
     else:
         return new_map_file_name
-# end of mrc_to_sit(map_file_name)
+################ end of mrc_to_sit(map_file_name)
 
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
@@ -801,7 +802,7 @@ def remake_and_move_to_this_folder(starting_dir, this_folder):
   
   new_path = starting_dir + "/" + this_folder
   os.chdir( new_path )
-# end of remake_and_move_to_this_folder function
+################ end of remake_and_move_to_this_folder function
 
 def remake_this_folder(this_folder):
   if (os.path.isdir(this_folder) == True):
@@ -819,7 +820,7 @@ def remove_former_files():
         or (each_file == "cryo_fit_log") or (each_file[-4:] == ".log") or (each_file == "md.log") \
         or (each_file[-4:] == ".trr") or (each_file[-4:] == ".xtc") or (each_file == "md.out"):
           subprocess.call(["rm", each_file])
-# end of remove_former_files function 
+############################## end of remove_former_files function 
 
 def remove_water_for_gromacs(input_pdb_file_name):
     f_in = open(input_pdb_file_name)
@@ -844,7 +845,7 @@ def remove_water_for_gromacs(input_pdb_file_name):
           for residue in residues:
             print "residue.resname:", residue.resname
     '''
-#end of remove_water_for_gromacs ()
+########################### end of remove_water_for_gromacs ()
 
 def renumber_cc_record_full(cc_record_full):
    f_in = open(cc_record_full)
@@ -874,7 +875,7 @@ def renumber_cc_record_full(cc_record_full):
          f_out.write(new_line)
          old_step = step
    f_out.close()
-# end of renumber_cc_record_full
+################################ end of renumber_cc_record_full
 
 def return_number_of_atoms_in_gro():
   for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5

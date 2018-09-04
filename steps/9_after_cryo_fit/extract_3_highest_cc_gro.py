@@ -1,20 +1,22 @@
 import os, subprocess, sys
 
+# It is ESSENTIAL to adjust step number if restarted
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart."
     f = open('../restart_record.txt', 'r')
     # count # of lines
-    i = 0
+    number_of_lines = 0
     for line in f:
-        i = i + 1
+        number_of_lines = number_of_lines + 1
     f.close()
     
     f = open('../restart_record.txt', 'r')
     j = 0
     last_step_to_be_added = '' # initial
     for line in f:
+        last_step_to_be_added = int(line) # just in case when there is only one value like nucleosome case
         j = j + 1
-        if (j == (i - 1)):
+        if (j == (number_of_lines - 1)):
             last_step_to_be_added = int(line)
             break
     f.close()
@@ -28,62 +30,107 @@ def adjust_step_number():
        f_out.write(new_line)
     f_in.close()
     f_out.close()
+    
+    #for development
+    #command_string = "cp cc_record cc_record_before_adjustment"
+    #os.system(command_string)
+    #command_string = "cp cc_record_adjusted_step cc_record_after_adjustment"
+    #os.system(command_string)s
+
     command_string = "mv cc_record_adjusted_step cc_record"
     os.system(command_string)
-# end of def adjust_step_number ()
-    
+################# end of def adjust_step_number ()
+
+
 def extract_gro(target_step, i, cc, cryo_fit_path):
     for_cryo_fit_mdp_location = ''
     
     if this_is_test == "False":
         for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
     else:
-        print "\tthis_is_test in extract_gro:", this_is_test
+        print "\t This is a test in extract_gro"
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
-        
+    
+    #f_out = open('log_extract.txt', 'at+')
+    
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
+    #write_this = "\n" + grep_dt_string + "\n"
+    #f_out.write(write_this)
+    
     print "\t\t\t\tcommand:", grep_dt_string
     result = os.popen(grep_dt_string).read()
     splited = result.split()
     dt = splited[2]
+
+    print_this = "\t\t\t\tdt:" + dt + "\n"
+    print print_this
+    #f_out.write(print_this)
     
     grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
     result = os.popen(grep_nsteps_string).read()
     splited = result.split()
     nsteps = splited[2]
+    print_this = "\t\t\t\tnsteps:" + str(nsteps) + "\n"
+    print print_this
+    #f_out.write(print_this)
     
     total_ps = float(dt)*float(nsteps)
-    print "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = ", total_ps
+
+    print_this = "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
+    print print_this
+    #f_out.write(print_this)
     
-    print "\t\t\t\tTherefore, total mdrun running time was: ", total_ps, "pico (10^-12) second"
-    print "\t\t\t\tCryo_fit needs to extract a gro file from ", target_step, "steps"
+    ''' reading_frame is relevant only when restarted
+    print_this = "\t\t\t\tEstimated reading_frame = total_ps/((dt)*1,000) = " + str(float(total_ps)/((float(dt))*1000.0)) + " ps \n"
+    print print_this
+    f_out.write(print_this)
+    '''
+    
+    print_this = "\t\t\t\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
+    print print_this
+    #f_out.write(print_this)
+    
+    print_this = "\t\t\t\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
+    print print_this
+    #f_out.write(print_this)
+        
+    print_this = "\t\t\t\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
+    print print_this
+    #f_out.write(print_this)
+
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
-    print "\t\t\t\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)"
-    print "\t\t\t\tTherefore, the cryo_fit will extract a gro file from ", target_ps, "ps"
+    print_this = "\t\t\t\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
+    print print_this
+    #f_out.write(print_this)
     
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
+    
     os.system("echo 0 > input_parameters") # to select system
     
     cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
+    print "\t\t\t\tcommand: ",cmd
+    #write_this = "\t\t\t\t" + cmd + "\n"
+    #f_out.write(write_this)
     os.system(cmd)
     
     if (i == 0):
         print "\t\t\t\t", target_step, " step has the highest cc"
-        #if (target_step == "0"): # works as expected
-        #    print "\t\t\t\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
-        #    cmd = "mv " + output_gro_name + " user_provided.gro"
-        #    print "\t\t\t\t\tcommand:", cmd, "\n"
-        #    os.system(cmd)
-        #else:
-        users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
-        if (float(cc) > float(users_cc)):
-            print "\t\t\t\tso rename it to cryo_fitted.gro"
-            cmd = "mv " + output_gro_name + " cryo_fitted.gro"
-            print "\t\t\t\t\tcommand:", cmd, "\n"
-            os.system(cmd)
+        if (target_step == "0"): # works as expected
+           print "\t\t\t\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
+           cmd = "mv " + output_gro_name + " user_provided.gro"
+           print "\t\t\t\t\tcommand:", cmd, "\n"
+           os.system(cmd)
+        else:
+            users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
+            if (float(cc) > float(users_cc)):
+                print "\t\t\t\tso rename it to cryo_fitted.gro"
+                cmd = "mv " + output_gro_name + " cryo_fitted.gro"
+                print "\t\t\t\t\tcommand:", cmd, "\n"
+                os.system(cmd)
     os.remove("input_parameters")
-# end of extract_gro function
+    #f_out.close()
+################# end of extract_gro function
 
 def get_users_cc_from_overall_log(log):
   f_in = open(log)
@@ -95,21 +142,30 @@ def get_users_cc_from_overall_log(log):
         f_in.close()
         print "\tUser provided atomic model's cc: ", cc
         return cc
-# end of get_users_cc(cc_record)
+################# end of get_users_cc(cc_record)
 
 if (__name__ == "__main__") :
     args=sys.argv[1:]
     this_is_test = args[0]
     cryo_fit_path = args[1]
 
-    print "\n\t\textract_3_highest_cc_gro"
+    print "\n\t\tExtract 3 highest cc gro (among the whole run, not just the last run)"
+    # Although I assign number_of_steps_for_cryo_fit*2 as a new number_of_steps_for_cryo_fit,
+    #due to state.cpt, mdrun runs only until a new number_of_steps_for_cryo_fit INCLUDING FORMERLY RAN STEPS  
     
-    # adjust step number if needed
+    # The last run probably has the highest CC anyway, so let me extract only in the last run.
+    # traj.xtc is overwritten every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
+    # Actually previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
+    # --> so cc_record_full_renumbered should NOT be used for extrqcting gro, should be used only for overall cc change
+
+    # adjust step number if I restarted
     if (os.path.isfile("../restart_record.txt") == True):
         adjust_step_number ()
         os.remove("../restart_record.txt") # only for development, keep this file
     
+    # this cc_record is step_adjusted if restarted
     result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]

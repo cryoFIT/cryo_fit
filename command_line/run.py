@@ -22,10 +22,9 @@ from libtbx.utils import multi_out
 import mmtbx.utils
 import platform
 import shutil # for rmdir
-from subprocess import check_output
 
 # this is needed to import all common functions
-path = check_output(["which", "phenix.cryo_fit"])
+path = subprocess.check_output(["which", "phenix.cryo_fit"])
 splited = path.split("/")
 command_path = ''
 for i in range(len(splited)-3):
@@ -259,7 +258,7 @@ def print_author():
   print """\
  %s
   cryo_fit %s 
-    - Doo Nam Kim, Nigel Moriarty, Serdal Kirmizialtin, Tom Terwilliger, Billy Poon, Karissa Sanbonmatsu
+    - Doo Nam Kim, Nigel Moriarty, Serdal Kirmizialtin, Billy Poon, Karissa Sanbonmatsu
  %s""" % ("-"*78, version, "-"*78)
 # end of print_author()
 
@@ -439,7 +438,6 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   return this_is_test
 # end of step_2 (clean gro) function
 
-
 def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
            time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path):
   show_header("Step 3: Make a tpr file for minimization")
@@ -514,7 +512,6 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
     return False
   return this_is_test
 # end of step_3 (prepare minimization) function
-
 
 def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
            number_of_cores_to_use, model_file_without_pathways, cryo_fit_path):
@@ -630,7 +627,6 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   return this_is_test
 # end of step_4 (minimization) function
     
-    
 def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
   show_header("Step 5: Make contact potential (constraints) and topology file with it")
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_constraints")
@@ -664,7 +660,6 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
   return this_is_test
 # end of step_5 (make constraints) function
 
-
 def step_6(command_path, starting_dir, model_file_without_pathways):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
@@ -697,8 +692,7 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
   if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     return False
   return this_is_test
-# end of step_6 (neutralize) function
-    
+######################## end of step_6 (neutralize charge) function
 
 def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
            emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, \
@@ -732,7 +726,8 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           fout.write(new_line)
         elif splited[0] == "emsteps":
           if (emsteps == None):
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/80)) + "\n" # to make cryo_fit step 8 faster
+              #new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/80)) + "\n" # to make cryo_fit step 8 faster
+              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/100)) + "\n" # to make cryo_fit step 8 faster
               # when emsteps is too sparse, cc went to become worse
               fout.write(new_line)
           else:
@@ -778,8 +773,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     return False
   return this_is_test
-# end of step_7 (make tpr for cryo_fit) function
-           
+########################### end of step_7 (make tpr for cryo_fit) function        
            
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
        map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight, \
@@ -906,7 +900,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   os.chdir( starting_dir )
     
   return results
-# end of step_8 (cryo_fit itself) function
+######################################## end of step_8 (cryo_fit itself) function
 
 def step_final(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
   os.chdir( starting_dir )
@@ -949,14 +943,14 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
-  
-    os.remove("cc_record")
+    
+    os.remove("cc_record") # step number not adjusted or renumbered, just in the last run
 
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for Chimera/Gromacs/VMD)"
     print "\t\t(.pdb file is for Chimera/ChimeraX/Pymol/VMD)"
     
-    for extracted_gro in glob.glob("*.gro"):
+    for extracted_gro in glob.glob("*.gro"): # just deals .gro files in alphabetical order not in cc order
       command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
       print "\t\tcommand: ", command_string
       libtbx.easy_run.fully_buffered(command_string)
@@ -1250,7 +1244,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (model_file_without_pathways == "GTPase_activation_center_tutorial.pdb"):
     no_rerun = True
-    number_of_steps_for_cryo_fit = 70000
+    number_of_steps_for_cryo_fit = 70000 # this is the ideal steps for reaching a plateau
     #number_of_steps_for_cryo_fit = 100 # for devel
   
   if (devel == True):
@@ -1261,7 +1255,8 @@ def run_cryo_fit(logfile, params, inputs):
   re_run_with_higher_map_weight = False # this is a proper initial assignment
   
   while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
-    if ((test_for_GTPase_activation_center == True) or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
+    if ((test_for_GTPase_activation_center == True) \
+                                or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
                                 and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
                                 and steps_list[6] == False and steps_list[7] == False)):
       break
@@ -1326,10 +1321,11 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        write_this = "Therefore, step 7 & 8 will re-run with longer steps (" + str(number_of_steps_for_cryo_fit) + ")\n\n"
+        write_this = "Therefore, step 7 & 8 will re-run with longer steps (including already ran steps, up to " + str(number_of_steps_for_cryo_fit) + ")\n\n"
         print write_this
         logfile.write(write_this)
         
+        # restart_record.txt is essential to extract gro from traj.xtc when restarted
         restart_record = open("../../restart_record.txt", "a+")
         write_this = str(number_of_steps_for_cryo_fit)+"\n"
         restart_record.write(write_this)
@@ -1347,7 +1343,7 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
-        write_this = "Therefore, step 7 & 8 will re-run with higher emweight_multiply_by (e.g. " + str(emweight_multiply_by) + ")\n\n"
+        write_this = "Therefore, step 7 & 8 will re-run with a higher emweight_multiply_by (e.g. " + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
         re_run_with_higher_map_weight = True
