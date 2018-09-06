@@ -32,10 +32,10 @@ def adjust_step_number():
     f_out.close()
     
     #for development
-    #command_string = "cp cc_record cc_record_before_adjustment"
-    #os.system(command_string)
-    #command_string = "cp cc_record_adjusted_step cc_record_after_adjustment"
-    #os.system(command_string)s
+    command_string = "cp cc_record cc_record_before_adjustment"
+    os.system(command_string)
+    command_string = "cp cc_record_adjusted_step cc_record_after_adjustment"
+    os.system(command_string)
 
     command_string = "mv cc_record_adjusted_step cc_record"
     os.system(command_string)
