@@ -23,7 +23,7 @@ def adjust_step_number():
     print "\t\t\t\tAdd this step number to each current step number:", last_step_to_be_added
     
     f_in = open('cc_record', 'r')
-    f_out = open('cc_record_adjusted_step', 'w')
+    f_out = open('cc_record_adjusted_step_use_for_extraction', 'w')
     for line in f_in:
        splited = line.split()
        new_line = splited[0] + " " + str((int(last_step_to_be_added)+int(splited[1]))) + " " + splited[2] + " " + splited[3] + " " + splited[4] + "\n"
@@ -31,14 +31,7 @@ def adjust_step_number():
     f_in.close()
     f_out.close()
     
-    #for development
-    command_string = "cp cc_record cc_record_before_adjustment"
-    os.system(command_string)
-    command_string = "cp cc_record_adjusted_step cc_record_after_adjustment"
-    os.system(command_string)
-
-    command_string = "mv cc_record_adjusted_step cc_record"
-    os.system(command_string)
+    os.remove("cc_record") # no longer neeeded
 ################# end of def adjust_step_number ()
 
 
@@ -164,7 +157,7 @@ if (__name__ == "__main__") :
         os.remove("../restart_record.txt") # only for development, keep this file
     
     # this cc_record is step_adjusted if restarted
-    result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
     
     for i in range(len(result)):
         splited = result[i].split()

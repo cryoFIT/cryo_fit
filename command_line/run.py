@@ -943,8 +943,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
-    
-    os.remove("cc_record") # step number not adjusted or renumbered, just in the last run
 
     print "\n\tConvert .gro -> .pdb"
     print "\t\t(.gro file is for Chimera/Gromacs/VMD)"
