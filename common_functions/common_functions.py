@@ -183,8 +183,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
     
-  #if (cc_has_been_increased > cc_has_been_decreased*1.4): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-  if (cc_has_been_increased > cc_has_been_decreased*1.5): # for development purpose
+  if (cc_has_been_increased > cc_has_been_decreased*1.35): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
+  #if (cc_has_been_increased > cc_has_been_decreased*1.5): # for development purpose
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     if (cc_last > cc_30th_last):
         print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
@@ -1037,4 +1037,4 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
     f_in.close()
     f_out.close()
     return output_pdb_file_name   
-# end of translate_pdb_file_by_xyz ()
+########### end of translate_pdb_file_by_xyz ()
