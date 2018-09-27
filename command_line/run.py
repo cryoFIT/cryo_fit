@@ -1023,19 +1023,20 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
                 To see a trajectory movie (a user can open a map at the same time of course)
                    
                    <UCSF Chimera 1.13 or later>
-                     Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
+                     (menu) Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
                      .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)
                    
                    <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
-                     File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
-                     File -> Open -> .../user.map
-                     open .../output/trajectory/traj.xtc structureModel #1
-                     coordset slider #1
+                     (menu) File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
+                     (command) rainbow
+                     (menu) File -> Open -> .../user.map
+                     (command) open .../output/trajectory/traj.xtc structureModel #1
+                     (command) coordset slider #1
                      Click black play button to play
                      Click red record button to record movie as .mp4 file
                       
                    <VMD 1.9.3 or later>
-                     File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load
+                     (menu) File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load
   '''
   print trajectory_message
   
