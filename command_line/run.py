@@ -845,9 +845,14 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   if (returned != "success"):
     print "Step 8 (Run cryo_fit) didn't run successfully"
     logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
+    
+    if (returned == "failed_with_nan_in_cc"):
+      return "failed_with_nan_in_cc"
+    
     searched = search_charge_in_md_log()
-    print "searched:", searched
+    print "searched charge string in md.log:", searched
     if searched == 0: # no "charge group... " message in md.log
+      print "no \"charge group... \" message in md.log"
       return "failed"
     else:
       return "re_run_w_smaller_MD_time_step"
@@ -1277,7 +1282,12 @@ def run_cryo_fit(logfile, params, inputs):
         print "This is a test for GTPase_activation_center, so break early of this step 7 & 8 loop"
         return 0 # return early for GTPase_activation_center regression of step 8
       
-      if results == "failed":
+      if (results == "failed_with_nan_in_cc"):
+        print "\tStep 8 failed with nan error in cc calculation, the initial structure could be too far away from cryo-EM map\n"
+        logfile.write("\tStep 8 failed with nan error in cc calculation, the initial structure could be too far away from cryo-EM map\n")
+        return "failed" # flatly failed
+      
+      if (results == "failed"):
         return "failed" # flatly failed
       
       elif results == "re_run_w_smaller_MD_time_step":
@@ -1366,7 +1376,7 @@ def run_cryo_fit(logfile, params, inputs):
   # keep for now for this cc draw
   #if (steps_list[8] == True):
   #  step_9(command_path, starting_dir, model_file_without_pathways, map_file_without_pathways)
-# end of run_cryo_fit function
+############################# end of run_cryo_fit function
 
 # parse through command line arguments
 def cmd_run(args, validated=False, out=sys.stdout):

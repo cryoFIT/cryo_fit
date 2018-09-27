@@ -251,6 +251,13 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     if (os.path.isfile(check_this_file)):
         returned_file_size = file_size(check_this_file)
         if (returned_file_size > 0):
+            if (step_name == "Step 8"):
+                with open(check_this_file) as cc_record_file:
+                    if "nan" in cc_record_file.read():
+                        cc_record_file.close()
+                        return "failed_with_nan_in_cc"
+                    else:
+                        cc_record_file.close()
             print step_name, " successfully ran"
             return "success"
     print step_name, " didn't successfully run"
