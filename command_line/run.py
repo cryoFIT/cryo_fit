@@ -1024,7 +1024,10 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
                    
                    <UCSF Chimera 1.13 or later>
                      [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
-                     .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK -> (click play button)
+                     .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK
+                     [menu] Tools -> Depiction -> Rainbow -> Apply
+                     [menu] File -> Open -> .../user.map
+                     (in MD Movie) click play button
                    
                    <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
                      [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
