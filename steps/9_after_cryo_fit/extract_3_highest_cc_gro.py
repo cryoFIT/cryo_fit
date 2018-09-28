@@ -141,6 +141,7 @@ if (__name__ == "__main__") :
     args=sys.argv[1:]
     this_is_test = args[0]
     cryo_fit_path = args[1]
+    no_rerun = args[2]
 
     print "\n\t\tExtract 3 highest cc gro (among the whole run, not just the last run)"
     # Although I assign number_of_steps_for_cryo_fit*2 as a new number_of_steps_for_cryo_fit,
@@ -156,8 +157,12 @@ if (__name__ == "__main__") :
         adjust_step_number ()
         os.remove("../restart_record.txt") # only for development, keep this file
     
-    # this cc_record is step_adjusted if restarted
-    result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+    result = '' # initial temporary assignment
+    if (no_rerun == "False"): # default running
+        # this cc_record is step_adjusted if restarted
+        result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+    else:
+        result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     
     for i in range(len(result)):
         splited = result[i].split()

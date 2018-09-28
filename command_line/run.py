@@ -862,19 +862,20 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     user_s_cc = round(float(user_s_cc),3)
     write_this = "\nUser's provided atomic model had " + str(user_s_cc) + " cc\n\n"
     logfile.write(write_this)
-    
-  cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
-  print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
   
-  if (devel == True):
-      no_rerun = True
   if (no_rerun == False):
-    if cc_has_been_increased == True:
-      return "re_run_with_longer_steps"
-    elif cc_has_been_increased == "re_run_with_higher_map_weight":
-      return "re_run_with_higher_map_weight"
-    else:
-      print "\tcc has been saturated, so go ahead to the next step"
+    cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
+    print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
+    
+    if (devel == True):
+        no_rerun = True
+    if (no_rerun == False):
+      if cc_has_been_increased == True:
+        return "re_run_with_longer_steps"
+      elif cc_has_been_increased == "re_run_with_higher_map_weight":
+        return "re_run_with_higher_map_weight"
+      else:
+        print "\tcc has been saturated, so go ahead to the next step"
   
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
@@ -907,7 +908,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   return results
 ######################################## end of step_8 (cryo_fit itself) function
 
-def step_final(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
+def step_final(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path, no_rerun):
   os.chdir( starting_dir )
   time_start = time.time()
   show_header("Step 9 (final): Arrange output")
@@ -945,7 +946,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     print "\n\tExtract .gro files from the 3 highest cc values."
     if os.path.isfile("extract_3_highest_cc_gro.py") == False:
       print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
-    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path)
+    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path) + " " + str(no_rerun)
     print "\t\tcommand: ", command_string
     libtbx.easy_run.call(command_string)
 
@@ -1064,7 +1065,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   os.chdir( starting_dir )
   return this_is_test
-# end of step_final (arrange output) function
+############################## end of step_final (arrange output) function
 
 ''' not used now, but keep
 def step_9(command_path, starting_dir):
@@ -1315,7 +1316,7 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = "re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n"
           print write_this
           logfile.write(write_this)
-          test_for_GTPase_activation_center = step_final(logfile, command_path, starting_dir, model_file_without_pathways) # just to arrange final output
+          test_for_GTPase_activation_center = step_final(logfile, command_path, starting_dir, model_file_without_pathways, no_rerun) # just to arrange final output
           exit(1)
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
@@ -1377,7 +1378,7 @@ def run_cryo_fit(logfile, params, inputs):
   logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
   
   test_for_GTPase_activation_center = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
-                            cryo_fit_path) # just to arrange final output
+                            cryo_fit_path, no_rerun) # just to arrange final output
   if (test_for_GTPase_activation_center == False):
     return results
   

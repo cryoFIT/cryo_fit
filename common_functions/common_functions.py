@@ -100,7 +100,7 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
   
   os.chdir(starting_dir)
   return model_file_with_pathways, model_file_without_pathways
-# end of assign_model_name()
+####################### end of assign_model_name()
 
 def check_whether_cc_has_been_increased(logfile, cc_record):
   print "\tCheck_whether_cc_has_been_increased"
@@ -128,7 +128,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   if (len(cc_has_been_increased_array) < step_number_for_judging):
     print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < step_number_for_judging (", step_number_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
-    print "\t\tTherefore, cryo_fit just hypothetically consider as if the most recent CCs have been increased for now."
+    print "\t\tTherefore, cryo_fit just hypothetically considers as if the most recent CCs have been increased for now."
     return True 
   
   the_highest_cc = -99
