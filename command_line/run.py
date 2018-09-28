@@ -1020,11 +1020,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
   trajectory_message = '''
-                To see a trajectory movie (a user can open a map at the same time of course)
+                To see/record a trajectory movie
                    
                    <UCSF Chimera 1.13 or later>
                      [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
-                     .tpr = (trajectory/for_cryo_fit.tpr), .xtc = (trajectory/traj.xtc) -> OK
+                     .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
                      [menu] Tools -> Depiction -> Rainbow -> Apply
                      [menu] File -> Open -> .../user.map
                      (in MD Movie) click play button
@@ -1039,7 +1039,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
                      Click red record button to record movie as .mp4 file
                       
                    <VMD 1.9.3 or later>
-                     [menu] File -> New Molecule -> Browse -> (trajectory/trajectory.gro) -> Load
+                     [menu] File -> New Molecule -> Browse -> (.../user.map) -> Load
+                     [menu] Graphics -> Representation -> Draw -> Solid Surface
+                     [menu] Graphics -> Representation -> Material -> Transparent
+                     [menu] Graphics -> Representation -> Show -> Isosurface
+                     [menu] File -> New Molecule -> Browse -> (output/trajectory/trajectory.gro) -> Load
   '''
   print trajectory_message
   
