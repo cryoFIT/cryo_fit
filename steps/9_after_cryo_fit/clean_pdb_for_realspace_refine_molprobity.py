@@ -16,7 +16,7 @@ def clean_main(input_pdb_file_name):
   cmd = "mv " + output_pdb_file_name + " " + final_output_pdb_file_name
   os.system(cmd)
   
-  output_pdb_file_name = clean_for_chimeraX (input_pdb_file_name) 
+  #output_pdb_file_name = clean_for_chimeraX (input_pdb_file_name) 
 ##################################### end of clean_main function
 
 
@@ -62,12 +62,12 @@ def clean(input_pdb_file_name):
       
   f_in.close()
   f_out.close()
-  #cmd = "rm " + input_pdb_file_name
-  #os.system(cmd)
+  cmd = "rm " + input_pdb_file_name
+  os.system(cmd)
   return output_pdb_file_name
 ##################################### end of clean function
 
-
+'''
 def clean_for_chimeraX(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_chimeraX.pdb"
@@ -107,7 +107,7 @@ def clean_for_chimeraX(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 ##################################### end of clean_for_chimeraX function
-
+'''
 
 if (__name__ == "__main__") :
   args=sys.argv[1:]

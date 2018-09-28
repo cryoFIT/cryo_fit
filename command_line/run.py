@@ -1020,33 +1020,38 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
+  print "\n\t\tTo watch/record a trajectory movie, see \"how_to_watch_record_trajectory_movie.txt\""
+  
   trajectory_message = '''
-                To see/record a trajectory movie
-                   
-                   <UCSF Chimera 1.13 or later>
-                     [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
-                     .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
-                     [menu] Tools -> Depiction -> Rainbow -> Apply
-                     [menu] File -> Open -> .../user.map
-                     (in MD Movie) click play button
-                   
-                   <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
-                     [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
-                     [command] rainbow
-                     [menu] File -> Open -> .../user.map (change opacity into 50%)
-                     [command] open .../output/trajectory/traj.xtc structureModel #1
-                     [command] coordset slider #1
-                     Click black play button to play
-                     Click red record button to record movie as .mp4 file
-                      
-                   <VMD 1.9.3 or later>
-                     [menu] File -> New Molecule -> Browse -> (.../user.map) -> Load
-                     [menu] Graphics -> Representation -> Draw -> Solid Surface
-                     [menu] Graphics -> Representation -> Material -> Transparent
-                     [menu] Graphics -> Representation -> Show -> Isosurface
-                     [menu] File -> New Molecule -> Browse -> (output/trajectory/trajectory.gro) -> Load
-  '''
-  print trajectory_message
+  <UCSF Chimera 1.13 or later>
+    [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
+    .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
+    [menu] Tools -> Depiction -> Rainbow -> Apply
+    [menu] File -> Open -> .../user.map
+    (in MD Movie) click play button
+  
+  <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
+    [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
+    [command] rainbow
+    [menu] File -> Open -> .../user.map (change opacity into 50%)
+    [command] cd <user_path>/output/trajectory
+    [command] open traj.xtc structureModel #1
+    (note) Specified structure and coordinates should have the same number of atoms
+    [command] coordset slider #1
+    Click black play button to play
+    Click red record button to record movie as .mp4 file
+     
+  <VMD 1.9.3 or later>
+    [menu] File -> New Molecule -> Browse -> (.../user.map) -> Load
+    [menu] Graphics -> Representation -> Draw -> Solid Surface
+    [menu] Graphics -> Representation -> Material -> Transparent
+    [menu] Graphics -> Representation -> Show -> Isosurface
+    [menu] File -> New Molecule -> Browse -> (output/trajectory/trajectory.gro) -> Load
+'''
+  
+  moviefile = open("how_to_watch_record_trajectory_movie.txt", "w") 
+  moviefile.write(trajectory_message)
+  moviefile.close()
   
   if (returned != "success"):
     write_this = "Step final (arrange output) didn't run successfully"
