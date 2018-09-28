@@ -875,7 +875,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
         return "re_run_with_higher_map_weight"
       else:
-        print "\tcc has been saturated, so go ahead to the next step"
+        print "\tcc has been saturated, so go ahead to the next step (e.g. final_output_arrange_step)"
   
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
@@ -1033,7 +1033,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
                    <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
                      [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
                      [command] rainbow
-                     [menu] File -> Open -> .../user.map
+                     [menu] File -> Open -> .../user.map (change opacity into 50%)
                      [command] open .../output/trajectory/traj.xtc structureModel #1
                      [command] coordset slider #1
                      Click black play button to play
