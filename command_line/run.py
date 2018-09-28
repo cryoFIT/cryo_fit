@@ -1027,7 +1027,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
     .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
     [menu] Tools -> Depiction -> Rainbow -> OK
-    [menu] File -> Open -> .../user.map (set opacity into 50%)
+    [menu] File -> Open -> .../user.mrc (set opacity into 50%)
     [menu] Presets -> Publication 1
     (in MD Movie) click black play button to play
     (in MD Movie) File -> Record Movie, to record as .mp4 file
