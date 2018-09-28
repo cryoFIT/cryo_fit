@@ -1049,6 +1049,12 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     [menu] Graphics -> Representation -> Material -> Transparent
     [menu] Graphics -> Representation -> Show -> Isosurface
     [menu] File -> New Molecule -> Browse -> (output/trajectory/trajectory.gro) -> Load
+    
+  (note) If the cryo_fit has been automatically repeated to improve cc, the trajectory
+    file shows only the last cryo_fit run.
+    Therefore, to watch full change of conformation,
+    "phenix.cryo_fit user.mrc user.pdb no_rerun=True number_of_steps_for_cryo_fit=<enough step>"
+    is recommended.
 '''
   
   moviefile = open("how_to_watch_record_trajectory_movie.txt", "w") 
