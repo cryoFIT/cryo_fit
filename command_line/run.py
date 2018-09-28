@@ -1026,17 +1026,19 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   <UCSF Chimera 1.13 or later>
     [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
     .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
-    [menu] Tools -> Depiction -> Rainbow -> Apply
-    [menu] File -> Open -> .../user.map
-    (in MD Movie) click play button
+    [menu] Tools -> Depiction -> Rainbow -> OK
+    [menu] File -> Open -> .../user.map (set opacity into 50%)
+    [menu] Presets -> Publication 1
+    (in MD Movie) click black play button to play
+    (in MD Movie) File -> Record Movie, to record as .mp4 file
   
   <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
     [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
     [command] rainbow
-    [menu] File -> Open -> .../user.map (change opacity into 50%)
+    [menu] File -> Open -> .../user.map (set opacity into 50%)
     [command] cd <user_path>/output/trajectory
     [command] open traj.xtc structureModel #1
-    (note) Specified structure and coordinates should have the same number of atoms
+    (note) Specified structure and coordinates should have the same number of atoms, if these are mismatched, I recommend to use Chimera instead
     [command] coordset slider #1
     Click black play button to play
     Click red record button to record movie as .mp4 file
