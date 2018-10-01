@@ -10,16 +10,12 @@ from subprocess import check_output
 import libtbx.load_env
 import shutil
 
-cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
+cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit") # # Locate phenix.cryo_fit.run_tests executable
 
 if (__name__ == "__main__") :
 
-    # added by Nigel so that this test runs in a clear path
-    #print "os.listdir(os.getcwd()):",os.listdir(os.getcwd())
-    #print "len(os.listdir(os.getcwd())):",len(os.listdir(os.getcwd()))
-    assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory'
+    assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory' # added by Nigel so that this test runs in a clear path
     
-    # Locate phenix.cryo_fit.run_tests executable
     print "This phenix.cryo_fit.run_tests executable comes from ", cryo_fit_repository_dir
     
     splited = cryo_fit_repository_dir.split("/")
@@ -52,7 +48,21 @@ if (__name__ == "__main__") :
     libtbx.easy_run.call(command=command_string)
   
   
-    ##########  don't run this test 3, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
+    ############# test 3, tutorial adenylate_kinase, each steps ###############
+    regression_path_3 = os.path.join(regression_path, 'phenix_regression/cryo_fit/Adenylate_Kinase')
+    print "regression_path_3:", regression_path_3
+    os.chdir(regression_path_2)
+    
+    for i in range (1,9):
+        command_string = "python tst_step_" + str(i) + ".py"
+        print "command_string:", command_string
+        libtbx.easy_run.call(command=command_string)
+        
+    command_string = "python tst_step_final.py"
+    print "command_string:", command_string
+    libtbx.easy_run.call(command=command_string)
+    
+    ##########  don't run this test 4, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
     ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########
     '''
     pdb_file_name = 'GTPase_activation_center_tutorial.pdb'

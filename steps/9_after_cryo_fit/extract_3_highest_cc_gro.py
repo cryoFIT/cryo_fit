@@ -37,18 +37,13 @@ def adjust_step_number():
 
 def extract_gro(target_step, i, cc, cryo_fit_path):
     for_cryo_fit_mdp_location = ''
-    
-    if this_is_test == "False":
+    if (this_is_test == "False"):
         for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
     else:
         print "\t This is a test in extract_gro"
         for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
     
-    #f_out = open('log_extract.txt', 'at+')
-    
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
-    #write_this = "\n" + grep_dt_string + "\n"
-    #f_out.write(write_this)
     
     print "\t\t\t\tcommand:", grep_dt_string
     result = os.popen(grep_dt_string).read()
@@ -57,7 +52,6 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
 
     print_this = "\t\t\t\tdt:" + dt + "\n"
     print print_this
-    #f_out.write(print_this)
     
     grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
     result = os.popen(grep_nsteps_string).read()
@@ -65,13 +59,11 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
     nsteps = splited[2]
     print_this = "\t\t\t\tnsteps:" + str(nsteps) + "\n"
     print print_this
-    #f_out.write(print_this)
     
     total_ps = float(dt)*float(nsteps)
 
     print_this = "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
     print print_this
-    #f_out.write(print_this)
     
     ''' reading_frame is relevant only when restarted
     print_this = "\t\t\t\tEstimated reading_frame = total_ps/((dt)*1,000) = " + str(float(total_ps)/((float(dt))*1000.0)) + " ps \n"
@@ -81,20 +73,16 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
     
     print_this = "\t\t\t\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
     print print_this
-    #f_out.write(print_this)
     
     print_this = "\t\t\t\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
     print print_this
-    #f_out.write(print_this)
         
     print_this = "\t\t\t\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
     print print_this
-    #f_out.write(print_this)
 
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
     print_this = "\t\t\t\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
     print print_this
-    #f_out.write(print_this)
     
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
     
@@ -103,8 +91,6 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
     cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     print "\t\t\t\tcommand: ",cmd
-    #write_this = "\t\t\t\t" + cmd + "\n"
-    #f_out.write(write_this)
     os.system(cmd)
     
     if (i == 0):
@@ -122,7 +108,6 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
                 print "\t\t\t\t\tcommand:", cmd, "\n"
                 os.system(cmd)
     os.remove("input_parameters")
-    #f_out.close()
 ################# end of extract_gro function
 
 def get_users_cc_from_overall_log(log):
@@ -152,18 +137,20 @@ if (__name__ == "__main__") :
     # Actually previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
     # --> so cc_record_full_renumbered should NOT be used for extrqcting gro, should be used only for overall cc change
 
-    # adjust step number if I restarted
-    if (os.path.isfile("../restart_record.txt") == True):
-        adjust_step_number ()
-        os.remove("../restart_record.txt") # only for development, keep this file
-    
     result = '' # initial temporary assignment
-    if (no_rerun == "False"): # default running
-        # this cc_record is step_adjusted if restarted
-        result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
-    else:
+    if (this_is_test == "False"): # default running
+        # adjust step number if I restarted
+        if (os.path.isfile("../restart_record.txt") == True):
+            adjust_step_number ()
+            os.remove("../restart_record.txt") # only for development, keep this file
+        
+        if (no_rerun == "False"): # default running
+            # this cc_record is step_adjusted if restarted
+            result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+        else:
+            result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    else: # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]
