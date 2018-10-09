@@ -1382,7 +1382,7 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. \
                        Most likely, this means that initial cc is too low for MD simulation. \
                        UCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \
-                       Less likely, but a still possible case is the map weight is too high, trying lower emweight_multiply_by may help, exit now\n"
+                       Less likely, but still a possible case is when the map weight is too high, trying lower emweight_multiply_by may help, exit now\n"
           print write_this
           logfile.write(write_this)
           exit(1)
