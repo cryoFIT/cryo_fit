@@ -45,7 +45,7 @@ def retrieve_chain(seeking_res, seeking_res_num, search_after_this_line_num_in_o
    print "\t\tsearch_after_this_line_num_in_ori_pdb:", search_after_this_line_num_in_ori_pdb
    exit(1)
    pdb_before_cryo_fit_in.close()
-# end of retrieve_chain
+############################# end of retrieve_chain
 
 start = time.time()
 search_after_this_line_num_in_ori_pdb = 0 # initial
