@@ -102,7 +102,8 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
   return model_file_with_pathways, model_file_without_pathways
 ####################### end of assign_model_name()
 
-def check_whether_cc_has_been_increased(logfile, cc_record):
+
+def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   print "\tCheck_whether_cc_has_been_increased"
   
   f_in = open(cc_record)
@@ -125,6 +126,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
   f_in.close()
 
   step_number_for_judging = 30
+  print "this_is_test:", this_is_test
+  if (this_is_test == True):
+    step_number_for_judging = 5
   if (len(cc_has_been_increased_array) < step_number_for_judging):
     print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < step_number_for_judging (", step_number_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
@@ -183,8 +187,10 @@ def check_whether_cc_has_been_increased(logfile, cc_record):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
     
-  if (cc_has_been_increased > cc_has_been_decreased*1.35): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-  #if (cc_has_been_increased > cc_has_been_decreased*1.5): # for development purpose
+  multiply_by_this = 1.35
+  if (this_is_test == True):
+    multiply_by_this = 2
+  if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     if (cc_last > cc_30th_last):
         print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
@@ -247,6 +253,7 @@ def check_whether_mdrun_is_accessible():
         return False
 ######################## end of check_whether_mdrun_is_accessible()
 
+
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     if (os.path.isfile(check_this_file)):
         returned_file_size = file_size(check_this_file)
@@ -263,8 +270,9 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
     print step_name, " didn't successfully run"
     if (step_name == "Step 4" or step_name == "Step 8"):
       return "failed"
-    exit(1)
+    #exit(1)
 ######################## end of check_whether_the_step_was_successfully_ran function
+
 
 def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     if (os.path.isfile(check_this_file)):
@@ -300,6 +308,7 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     logfile.write(msg)
     exit(1)
 ######################## end of check_whether_the_step_was_successfully_ran function
+
 
 def cif_as_pdb(file_name):  
     try:

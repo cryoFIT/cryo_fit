@@ -24,7 +24,7 @@ if (__name__ == "__main__") :
       regression_path = regression_path + splited[i] + "/"
 
 
-    ############# test 1, simple biomolecule all steps ###############
+    ############# test 1, simple biomolecule all steps without restart ###############
     regression_path_1 = os.path.join(regression_path, 'phenix_regression/cryo_fit/emd_8249')
     print "regression_path_1:", regression_path_1
     os.chdir(regression_path_1)
@@ -61,6 +61,17 @@ if (__name__ == "__main__") :
     command_string = "python tst_step_final.py"
     print "command_string:", command_string
     libtbx.easy_run.call(command=command_string)
+    
+    
+    ############# test 4, simple biomolecule all steps allowing restart ###############
+    regression_path_4 = os.path.join(regression_path, 'phenix_regression/cryo_fit/emd_8249_restart')
+    print "regression_path_4:", regression_path_4
+    os.chdir(regression_path_4)
+    
+    command_string = "python tst_emd_8249_restart.py" % locals()
+    libtbx.easy_run.call(command=command_string)
+    
+    
     
     ##########  don't run this test 4, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
     ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########

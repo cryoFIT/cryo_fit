@@ -289,7 +289,8 @@ def validate_params(params): # validation for GUI
 
   print "\tvalidate_params pass"
   return True
-# end of validate_params function
+############### end of validate_params function
+
 
 def check_whether_this_is_test(starting_dir):
   splited_starting_dir = starting_dir.split("/")
@@ -299,8 +300,9 @@ def check_whether_this_is_test(starting_dir):
       print "\tthis_is_test = True"
       return True
   return False
-######## end of check_whether_this_is_test(starting_dir)
-      
+############# end of check_whether_this_is_test(starting_dir)
+  
+    
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
            force_field, ignh, missing, remove_metals, cryo_fit_path, *args):
   show_header("Step 1: Make gro and topology file by regular gromacs")
@@ -397,10 +399,13 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   remake_and_move_to_this_folder(starting_dir, "steps/2_clean_gro")
 
   cp_command_string = ''
+  
   this_is_test = check_whether_this_is_test(starting_dir)
-  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+  if (this_is_test == False):
     cp_command_string = "cp ../1_make_gro/*.gro ."
-  else:
+  elif "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+    cp_command_string = "cp ../1_make_gro/*.gro ."
+  else: #GAC case
     cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
   libtbx.easy_run.fully_buffered(cp_command_string) #copy step_1 output
 
@@ -437,7 +442,8 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     return False
   return this_is_test
-# end of step_2 (clean gro) function
+############## end of step_2 (clean gro) function
+
 
 def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
            time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path):
@@ -484,7 +490,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   
   cp1_command_string = ''
   this_is_test = check_whether_this_is_test(starting_dir)
-  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
     cp1_command_string = "cp ../2_clean_gro/*.gro . "  
     cp2_command_string = "cp ../1_make_gro/*.top . "
     libtbx.easy_run.fully_buffered(cp2_command_string)
@@ -512,7 +518,8 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     return False
   return this_is_test
-# end of step_3 (prepare minimization) function
+############## end of step_3 (prepare minimization) function
+
 
 def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
            number_of_cores_to_use, model_file_without_pathways, cryo_fit_path):
@@ -526,11 +533,13 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   this_is_test = check_whether_this_is_test(starting_dir)
-  if (this_is_test == True):
-    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-      cp_command_string = "cp ../../data/input_for_step_4/* ."
-  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
     cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
+  else:
+    if (this_is_test == True):
+      cp_command_string = "cp ../../data/input_for_step_4/* ."
+    else:
+      cp_command_string = "cp ../3_make_tpr_to_minimize/to_minimize.tpr ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
@@ -638,10 +647,13 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test = check_whether_this_is_test(starting_dir)
+  
   if (this_is_test == True):
-    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+      cp_command_string = "cp ../4_minimize/*.gro ."
+    else:
       cp_command_string = "cp ../../data/input_for_step_5/* ."
-  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+  else:
     cp_command_string = "cp ../4_minimize/*.gro ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
@@ -676,9 +688,11 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
 
   this_is_test = check_whether_this_is_test(starting_dir)
   if (this_is_test == True):
-    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+      cp_command_string = "cp ../5_make_constraints/*including_disre2_itp.top ." ## In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
+    else:
       cp_command_string = "cp ../../data/input_for_step_6/* ."
-  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+  else: # regular run
     cp_command_string = "cp ../5_make_constraints/*including_disre2_itp.top ." ## In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
   libtbx.easy_run.fully_buffered(cp_command_string)
   
@@ -693,10 +707,11 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
     
   print "Step 6", (show_time(start, end))
   os.chdir( starting_dir )
-  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
     return False
   return this_is_test
-######################## end of step_6 (neutralize charge) function
+########################################3 end of step_6 (neutralize charge) function
+
 
 def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
            emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, \
@@ -710,9 +725,15 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   cp1_command_string = ''
   this_is_test = check_whether_this_is_test(starting_dir)
   if (this_is_test == True):
-    if (model_file_without_pathways != "regression_pdb5khe.pdb"):
+    if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+      cp1_command_string = "cp ../5_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
+      cp2_command_string = "cp ../5_make_constraints/disre2.itp ."
+      libtbx.easy_run.fully_buffered(cp2_command_string)
+      cp3_command_string = "cp ../6_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
+      libtbx.easy_run.fully_buffered(cp3_command_string)
+    else:
       cp1_command_string = "cp ../../data/input_for_step_7/* ."
-  if ((this_is_test == False) or (model_file_without_pathways == "regression_pdb5khe.pdb")):
+  else: # regular run
     cp1_command_string = "cp ../5_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
     cp2_command_string = "cp ../5_make_constraints/disre2.itp ."
     libtbx.easy_run.fully_buffered(cp2_command_string)
@@ -774,10 +795,11 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr")
   print "Step 7", (show_time(start_make_tpr, end_make_tpr))
   os.chdir( starting_dir )
-  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
     return False
   return this_is_test
 ########################### end of step_7 (make tpr for cryo_fit) function        
+   
            
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
        map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight, \
@@ -795,7 +817,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     libtbx.easy_run.fully_buffered(command_string)
   
   this_is_test = check_whether_this_is_test(starting_dir)
-  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
     this_is_test = False
     
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(number_of_available_cores) \
@@ -865,8 +887,11 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     write_this = "\nUser's provided atomic model had " + str(user_s_cc) + " cc\n\n"
     logfile.write(write_this)
   
+  if "regression_" in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+    this_is_test = True # yes, refined this_is_test
+    
   if (no_rerun == False):
-    cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record")
+    cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record", this_is_test)
     print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
     
     if (devel == True):
@@ -906,7 +931,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     os.remove("../../state.cpt")
   
   os.chdir( starting_dir )
-    
+  
   return results
 ######################################## end of step_8 (cryo_fit itself) function
 
@@ -917,7 +942,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   show_header("Step 9 (final): Arrange output")
   remake_and_move_to_this_folder(starting_dir, "output")
   
-  this_is_test_for_GAC_adenylate = False # just initial value assignment
+  this_is_test_for_each_step = False # just initial value assignment
   splited_starting_dir = starting_dir.split("/")
   
   cp_command_string = "cp " + command_path + "steps/9_after_cryo_fit/*.py ."
@@ -925,55 +950,14 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   logfile.close() # to write user's cc for now
   
-  '''
-  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-    for i in range(len(splited_starting_dir)):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test = True
+  for i in range(len(splited_starting_dir)):
+    if splited_starting_dir[i] == "phenix_regression":
+      if "regression_" not in model_file_without_pathways: # for regression_pdb5khe.pdb and regresion_GTPase_activation_center_tutorial_temp_first_5_nt_fitted_to_map.pdb
+        this_is_test_for_each_step = True
         cp_command_string = "cp ../data/input_for_step_final/* ."
         libtbx.easy_run.fully_buffered(cp_command_string)
-        make_trajectory_gro(cryo_fit_path)
-      
-  if (this_is_test == False):
-    cp_command_string = "mv ../cc_record_full_renumbered ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-  
-    cp_command_string = "cp ../steps/8_cryo_fit/cc_record ." # needed for extract_3_highest_cc_gro
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    cp_command_string = "cp ../steps/8_cryo_fit/traj.xtc ."
-    libtbx.easy_run.fully_buffered(cp_command_string)
-    
-    print "\n\tExtract .gro files from the 3 highest cc values."
-    if os.path.isfile("extract_3_highest_cc_gro.py") == False:
-      print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
-    command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test) + " " + str(cryo_fit_path) + " " + str(no_rerun)
-    print "\t\tcommand: ", command_string
-    libtbx.easy_run.call(command_string)
 
-    print "\n\tConvert .gro -> .pdb"
-    print "\t\t(.gro file is for Chimera/Gromacs/VMD)"
-    print "\t\t(.pdb file is for Chimera/ChimeraX/Pymol/VMD)"
-    
-    for extracted_gro in glob.glob("*.gro"): # just deals .gro files in alphabetical order not in cc order
-      command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-      print "\t\tcommand: ", command_string
-      libtbx.easy_run.fully_buffered(command_string)
-    
-    make_trajectory_gro(cryo_fit_path)
-  '''
-  
-  if (model_file_without_pathways != "regression_pdb5khe.pdb"):
-    for i in range(len(splited_starting_dir)):
-      if splited_starting_dir[i] == "phenix_regression":
-        this_is_test_for_GAC_adenylate = True
-        cp_command_string = "cp ../data/input_for_step_final/* ."
-        libtbx.easy_run.fully_buffered(cp_command_string)
-      
-  if (this_is_test_for_GAC_adenylate == False):
+  if (this_is_test_for_each_step == False):
     cp_command_string = "mv ../cc_record_full_renumbered ."
     libtbx.easy_run.fully_buffered(cp_command_string)
   
@@ -982,11 +966,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
     cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ../steps/8_cryo_fit/traj.xtc ."
     libtbx.easy_run.fully_buffered(cp_command_string)
-  
+
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
     print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
-  command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_GAC_adenylate) + " " + str(cryo_fit_path) + " " + str(no_rerun)
+  command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
   print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
 
@@ -1016,7 +1000,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   log_file_name = "../cryo_fit.overall_log"
   logfile = open(log_file_name, "a+") # append
   
-  if (this_is_test_for_GAC_adenylate == False): # recover chain information
+  if (this_is_test_for_each_step == False): # recover chain information
     print "\n\tRecover chain information (since gromacs erased it). "
     for pdb in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with GTPase_activation_center and Dieter's molecule
@@ -1049,7 +1033,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     libtbx.easy_run.call(run_this)
   
   returned = ''
-  if (this_is_test_for_GAC_adenylate == False):
+  if (this_is_test_for_each_step == False):
     returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
   
   print "\n\tOutputs are in \"output\" folder"
@@ -1101,7 +1085,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   moviefile.write(trajectory_message)
   moviefile.close()
   
-  if (this_is_test_for_GAC_adenylate == True):
+  if (this_is_test_for_each_step == True):
     exit(1)
     
   if (returned != "success"):
@@ -1120,8 +1104,9 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\nStep final", (show_time(time_start, time_end))
   
   os.chdir( starting_dir )
-  return this_is_test_for_GAC_adenylate
+  return this_is_test_for_each_step
 ############################## end of step_final (arrange output) function
+
 
 ''' not used now, but keep
 def step_9(command_path, starting_dir):
