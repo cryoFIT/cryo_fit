@@ -410,6 +410,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
   libtbx.easy_run.fully_buffered(command_script)
 
   command_script = "python 1_rename_term_res_to_Cres.py " # there will be only 1 gro file, so it is ok
+  # this runs both 2_rename_term_res_to_Cres_by_resnum.py and 3_rename_term_res_to_Cres_by_oc.py
   print "\tcommand: ", command_script
   libtbx.easy_run.fully_buffered(command_script)
 

@@ -34,7 +34,7 @@ def slightly_change(line, old_line, old_old_line, perturb_xyz_by):
     new_line = new_line + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" " \
           + line[44:]
     return new_line
-# end of slightly_change function
+############## end of slightly_change function
 
 def no_more_000_xyz(input_gro_file_name, perturb_xyz_by):
     f_in = open(input_gro_file_name)
@@ -58,7 +58,7 @@ def no_more_000_xyz(input_gro_file_name, perturb_xyz_by):
     cmd = "rm " + input_gro_file_name
     os.system(cmd)
     return output_gro_file_name
-# end of no_more_000_xyz function
+####################### end of no_more_000_xyz function
 
 if (__name__ == "__main__") :
     args=sys.argv[1:]

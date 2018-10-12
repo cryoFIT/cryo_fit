@@ -16,7 +16,7 @@ def remove_old_files():
         print "to_be_removed_file: ", to_be_removed_file
         cmd = "rm " + to_be_removed_file
         os.system(cmd)
-# end of remove_old_files function
+################# end of remove_old_files function
 
 if (__name__ == "__main__") :
     #remove_old_files()
