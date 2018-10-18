@@ -73,7 +73,7 @@ if (__name__ == "__main__") :
     
     
     
-    ##########  don't run this test 4, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
+    ##########  don't run this test 5, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
     ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########
     '''
     pdb_file_name = 'GTPase_activation_center_tutorial.pdb'
