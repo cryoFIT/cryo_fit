@@ -110,6 +110,7 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
     os.remove("input_parameters")
 ################# end of extract_gro function
 
+
 def get_users_cc_from_overall_log(log):
   f_in = open(log)
   for line in f_in:
@@ -121,6 +122,7 @@ def get_users_cc_from_overall_log(log):
         print "\tUser provided atomic model's cc: ", cc
         return cc
 ################# end of get_users_cc(cc_record)
+
 
 if (__name__ == "__main__") :
     args=sys.argv[1:]

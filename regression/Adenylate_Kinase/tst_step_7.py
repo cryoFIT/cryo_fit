@@ -1,6 +1,6 @@
 import iotbx.pdb
 from libtbx import easy_run
-import glob, os, time
+import glob, os, shutil, time
 
 def file_size(fname):
     statinfo = os.stat(fname)
@@ -24,11 +24,11 @@ def run(prefix="tst_step_7"):
   """
   
   assert (os.path.isfile("data/input_for_all/1AKE.density.mrc") == True)
-  assert (os.path.isfile("data/input_for_all/regression.pdb") == True)
+  assert (os.path.isfile("data/input_for_all/regression_Adenylate.pdb") == True)
   
   cmd = " ".join([
     "phenix.cryo_fit",
-    "data/input_for_all/regression.pdb",
+    "data/input_for_all/regression_Adenylate.pdb",
     "step_1=False",
     "step_2=False",
     "step_3=False",
@@ -45,11 +45,15 @@ def run(prefix="tst_step_7"):
   os.chdir( new_path )
   
   the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr")  
-  assert (the_step_was_successfully_ran != 0)
   if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
         time.sleep(10000) # so that it is recognized instantly
+  assert (the_step_was_successfully_ran != 0)
   
+  os.chdir(starting_dir)
+  shutil.rmtree("steps")
+############# end of run function
+
 if (__name__ == "__main__"):
   t0=time.time()
   run()

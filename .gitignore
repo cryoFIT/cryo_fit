@@ -6,3 +6,5 @@
 #*
 fftw*
 *.DS_Store
+regression/*/steps
+regression/*/output

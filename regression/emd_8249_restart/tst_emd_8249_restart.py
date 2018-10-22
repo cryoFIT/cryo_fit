@@ -1,11 +1,12 @@
 import glob, iotbx.pdb, os, time
 from libtbx import easy_run
 from subprocess import check_output
+import shutil
 
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
-# end of file_size()
+############### end of file_size()
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   if (os.path.isfile(check_this_file)):
@@ -45,10 +46,15 @@ def run():
     os.chdir( new_path )
     
     the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "trajectory/trajectory.gro")
-    assert (the_step_was_successfully_ran != 0)
+    
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
         time.sleep(10000) # so that it is recognized instantly
+    assert (the_step_was_successfully_ran != 0)
+    
+    os.chdir(starting_dir)
+    shutil.rmtree("output")
+    shutil.rmtree("steps")
 ############ end of run()
 
 if (__name__ == "__main__"):

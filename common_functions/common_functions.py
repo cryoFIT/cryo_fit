@@ -28,7 +28,7 @@ except Exception:
     print "Press any key to continue"
     ''' #raw_input() # disable this for now, so that Phenix GUI will work
 
-def assign_map_name(params, starting_dir, inputs, map_file_name): # 04/23/2018, I need to assign map file first, then model file
+def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to assign map file first, then model file (04/23/2018)
   print "\n\tAssign map file name"
   
   params.cryo_fit.Input.map_file_name = map_file_name
@@ -189,7 +189,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     
   multiply_by_this = 1.35
   if (this_is_test == True):
-    multiply_by_this = 2
+    multiply_by_this = 2.2
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     if (cc_last > cc_30th_last):
@@ -199,7 +199,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
         print "\t\tcc_last (",cc_last,") < cc_30th_last (", cc_30th_last, ")"
         return False
   else:
-    return False # the last 30 cc values tend NOT to be increased
+    return False # either this is a regression or the last 30 cc values tend NOT to be increased
 ############################ end of check_whether_cc_has_been_increased function
 
         
@@ -225,13 +225,14 @@ def check_whether_install_is_done(check_this_file_w_path):
         exit(1)
 ######################### end of check_whether_install_is_done()
 
+
 def check_whether_mdrun_is_accessible():
     long_message  = """
-        cryo_fit can't find mdrun executable for now
+        cryo_fit can't find a gromacs executable (e.g. mdrun)
         
         If gromacs_cryo_fit is not installed, install it according to http://www.phenix-online.org/documentation/reference/cryo_fit.html
         
-        If gromacs_cryo_fit is installed, please source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
+        If gromacs_cryo_fit is installed, source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
         For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
         add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
         """

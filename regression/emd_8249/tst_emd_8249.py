@@ -1,4 +1,4 @@
-import glob, iotbx.pdb, os, time
+import glob, iotbx.pdb, os, shutil, time
 from libtbx import easy_run
 from subprocess import check_output
 
@@ -20,7 +20,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
 
 def run():
     """
-    Exercise phenix.cryo_fit with all defaults with the small dataset"
+    Exercise phenix.cryo_fit with all defaults with the smallest dataset"
     """
     
     assert (os.path.isfile("data/emd_8249.map") == True)
@@ -44,11 +44,15 @@ def run():
     os.chdir( new_path )
     
     the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "extracted_100_steps_0.2_ps_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb")
-    print the_step_was_successfully_ran
-    assert (the_step_was_successfully_ran != 0)
+    
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
         time.sleep(10000) # so that it is recognized instantly
+    assert (the_step_was_successfully_ran != 0)
+    
+    os.chdir(starting_dir)
+    shutil.rmtree("output")
+    shutil.rmtree("steps")
 ############ end of run()
 
 if (__name__ == "__main__"):
