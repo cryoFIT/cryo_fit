@@ -162,7 +162,8 @@ Options
     .type = int
     .short_caption = Number of steps for cryo_fit
     .help = It should be > 100. \
-           This is the initial number of steps for cryo_fit. Eventually, cryo_fit may increase it depending on molecule size and cc trend.
+           This is the initial number of steps for cryo_fit. Eventually, cryo_fit may increase it depending on molecule size and cc trend. \
+           For tutorial files, this will be 70,000
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
@@ -1603,6 +1604,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   return results
 ################### end of cmd_run function
 
+
 # =============================================================================
 # GUI-specific class for running command
 from libtbx import runtime_utils
@@ -1615,6 +1617,7 @@ class launcher (runtime_utils.target_with_save_result) :
     result = cmd_run(args=self.args, validated=True, out=sys.stdout)
     return result
 # =============================================================================
+
 
 if (__name__ == "__main__") :
   cmd_run(args = sys.argv[1:])
