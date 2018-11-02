@@ -75,7 +75,7 @@ Input{
     .type = path
     .short_caption = Starting model file 
     .multiple = False
-    .help = (.cif/.pdb) Either a homology model or a model from different organism/experimental method.
+    .help = Either a homology model or a model from different organism/experimental method (.cif/.pdb)
     .style = file_type:pdb bold input_file
   map_file_name = None
     .type = path
@@ -85,7 +85,7 @@ Input{
   cryo_fit_path = None
     .type = path
     .short_caption = gromacs_cryo_fit executable path
-    .help = Path that has gromacs_cryo_fit executables (such as mdrun).
+    .help = Path that has gromacs_cryo_fit executables (such as mdrun). For example, /Users/doonam/bin/cryo_fit/bin
     .style = bold directory
 }
 Steps
