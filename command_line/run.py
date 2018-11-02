@@ -292,18 +292,6 @@ def validate_params(params): # validation for GUI
   return True
 ############### end of validate_params function
 
-'''
-def check_whether_this_is_test(starting_dir):
-  splited_starting_dir = starting_dir.split("/")
-  cp_command_string = ''
-  for i in range(len(splited_starting_dir)):
-    if splited_starting_dir[i] == "phenix_regression":
-      print "\tthis_is_test = True"
-      return True
-  return False
-############# end of check_whether_this_is_test(starting_dir)
-'''
-
 
 def end_regression(starting_dir,write_this):
   print "end regression (both for each step and all steps)"
