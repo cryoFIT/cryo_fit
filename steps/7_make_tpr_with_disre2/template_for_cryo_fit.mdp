@@ -1,4 +1,3 @@
-; Sample mdp file for MDfit Version 4.5.5 (http://smog-server.org/extension/MDfit.v4.5.5.html), using smog-server Version 1.2
 ;Run control: A leap-frog algorithm for integrating Newton's equations.
 integrator               = sd
 ; time step in femtoseconds
