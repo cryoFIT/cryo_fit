@@ -374,18 +374,9 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     f_in = open('../../cryo_fit.input_command')
     for line in f_in:
       print line
-    
-    print "\nPlease install cryo_fit first. Refer http://www.phenix-online.org/documentation/reference/cryo_fit.html"
-    print "\nIf you installed cryo_fit already,"
-    shell = id_shell()
-    if (shell == "bash"):
-      print_this = "\nplease source ~/.bash_profile or ~/.bashrc or open a new terminal so that gromacs_cryo_fit executables (such as mdrun) can be recognized automatically."
-      print print_this
-    else:
-      print "Please add cryo_fit executable path (for example, /Users/doonam/bin/cryo_fit/bin) into your $PATH and source ~/.bash_profile or ~/.bashrc"
-    
+    #check_whether_mdrun_is_accessible() is ran above, confirmed that there is no reason to suggest install gromacs_cryo_fit here again
     print "\nphenix.cryo_fit alone without any arguments introduces full options."
-    print "Please email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
+    print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))
   
