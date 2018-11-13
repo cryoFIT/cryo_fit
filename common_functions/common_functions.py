@@ -28,6 +28,7 @@ except Exception:
     print "Press any key to continue"
     ''' #raw_input() # disable this for now, so that Phenix GUI will work
 
+
 def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to assign map file first, then model file (04/23/2018)
   print "\n\tAssign map file name"
   
@@ -65,7 +66,8 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to as
   
   os.chdir(starting_dir)
   return map_file_with_pathways, map_file_without_pathways
-# end of assign_map_name()
+############## end of assign_map_name()
+
 
 def assign_model_name(params, starting_dir, inputs, model_file_name):
   print "\n\tAssign model file name."

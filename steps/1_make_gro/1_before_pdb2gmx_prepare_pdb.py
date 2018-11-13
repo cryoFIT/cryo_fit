@@ -357,7 +357,8 @@ def clean_unusual_residue(input_pdb_file_name):
       f_report.write(write_this)
       print write_this
       continue
-    elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
+    #elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
+    elif ((residue == "HYP") or (residue == "ILX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
