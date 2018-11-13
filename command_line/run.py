@@ -334,6 +334,15 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     f_out.close()
     libtbx.easy_run.fully_buffered(run_this)
 
+  pdb_file_is_cleand = False
+  for check_this_file in glob.glob("*_cleaned_for_gromacs.pdb"): 
+   pdb_file_is_cleand = True
+    
+  if (pdb_file_is_cleand != True):
+    print "pdb file cleaning is not done, exit now"
+    print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
+    exit(1)
+    
   cp_command_string = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   

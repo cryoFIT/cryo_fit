@@ -941,6 +941,7 @@ def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     return command_string
 ################ end of run_cryo_fit_itself function
 
+
 def search_charge_in_md_log():
   command_string = "grep \"A charge group moved too far between two domain decomposition steps\" md.log > grepped"
   libtbx.easy_run.fully_buffered(command_string)
@@ -952,6 +953,7 @@ def search_charge_in_md_log():
   return 0 # not found "charge group..."
 ################# end of search_charge_in_md_log function
 
+
 def shift_origin_of_mrc_map_if_needed(map_data, model):
     print "\tShift_origin_of_mrc_map since needed"
     #soin = maptbx.shift_origin_if_needed(map_data=map_data,
@@ -961,6 +963,7 @@ def shift_origin_of_mrc_map_if_needed(map_data, model):
     map_data = soin.map_data
     return map_data
 ################# end of shift_origin_of_mrc_map_if_needed ()
+
 
 def shorten_file_name_if_needed(model_file_without_pathways):
   print "\tShorten_file_name_if_needed"
@@ -979,6 +982,7 @@ def shorten_file_name_if_needed(model_file_without_pathways):
     return new_model_file_without_pathways
   return model_file_without_pathways
 ################# end of shorten_file_name_if_needed
+
 
 def show_time(time_start, time_end):
     time_took = 0 # temporary of course

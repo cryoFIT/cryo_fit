@@ -41,19 +41,22 @@ common_functions_path = command_path + "common_functions/"
 sys.path.insert(0, common_functions_path)
 from common_functions import *
 
+
 def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, \
                bool_remove_metals):
+  
   output_pdb_file_name = leave_ATOM_END_HETATM_TER (input_pdb_file_name)
   
   if (bool_remove_metals == "True"):
    output_pdb_file_name = remove_metals (output_pdb_file_name)
-
+  
   output_pdb_file_name = start_resnum_at_1_at_each_chain (output_pdb_file_name) # to deal with nucleosome pdb file
   #output_pdb_file_name = start_atom_num_at_1_at_each_chain (output_pdb_file_name) # to minimize any atom number related error
   
   output_pdb_file_name = clean_RNA_for_chimera_derived_ribosome (output_pdb_file_name)  
   output_pdb_file_name = clean_RNA_residues_for_amber03 (output_pdb_file_name)
   output_pdb_file_name = clean_RNA_atoms_for_amber03 (output_pdb_file_name)
+  
   output_pdb_file_name = remove_the_fourth_character(output_pdb_file_name)
   
   output_pdb_file_name = shorten_file_name_if_needed(output_pdb_file_name)
@@ -76,7 +79,8 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   os.system(cmd)
   
   return final_output_pdb_file_name
-# end of clean_main function
+############ end of clean_main function
+
 
 def leave_ATOM_END_HETATM_TER(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -90,7 +94,8 @@ def leave_ATOM_END_HETATM_TER(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name    
-# end of leave_ATOM_END_HETATM_TER function
+######### end of leave_ATOM_END_HETATM_TER function
+
 
 def remove_metals(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -113,7 +118,8 @@ def remove_metals(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of remove_metals
+######## end of remove_metals
+
 
 def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -121,13 +127,16 @@ def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   f_out = open(output_pdb_file_name, 'wt')
   former_chain_name = ''
   subtract_this_number_from_res_num = ''
+  former_line_had_TER = False
   for line in f_in:
     if (line[:3] == "END" or line[:3] == "TER"):
       f_out.write(line)
+      former_line_had_TER = True
     else:
       chain = line[21:22]
       res_num = line[22:26]
-      if (chain != former_chain_name): # A new chain starts
+      
+      if ((former_line_had_TER == True) or (chain != former_chain_name)):
         former_chain_name = chain
         if (res_num != 1):
           subtract_this_number_from_res_num = int(res_num) - 1
@@ -142,13 +151,16 @@ def start_resnum_at_1_at_each_chain(input_pdb_file_name):
       else:
         new_line = line[:22] + str(int(res_num) - subtract_this_number_from_res_num) + line[26:]
       f_out.write(new_line)
-    
+      former_line_had_TER = False
+      
   f_in.close()
   f_out.close()
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of start_resnum_at_1_at_each_chain
+########### end of start_resnum_at_1_at_each_chain
+
+
 
 def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -295,7 +307,8 @@ def remove_the_fourth_character(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of remove_the_fourth_character function
+######### end of remove_the_fourth_character function
+
 
 def put_TER_between_chains(input_pdb_file_name):
   f_in = open(input_pdb_file_name, 'r')
@@ -320,7 +333,8 @@ def put_TER_between_chains(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of put_TER_between_chains function
+######### end of put_TER_between_chains function
+
 
 def clean_unusual_residue(input_pdb_file_name):
   if (os.path.isfile("../../unusual_residue_removed.txt") == True):
@@ -366,7 +380,7 @@ def clean_unusual_residue(input_pdb_file_name):
     os.remove("../../unusual_residue_removed.txt")
           
   return output_pdb_file_name
-# end of clean_unusual_residue function
+############ end of clean_unusual_residue function
 
 def remove_OXT(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -499,7 +513,8 @@ def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)  
   return output_pdb_file_name
-# end of clean_RNA_OP1 function
+######## end of clean_RNA_OP1 function
+
 
 def know_the_biggest_atom_num(input_pdb_file_name):
   # to solve truncation problem of 80S.mdfit_fitted_by_chimera_cleaned_for_gromacs_chain_2.pdb
@@ -513,18 +528,20 @@ def know_the_biggest_atom_num(input_pdb_file_name):
         max_atom_numer = atom_number
   f_in.close()
   return max_atom_numer
-# end of know_the_biggest_atom_num function
+####### end of know_the_biggest_atom_num function
+
 
 def no_more_100k_atom_num(input_pdb_file_name):
   # to solve truncation problem of 80S.mdfit_fitted_by_chimera_cleaned_for_gromacs_chain_2.pdb
   f_in = open(input_pdb_file_name)
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_no_100k_AtomNum.pdb"
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_lt_100k_AtomNum.pdb"
   f_out = open(output_pdb_file_name, 'wt')
   for line in f_in:
     if line[0:4] == "ATOM":
       atom_number = line[5:11]
+      xyz = line[31:54]
       print "atom_number:", atom_number
-      
+      print "line:", line
       try :
         int(atom_number)
       except :
@@ -552,7 +569,8 @@ def no_more_100k_atom_num(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of no_more_100k_atom_num function
+########## end of no_more_100k_atom_num function
+
 
 def remove_former_files():
   for to_be_removed_file in glob.glob("*_cleaned_for_gromacs*"):
@@ -561,7 +579,7 @@ def remove_former_files():
   for to_be_removed_file in glob.glob("*_removed.pdb"):
     cmd= "rm " + to_be_removed_file
     os.system(cmd)
-# end of remove_former_files function
+############ end of remove_former_files function
 
 if (__name__ == "__main__") :
   remove_former_files()
