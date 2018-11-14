@@ -357,8 +357,8 @@ def clean_unusual_residue(input_pdb_file_name):
       f_report.write(write_this)
       print write_this
       continue
-    #elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
-    elif ((residue == "HYP") or (residue == "ILX")):
+    elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
+    #elif ((residue == "HYP") or (residue == "ILX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
@@ -383,6 +383,7 @@ def clean_unusual_residue(input_pdb_file_name):
   return output_pdb_file_name
 ############ end of clean_unusual_residue function
 
+
 def remove_OXT(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
@@ -400,7 +401,8 @@ def remove_OXT(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of remove_OXT function
+####### end of remove_OXT function
+
 
 def remove_water(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
