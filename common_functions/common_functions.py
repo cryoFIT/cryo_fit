@@ -294,7 +294,7 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     '\t\twebsite at http://www.gromacs.org/Documentation/Errors"\n\n'
     
     '\n\t\tor ERROR 9 [file emd_6057_pdb3j7z_cleaned_for_gromacs_by_pdb2gmx.top, line 1001060]:\n'
-    '\t\tdetermine_number_of_steps_for_minimizationNo default Proper Dih. types"\n\n'
+    '\t\tNo default Proper Dih. types"\n\n'
     
     '\tIt means that user\'s input pdb file has a forcefield undefined ligand\n'
     '\tTherefore, cryo_fit recommends either of two methods\n\n'
