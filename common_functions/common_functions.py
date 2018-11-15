@@ -294,7 +294,7 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     '\t\twebsite at http://www.gromacs.org/Documentation/Errors"\n\n'
     
     '\n\t\tor ERROR 9 [file emd_6057_pdb3j7z_cleaned_for_gromacs_by_pdb2gmx.top, line 1001060]:\n'
-    '\t\tNo default Proper Dih. types"\n\n'
+    '\t\tdetermine_number_of_steps_for_minimizationNo default Proper Dih. types"\n\n'
     
     '\tIt means that user\'s input pdb file has a forcefield undefined ligand\n'
     '\tTherefore, cryo_fit recommends either of two methods\n\n'
@@ -386,9 +386,9 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
   elif (number_of_atoms_in_input_pdb < 20000): # nucleosome has 14k atoms (pdb), 25k atoms (gro)
     number_of_steps_for_minimization = 5000 # w_H1/emd_3659_keep_as_Heidelberg used 5k
   elif (number_of_atoms_in_input_pdb < 50000): # beta-galactosidase has 32k atoms (pdb), 64k atoms (gro)
-    number_of_steps_for_minimization = 5000
+    number_of_steps_for_minimization = 10000
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
-    number_of_steps_for_minimization = 5000
+    number_of_steps_for_minimization = 20000
   print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
   return number_of_steps_for_minimization
 # end of determine_number_of_steps_for_minimization function
