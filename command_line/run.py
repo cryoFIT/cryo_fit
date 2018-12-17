@@ -157,12 +157,13 @@ Options
     .type = int
     .short_caption = Number of steps for minimization
     .help = Specify number of steps for minimization. \
-           If this is left blank, cryo_fit will estimate it depending on molecule size.
+           If this is left blank, cryo_fit will estimate it depending on molecule size. \
+           Enough minimization will prevent "blow-up" during MD simulation later.
   number_of_steps_for_cryo_fit = None
     .type = int
     .short_caption = Number of steps for cryo_fit
     .help = It should be > 100. \
-           This is the initial number of steps for cryo_fit. Eventually, cryo_fit may increase it depending on molecule size and cc trend. \
+           This is the initial number of steps for cryo_fit. Eventually, cryo_fit will increase it depending on molecule size and cc trend. \
            For tutorial files, this will be 70,000
   time_step_for_cryo_fit = 0.002
     .type = float
@@ -1421,10 +1422,10 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. \
-                       Most likely, this means that initial cc is too low for MD simulation. \
-                       UCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \
-                       Less likely, but still a possible case is when the map weight is too high, lowering emweight_multiply_by may help. \
+          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. \n\
+                       \t\tMost likely, this means that initial cc is too low for MD simulation. \n\
+                       \t\tUCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \n\
+                       \t\tLess likely, but still a possible case is when the map weight is too high, lowering emweight_multiply_by may help. \n\
                        Exit now\n"
           print write_this
           logfile.write(write_this)
