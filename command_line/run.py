@@ -988,7 +988,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   libtbx.easy_run.call(command_string)
 
   print "\n\tConvert .gro -> .pdb"
-  print "\t\t(.gro file is for Chimera/Gromacs/VMD)"
+  print "\t\t(.gro file is for Chimera/Gromacs/Pymol/VMD)"
   print "\t\t(.pdb file is for Chimera/ChimeraX/Pymol/VMD)"
   
   for extracted_gro in glob.glob("*.gro"): # just deals .gro files in alphabetical order not in cc order
@@ -1060,7 +1060,14 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\n\t\tTo watch/record a trajectory movie, see \"how_to_watch_record_trajectory_movie.txt\""
   
   trajectory_message = '''
-  <UCSF Chimera 1.13 or later>
+  <Pymol: confirmed with version 2.2.2>
+    [command] cd output/trajectory
+    [command] load trajectory.gro, mytraj
+    [command] load_traj traj.xtc, mytraj
+    Click salmon color play button (triangle) in right bottom to play
+    (reference) https://pymolwiki.org/index.php/Load_Traj
+    
+  <UCSF Chimera: confirmed with version 1.13>
     [menu] Tools -> MD/Ensemble analysis -> MD Movie -> Trajectory format = GROMACS
     .tpr = (output/trajectory/for_cryo_fit.tpr), .xtc = (output/trajectory/traj.xtc) -> OK
     [menu] Tools -> Depiction -> Rainbow -> OK
@@ -1069,7 +1076,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     (in MD Movie) click black play button to play
     (in MD Movie) File -> Record Movie, to record as .mp4 file
   
-  <UCSF ChimeraX 0.7 and 0.8 (2018-08-14)>
+  <UCSF ChimeraX: confirmed with version 0.7 and 0.8 (2018-08-14)>
     [menu] File -> Open -> .../output/cryo_fitted_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb
     [command] rainbow
     [menu] File -> Open -> .../user.map (set opacity into 50%)
@@ -1080,7 +1087,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     Click black play button to play
     Click red record button to record movie as .mp4 file
      
-  <VMD 1.9.3 or later>
+  <VMD: confirmed with version 1.9.3>
     [menu] File -> New Molecule -> Browse -> (.../user.map) -> Load
     [menu] Graphics -> Representation -> Draw -> Solid Surface
     [menu] Graphics -> Representation -> Material -> Transparent
@@ -1089,7 +1096,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
   (note) If the cryo_fit has been automatically repeated to improve cc, the trajectory
     file shows only the last cryo_fit run.
-    Therefore, to watch full change of conformation,
+    Therefore, to watch full a change of conformations,
     "phenix.cryo_fit user.mrc user.pdb no_rerun=True number_of_steps_for_cryo_fit=<enough step>"
     is recommended.
 '''
