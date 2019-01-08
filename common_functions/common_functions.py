@@ -340,7 +340,7 @@ def color_print(text, color):
         print colored (text, color)
     else:
         print text
-# end of color_print()
+###### end of color_print()
 
 def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
                                           user_entered_number_of_steps_for_cryo_fit, devel):
@@ -417,12 +417,14 @@ def ent_as_pdb(file_name):
     print "cp_command_string:", cp_command_string
     libtbx.easy_run.fully_buffered(cp_command_string)
     return new_file_name
-# end of ent_as_pdb()
+######## end of ent_as_pdb()
+
 
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
-# end of file_size(fname)
+######## end of file_size(fname)
+
 
 def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart):
     command_used = '' #just initial value
@@ -625,7 +627,8 @@ def know_total_number_of_cores():
     
     print "\tUser's computer's operating system: " + platform.system(), "\n"
     return number_of_total_cores
-# end of know_total_number_of_cores function
+######### end of know_total_number_of_cores function
+
 
 def locate_Phenix_executable():
     cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit")
@@ -996,6 +999,7 @@ def show_time(time_start, time_end):
       time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
     return time_took
 ############### end of show_time function
+
 
 def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_by, widthx, retranslate_to_original):
     #print "\ttranslate_pdb_file_by_xyz"

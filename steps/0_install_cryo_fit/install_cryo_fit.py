@@ -12,14 +12,62 @@ def id_shell():
   return shell
 #################### end of id_shell ()
 
+
+
+def check_whether_install_is_done(check_this_file_w_path):
+  print "Check whether ", check_this_file_w_path, " exists."
+  returned_file_size = ''
+  succesful_installation = True
+  if (os.path.isfile(check_this_file_w_path)):
+    returned_file_size = file_size(check_this_file_w_path)
+    if (returned_file_size > 0):
+      print "Successful installation because cryo_fit can find ", check_this_file_w_path
+    else:
+      print "Not successful installation, cryo_fit found ", check_this_file_w_path, " but it is empty"
+      succesful_installation = False
+  else:
+      print "Not successful installation because cryo_fit can't find ", check_this_file_w_path
+  
+  if (succesful_installation == False):
+      print "For troubleshooting, step-by-step installation is recommended."
+      print "Usage: python install_cryo_fit.py <gromacs_cryo_fit.zip> <install_path> <install_at_one_queue>"
+      print "Example usage: python ~/bin/phenix-1.13rc1-2961/modules/cryo_fit/steps/0_install_cryo_fit/install_cryo_fit.py ~/Downloads/gromacs_cryo_fit.zip ~/cryo_fit False"
+      color_print ("exit now", 'red')
+      exit(1)
+######################### end of check_whether_install_is_done()
+
+
+def color_print(text, color):
+  print text
+###### end of color_print()
+
+
+def file_size(fname):
+    statinfo = os.stat(fname)
+    return statinfo.st_size
+######## end of file_size(fname)
+
+
+
 shell = id_shell()
 if shell == "csh":
   print "Cshell may not import libtbx properly, you may consider to change your shell to bash and install again"
   print "\nHit enter key to continue."
   raw_input()
-  
+
+
+
+
+''' #using phenix library like libtbx.env.dist_path is useful, but depending on osX it didn't work
+so Doonam reverted to an old style (manual way) so that all osX can work (1/7/2019)
+
+
 # some header(s) among these are needed for libtbx.env.dist_path
-from libtbx import phil # with cshell, Doonam and Jun Dong can't import libtbx! (with bash, no problem)
+
+from libtbx import phil
+# With cshell, Doonam and Jun Dong can't import libtbx! (with bash, no problem)
+# At doonam's newest personal macbookpro (osX 10.13.6), "ImportError: No module named libtbx"  1/7/2019
+
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
 from libtbx.utils import multi_out
@@ -32,10 +80,25 @@ print "cryo_fit_repository_dir:", cryo_fit_repository_dir
 common_functions_path = cryo_fit_repository_dir + "/common_functions/"
 sys.path.insert(0, common_functions_path)
 print "common_functions_path:", common_functions_path
-from common_functions import  * # (sometimes) ImportError: No module named libtbx at doonam's newest personal macbookpro
+from common_functions import  * 
+'''
+
+'''
+######### old style
+path = check_output(["which", "phenix"])
+splited = path.split("/")
+cryo_fit_repository_dir = ''
+for i in range(len(splited)-3):
+  cryo_fit_repository_dir = cryo_fit_repository_dir + splited[i] + "/"
+cryo_fit_repository_dir = cryo_fit_repository_dir + "modules/cryo_fit/"
+print "\tUser's phenix.cryo_fit executable comes from ", cryo_fit_repository_dir
+common_functions_path = cryo_fit_repository_dir + "/common_functions/"
+sys.path.insert(0, common_functions_path)
+from common_functions import  *
+'''
+
 
 def add_path(GMX_MD_INSTALL, shell):
-  
   if (shell == "bash"):
     home_dir = expanduser("~")
     add_this = "\n\nexport PATH=\"" + str(GMX_MD_INSTALL) + "/bin\":$PATH # added by cryo_fit installation\n\n"
@@ -62,7 +125,8 @@ def add_path(GMX_MD_INSTALL, shell):
     print "Cshell needs to edit ~/.csh"
     return GMX_MD_INSTALL
   # adding PATH for pdb2gmx at phenix/build/bin and cryo_fit/bin at the same causes forcefield error or segfault (7/6/2018)
-# end of add_path (GMX_MD_INSTALL, shell)
+########## end of add_path (GMX_MD_INSTALL, shell)
+
 
 def clean ():
   color_print ("Hit enter key to clean", 'green')
@@ -84,7 +148,8 @@ def clean ():
   color_print ("it is OK as well.", 'green')
   color_print ("It just means that you just removed former residual partial/full compilation.\n", 'green')
   color_print ("\nMake sure that there was no error", 'green')
-# end of clean function
+############ end of clean function
+
 
 def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, enter_all):
   home_dir = expanduser("~")
@@ -119,7 +184,8 @@ def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, ent
     if (str(enter_all) != "True"):
       color_print ("\nHit enter key to configure.", 'green')
       raw_input()
-    libtbx.easy_run.call(command=command_string)
+    #libtbx.easy_run.call(command=command_string)
+    os.system(command_string)
   
   print '#'*105
   color_print ("\n\nCheck whether it was configured without any error.", 'green')
@@ -154,12 +220,12 @@ def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, ent
     color_print ("OK, I'm glad to hear that your configuration went well.", 'green')
     
   end_time_configure = time.time()
-  print "configuration"
-  color_print ((show_time(start_time_configure, end_time_configure)), 'green')
+  #print "configuration"
+  #color_print ((show_time(start_time_configure, end_time_configure)), 'green')
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to continue.", 'green')
     raw_input()
-# end of configure_cryo_fit function
+############### end of configure_cryo_fit function
 
 
 ''' # keep for now
@@ -213,7 +279,10 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   splited = wo_ext.split(".zip")
   gromacs_cryo_fit_file_name = splited[0]
   
+  print "install_path",install_path
   GMX_MD_INSTALL = os.path.abspath(install_path) # abs path is needed for configure  
+  print "GMX_MD_INSTALL",GMX_MD_INSTALL
+  
   
   '''
   # to avoid network related warning message during GUI based cryo_fit in MacOS,
@@ -230,10 +299,13 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   
   GMX_MD_SRC  = os.path.join(install_path, "source_keep_this_otherwise_segfault") # so that any case can be handled
   make_this_folder_if_not_exists(GMX_MD_SRC)
+  print "zipped_file",zipped_file
+  
   
   command_string = "cp " + zipped_file + " " + GMX_MD_SRC
+  os.system(command_string)
   os.chdir(GMX_MD_SRC)
-
+  #STOP()
 
   ################### unzip ###################
   command_string = "unzip " + zipped_file
@@ -250,11 +322,12 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     raw_input()
   
   start_time_unzip = time.time()
-  libtbx.easy_run.call(command=command_string)
+  #libtbx.easy_run.call(command=command_string)
+  os.system(command_string)
   end_time_unzip = time.time()
   message = "unzipping " + zipped_file
   print message
-  color_print ((show_time(start_time_unzip, end_time_unzip)), 'green')
+  #color_print ((show_time(start_time_unzip, end_time_unzip)), 'green')
 
   
   ################### configure ###################
@@ -286,7 +359,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     raw_input()
   
   start_time_make = time.time()
-  libtbx.easy_run.call(command=make_command_string)
+  #libtbx.easy_run.call(command=make_command_string)
+  os.system(command_string)
   end_time_make = time.time()
   
   print '#'*105
@@ -319,8 +393,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   else:
     color_print ("OK, I'm glad to hear that your Make went well.", 'green')
     
-  print "Make"
-  color_print ((show_time (start_time_make, end_time_make)), 'green')
+  #print "Make"
+  #color_print ((show_time (start_time_make, end_time_make)), 'green')
   
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to continue.", 'green')
@@ -340,7 +414,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   if (str(enter_all) != "True"):
     color_print ("\nHit enter key to install cryo_fit.", 'green')
     raw_input()
-  libtbx.easy_run.call(command=make_install_command_string)
+  #libtbx.easy_run.call(command=make_install_command_string)
+  os.system(make_install_command_string)
   
   print '#'*105
   color_print ("\n\nCheck whether the installation was done without any error.\n", 'green')
@@ -375,8 +450,8 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   
   end_time_install = time.time()
   
-  print "\nThe final installation of cryo_fit"
-  color_print ((show_time (start_time_install, end_time_install)), 'green')
+  #print "\nThe final installation of cryo_fit"
+  #color_print ((show_time (start_time_install, end_time_install)), 'green')
   
   path_file = add_path(GMX_MD_INSTALL, shell)
   
@@ -413,15 +488,26 @@ def make_this_folder_if_not_exists(GMX_MD_INSTALL):
     command_string = "mkdir -p " + GMX_MD_INSTALL
     color_print ("\ncommand: ", 'green')
     print command_string, "\n"
-    libtbx.easy_run.call(command=command_string)
+    #libtbx.easy_run.call(command=command_string)
+    os.system(command_string)
 #################### end of make_this_folder_if_not_exists ()
 
 
+
+def show_time(time_start, time_end):
+    time_took = 0 # temporary of course
+    if (round((time_end-time_start)/60, 1) < 1):
+      time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
+    elif (round((time_end-time_start)/60/60, 1) < 1):
+      time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
+    else:
+      time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+    return time_took
+############### end of show_time function
+
+
 if (__name__ == "__main__") :
-  print "main"
   total_start_time = time.time()
-  shell = id_shell()
-  
   args=sys.argv[1:]
   
   if len(args) < 2:
@@ -447,4 +533,5 @@ if (__name__ == "__main__") :
   
   total_end_time = time.time()
   print "\nTotal cryo_fit installation"
-  color_print ((show_time(total_start_time, total_end_time)), 'green')
+  #color_print ((show_time(total_start_time, total_end_time)), 'green')
+  print show_time(total_start_time, total_end_time)
