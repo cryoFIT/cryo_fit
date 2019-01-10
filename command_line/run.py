@@ -1096,7 +1096,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
   (note) If the cryo_fit has been automatically repeated to improve cc, the trajectory
     file shows only the last cryo_fit run.
-    Therefore, to watch full a change of conformations,
+    Therefore, to watch a full change of conformations,
     "phenix.cryo_fit user.mrc user.pdb no_rerun=True number_of_steps_for_cryo_fit=<enough step>"
     is recommended.
 '''
