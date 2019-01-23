@@ -9,3 +9,5 @@ regression/*/steps
 regression/*/output
 *.sit
 *swo
+*cryo_fit.input_command
+*cryo_fit.overall_log
