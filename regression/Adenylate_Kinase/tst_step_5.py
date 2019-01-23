@@ -41,7 +41,7 @@ def run(prefix="tst_step_5"):
     easy_run.call(cmd)
     
     starting_dir = os.getcwd()
-    new_path = starting_dir + "/steps/5_make_constraints"
+    new_path = starting_dir + "/steps/5_make_restraints"
     os.chdir( new_path )
     
     #the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 5", "disre2.itp")

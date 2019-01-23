@@ -7,7 +7,7 @@
 # 2_Clean_gro
 # 3_Prepare_to_Minimize
 # 4_Minimize
-# 5_Make_constraints
+# 5_Make_restraints
 # 6_Make_0_charge
 # 7_Make_tpr_for_EM_map_fitting
 # 8_EM_map_fitting_itself
@@ -125,13 +125,13 @@ Steps
 }
 Options
 {
-  constraint_algorithm_minimization = *default none none_default
+  restraint_algorithm_minimization = *default none none_default
     .type = choice
     .help = default will be "default" \
             If a user see this error during minimization "Too many lincs warnings", try either none or none_default. \ 
             none_default will minimize twice. \
-            e.g. first with constraint_algorithm_minimization = none \
-            then with constraint_algorithm_minimization = default
+            e.g. first with restraint_algorithm_minimization = none \
+            then with restraint_algorithm_minimization = default
   emsteps = None
     .type = int
     .short_caption = EM steps
@@ -143,7 +143,7 @@ Options
     .short_caption = EM weight multiply by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 8) \
-            The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving constraints. \
+            The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
             If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
             If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended.
@@ -456,7 +456,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
 ############################### end of step_2 (clean gro) function
 
 
-def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
+def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_minimization, number_of_steps_for_minimization, \
            time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path):
   show_header("Step 3: Make a tpr file for minimization")
   os.chdir (starting_dir)
@@ -489,10 +489,10 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
         print "\ttime_step_for_minimization != 0.001"
         new_line = "\ndt = " + str(time_step_for_minimization) + "\n"
         fout.write(new_line)
-      #print "\tconstraint_algorithm_minimization:", constraint_algorithm_minimization
-      if str(constraint_algorithm_minimization) == "None" or str(constraint_algorithm_minimization) == "none":
-        print "\tconstraint_algorithm_minimization = none"
-        new_line = "\nconstraint-algorithm: none\n"
+      #print "\trestraint_algorithm_minimization:", restraint_algorithm_minimization
+      if str(restraint_algorithm_minimization) == "None" or str(restraint_algorithm_minimization) == "none":
+        print "\trestraint_algorithm_minimization = none"
+        new_line = "\nrestraint-algorithm: none\n"
         fout.write(new_line)
     fout.close()
   fin.close()
@@ -512,7 +512,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
     cp2_command_string = "cp ../1_make_gro/*.top . "
     libtbx.easy_run.fully_buffered(cp2_command_string)
   else: # regular running
-    if str(constraint_algorithm_minimization) != "none_default":
+    if str(restraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "
     else:
       cp1_command_string = "mv ../../minimized_c_term_renamed_by_resnum_oc.gro . "
@@ -521,7 +521,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_mi
   libtbx.easy_run.fully_buffered(cp1_command_string)
   
   if (this_is_test_for_each_step == False):
-    if str(constraint_algorithm_minimization) != "none_default":
+    if str(restraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "  
       cp2_command_string = "cp ../1_make_gro/*.top . "
       libtbx.easy_run.fully_buffered(cp2_command_string)
@@ -663,11 +663,11 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
     
 
 def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
-  show_header("Step 5: Make contact potential (constraints) and topology file with it")
-  remake_and_move_to_this_folder(starting_dir, "steps/5_make_constraints")
+  show_header("Step 5: Make contact potential (restraints) and topology file with it")
+  remake_and_move_to_this_folder(starting_dir, "steps/5_make_restraints")
   
   start = time.time()
-  cp_command_string = "cp " + command_path + "steps/5_make_constraints/runme_make_contact_potential.py ."
+  cp_command_string = "cp " + command_path + "steps/5_make_restraints/runme_make_contact_potential.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test_for_each_step = False # default
@@ -693,7 +693,7 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
   if (this_is_test_for_each_step == True):
     return True
   return False # this is not a test for each step
-########################### end of step_5 (make constraints) function
+########################### end of step_5 (make restraints) function
 
 
 def step_6(command_path, starting_dir, model_file_without_pathways):
@@ -711,7 +711,7 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
     cp_command_string = "cp ../../data/input_for_step_6/* ."
     this_is_test_for_each_step = True
   else:
-    cp_command_string = "cp ../5_make_constraints/*including_disre2_itp.top ." ## In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
+    cp_command_string = "cp ../5_make_restraints/*including_disre2_itp.top ." ## In normal case, there will be minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   command_string = "python runme_make_0_charge.py *.top"
@@ -746,9 +746,9 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
     libtbx.easy_run.fully_buffered(cp1_command_string)
     this_is_test_for_each_step = True
   else: # regular running or emd regression
-    cp1_command_string = "cp ../5_make_constraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
+    cp1_command_string = "cp ../5_make_restraints/*.gro ." # there will be minimized_c_term_renamed_by_resnum_oc.gro only
     libtbx.easy_run.fully_buffered(cp1_command_string)
-    cp2_command_string = "cp ../5_make_constraints/disre2.itp ."
+    cp2_command_string = "cp ../5_make_restraints/disre2.itp ."
     libtbx.easy_run.fully_buffered(cp2_command_string)
     cp3_command_string = "cp ../6_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
     libtbx.easy_run.fully_buffered(cp3_command_string)
@@ -1096,7 +1096,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
   (note) If the cryo_fit has been automatically repeated to improve cc, the trajectory
     file shows only the last cryo_fit run.
-    Therefore, to watch full a change of conformations,
+    Therefore, to watch a full change of conformations,
     "phenix.cryo_fit user.mrc user.pdb no_rerun=True number_of_steps_for_cryo_fit=<enough step>"
     is recommended.
 '''
@@ -1192,7 +1192,7 @@ def run_cryo_fit(logfile, params, inputs):
   model_file_without_pathways = returned[1]
   
   # Options  
-  constraint_algorithm_minimization = params.cryo_fit.Options.constraint_algorithm_minimization
+  restraint_algorithm_minimization = params.cryo_fit.Options.restraint_algorithm_minimization
   emsteps = params.cryo_fit.Options.emsteps
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
@@ -1270,11 +1270,11 @@ def run_cryo_fit(logfile, params, inputs):
     else:
       logfile.write(write_this)
   
-  print "constraint_algorithm_minimization:",constraint_algorithm_minimization
+  print "restraint_algorithm_minimization:",restraint_algorithm_minimization
   
-  if str(constraint_algorithm_minimization) != "none_default": # this is default for "regular running" and "regression running"
+  if str(restraint_algorithm_minimization) != "none_default": # this is default for "regular running" and "regression running"
     if (steps_list[2] == True):
-      this_is_test_for_each_step = step_3(logfile, command_path, starting_dir, ns_type, constraint_algorithm_minimization, number_of_steps_for_minimization, \
+      this_is_test_for_each_step = step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_minimization, number_of_steps_for_minimization, \
              time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path)
       write_this = "Step 3 (Make a tpr file for minimization) is successfully ran\n"
       if (this_is_test_for_each_step == True):
@@ -1290,7 +1290,7 @@ def run_cryo_fit(logfile, params, inputs):
         end_regression(starting_dir, write_this)
       else:
         logfile.write(write_this)
-  else: #str(constraint_algorithm_minimization) = "none_default"
+  else: #str(restraint_algorithm_minimization) = "none_default"
     if (steps_list[2] == True):
       this_is_test_for_each_step = step_3(logfile, command_path, starting_dir, ns_type, "none", number_of_steps_for_minimization, \
              time_step_for_minimization, model_file_without_pathways, devel, cryo_fit_path)
@@ -1335,7 +1335,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   if (steps_list[4] == True):
     this_is_test_for_each_step = step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path)
-    write_this = "Step 5 (Make contact potential (constraints) and topology file with it) is successfully ran\n"
+    write_this = "Step 5 (Make contact potential (restraints) and topology file with it) is successfully ran\n"
     if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
     else:

@@ -43,7 +43,7 @@ def make_contact_potential(input_gro_file_name, cryo_fit_path):
     # disre1.itp has too much obvious information. For example, everyone knows that atom 1 and 2 are covalently bonded.
     # Therefore, make disre2.itp for simpler usage
     command_used = "awk '{ if (($1-$2) < -5) print $1,$2,$3,NR-9,$5,$6,$6,$8,$9}' disre1.itp >> disre2.itp" 
-    # disre2.itp has the constraints created by changing the square width potential (standard in gromacs) to umbrella potential 
+    # disre2.itp has the restraints created by changing the square width potential (standard in gromacs) to umbrella potential 
     os.system(command_used)
     write_this_input_command = str(command_used) + "\n"
     f_out.write(write_this_input_command)
