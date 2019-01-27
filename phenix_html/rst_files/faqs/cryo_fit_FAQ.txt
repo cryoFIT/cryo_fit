@@ -1,0 +1,18 @@
+==============================================
+Cryo_fit FAQ
+==============================================
+
+.. contents::
+
+At my last step (8_cryo_fit), I see "step 0 correlation coefficient: nan" in my md.log file
+-----------------------------------------------------------------------------------------------
+This message often indicates when the initial atomic model is not
+placed into a cryo-EM map.
+
+Try `dock_in_map <https://www.phenix-online.org/documentation/reference/dock_in_map.html>`__
+
+
+How long does it take to run cryo_fit?
+---------------------------------------
+.. image:: ../images/cryo_fit_FAQ_how_long1.png
+.. image:: ../images/cryo_fit_FAQ_how_long2.png

@@ -1,0 +1,69 @@
+==============================================
+Fitting to a Cryo-EM Map using MD Simulation
+==============================================
+
+.. contents::
+
+Overview
+--------
+Cryo_fit fits biomolecule (protein and nucleic acids) to cryo-EM map
+that is reconstructed by single particle analysis using molecular dynamics simulation
+
+
+Abstract
+-------------------
+With many crystallography groups shifting to cryogenic electron
+microscopy (cryo-EM), there is a high demand for software that can
+produce atomistic models for high resolution cryo-EM
+datasets. Therefore, we are incorporating our automated cryo-EM
+density fitting method (cryo_fit) into a widely used software suite
+for macromolecular structure determination (PHENIX). Cryo_fit produces
+all-atom models highly consistent with the EM density and is being
+used to construct models for many functional complexes (including one
+of the first all-atom models of the human ribosome, revealing a new
+conformational change specific to eukaryotic ribosomes: subunit
+rolling). Two key advantages of the cryo_fit are its speed and the
+preservation of stereochemistry information. Its fast speed allows
+cryo-EM scientists to run on a single laptop (several hours for a
+ribosome modeling without the need for GPU) instead of thousands of
+cores. It uses a reduced model molecular dynamics potential that allows us to preserve
+stereochemistry information. As an additional advantage, secondary and
+tertiary contact potentials can be specified to place additional
+restraints on contacts within a cutoff keeping them intact during the
+fitting process.
+
+
+
+
+How to Fit Cryo EM Maps
+-----------------------------
+.. image:: ../images/cryo_fit_how_can_we_fit_cryo_EM_maps.png
+
+
+
+Advantages
+-------------------
+.. image:: ../images/cryo_fit_advantage.png
+
+
+How Cryo_fit Works
+-----------------------------
+.. image:: ../images/cryo_fit_How_Cryo_fit_works.png
+
+
+How to Run Cryo_fit
+-----------------------------
+See the `tutorial notes for cryo_fit <../tutorials/cryo_fit_cmdline.html>`__
+
+
+FAQ
+-----------------------------
+See the `cryo_fit FAQ <../faqs/cryo_fit_faq.html>`__
+
+
+Reference
+----------
+
+S. Kirmizialtin, J. Loerke, E. Behrmann, C. MT. Spahn, K. Y Sanbonmatsu,
+Using Molecular Simulation to Model High-Resolution Cryo-EM Reconstructions, 
+Methods Enzymol., 558, 2015, 497-514
