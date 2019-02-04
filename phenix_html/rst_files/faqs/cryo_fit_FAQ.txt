@@ -1,5 +1,5 @@
 ==============================================
-Cryo_fit FAQ
+Cryo_fit1 FAQ
 ==============================================
 
 .. contents::
@@ -16,3 +16,8 @@ How long does it take to run cryo_fit?
 ---------------------------------------
 .. image:: ../images/cryo_fit_FAQ_how_long1.png
 .. image:: ../images/cryo_fit_FAQ_how_long2.png
+
+
+How to generate and record movie?
+---------------------------------------
+`Generate_record_movie_by_cryo_fit1 <../tutorials/cryo_fit_movie.html>`__

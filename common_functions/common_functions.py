@@ -664,14 +664,16 @@ def make_trajectory_gro(cryo_fit_path):
         print "no trajectory.gro file, exit here"
         STOP()
     os.remove("input_parameter")
-# end of def make_trajectory_gro():
+######################## end of def make_trajectory_gro():
     
+
 def minimize(cores_to_use, ns_type, common_command_string):
     command_string = common_command_string + " -nt 1 -dd 1 1 1 "
     print "\tcommand: ", command_string
     libtbx.easy_run.call(command=command_string)
     return command_string
-# end of minimize function
+######################## end of minimize function
+
 
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\n\tConvert mrc format map to situs format map"
