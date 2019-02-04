@@ -1060,6 +1060,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\n\t\tTo watch/record a trajectory movie, see \"how_to_watch_record_trajectory_movie.txt\""
   
   trajectory_message = '''
+  Below messages will be posted at https://www.phenix-online.org/documentation/tutorials/cryo_fit_movie.html
+  once next official Phenix version is released.
+  
+  Until then, here we post.
+  
   <Pymol: confirmed with version 2.2.2>
     [command] cd output/trajectory
     [command] load trajectory.gro, mytraj
