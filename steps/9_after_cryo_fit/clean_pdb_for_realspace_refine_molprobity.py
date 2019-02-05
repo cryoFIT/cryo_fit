@@ -19,6 +19,13 @@ def clean_main(input_pdb_file_name):
   #output_pdb_file_name = clean_for_chimeraX (input_pdb_file_name) 
 ##################################### end of clean_main function
 
+def ILE_CD_to_CD1(residue, atom, new_line):
+  if residue == "ILE":
+    if atom == "CD ":
+      new_line = new_line[:13] + "CD1" + new_line[16:]
+  return new_line 
+##################################### end of ILE_CD_to_CD1(residue, atom, new_line)
+
 
 def deal_OC1(atom, new_line):
   if atom == "OC1":
@@ -37,6 +44,7 @@ def clean(input_pdb_file_name):
     ENDMDL = line[:6]
     element = line[13:14]
     atom = line[13:16]
+    residue = line[17:20]
     
     if ((CRYST_MODEL == "CRYST") or (CRYST_MODEL == "MODEL") or (ENDMDL == "ENDMDL")): # remove CRYST for real_space_refine, remove MODEL for molprobity
       print "\t\t\t omitted ", line
@@ -57,6 +65,11 @@ def clean(input_pdb_file_name):
       new_line = new_line[:17] + new_line[17:20].replace(' RU', ' U ') + new_line[20:]
       new_line = new_line[:17] + new_line[17:20].replace(' RG', ' G ') + new_line[20:]
       new_line = new_line[:17] + new_line[17:20].replace(' RC', ' C ') + new_line[20:]
+      
+      new_line = ILE_CD_to_CD1(residue, atom, new_line) 
+      # http://www.phenix-online.org/pipermail/phenixbb/2015-October/022450.html
+      # For RSR of cryo_fitted adenylate kinase, I need this function
+      
       new_line = deal_OC1(atom, new_line)
       f_out.write(new_line)
       
