@@ -367,7 +367,8 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
     number_of_steps_for_cryo_fit = 6000
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   return number_of_steps_for_cryo_fit
-# end of determine_number_of_steps_for_cryo_fit function
+### end of determine_number_of_steps_for_cryo_fit function
+
 
 def determine_number_of_steps_for_minimization(model_file_without_pathways, \
                                                model_file_with_pathways, \
@@ -375,10 +376,12 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
   if (devel == True):
     number_of_steps_for_minimization = 10
     return number_of_steps_for_minimization
+
   if (user_entered_number_of_steps_for_minimization != None ):
     print "\tcryo_fit will use user_entered_number_of_steps_for_minimization:", user_entered_number_of_steps_for_minimization
     return user_entered_number_of_steps_for_minimization
-
+    
+  '''
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_minimization = '' # just initial declaration
   if (number_of_atoms_in_input_pdb < 7000): # tRNA has 6k atoms (pdb and gro)
@@ -389,9 +392,13 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
     number_of_steps_for_minimization = 10000
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     number_of_steps_for_minimization = 20000
+  '''
+  
+  number_of_steps_for_minimization = 20000
   print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
   return number_of_steps_for_minimization
-# end of determine_number_of_steps_for_minimization function
+#### end of determine_number_of_steps_for_minimization function
+
 
 def decide_number_of_cores_to_use(check_at_each_step):
     number_of_total_cores = know_total_number_of_cores()

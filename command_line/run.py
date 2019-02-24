@@ -178,6 +178,9 @@ Options
     This usually means that your system is not well equilibrated"
 }
 
+many_step_____n__dot_pdb = False
+  .type = bool
+  .short_caption = If true, emweight_multiply_by=1, lincs_order=2, annealing_gen_temp=40
 devel = False
   .type = bool
   .short_caption = If true, just quick check for sanity
@@ -196,8 +199,7 @@ kill_mdrun_mpirun_in_linux = False
 lincs_order = None
   .type = int
   .short_caption = LINear Constraint Solver
-  .help = The accuracy in set with lincs-order, which sets the number of matrices \
-          in the expansion for the matrix inversion. \
+  .help = The accuracy in set with lincs-order, which sets the number of matrices in the expansion for the matrix inversion. \
           If it is not specified, the cryo_fit will use 4.
 no_rerun = False
   .type = bool
@@ -310,6 +312,48 @@ def end_regression(starting_dir,write_this):
 ########## end of end_regression
 
 
+def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
+                         emweight_multiply_by, emwritefrequency, lincs_order):
+  for line in fin:
+    splited = line.split()
+    if splited[0] == "dt":
+      new_line = "dt = " + str(time_step_for_cryo_fit) + "\n"
+      fout.write(new_line)
+    elif splited[0] == "emsteps":
+      if (emsteps == None):
+          new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/100)) + "\n" # to make cryo_fit step 8 faster
+          # when emsteps is too sparse, cc went to become worse
+          fout.write(new_line)
+      else:
+        new_line = "emsteps = " + str(emsteps) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "emweight":
+      number_of_atoms_in_gro = return_number_of_atoms_in_gro()
+      print "\temweight_multiply_by:", emweight_multiply_by
+      new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
+      fout.write(new_line)
+    elif splited[0] == "emwritefrequency":
+      if (emwritefrequency == None): # default is 1,000,000, because I don't see any usefulness of writing intermediate .sit file
+        fout.write(line)
+      else:
+        new_line = "emwritefrequency = " + str(emwritefrequency) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "lincs-order":
+      if (lincs_order == None):
+        fout.write(line)
+      else:
+        new_line = "lincs-order  = " + str(lincs_order) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "nsteps":
+      new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
+      fout.write(new_line)
+    else:
+      fout.write(line)
+  fout.close()
+  fin.close()
+###### end of write_for_cryo_fit_mdp(fout, fin):
+  
+  
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
            force_field, ignh, missing, remove_metals, cryo_fit_path, *args):
   show_header("Step 1: Make gro and topology file by regular gromacs")
@@ -733,12 +777,11 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
 
 def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
            emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, \
-           model_file_without_pathways, cryo_fit_path):
+           model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
-  cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
-  libtbx.easy_run.fully_buffered(cp_command_string)
+  
   
   this_is_test_for_each_step = False # default
   if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
@@ -755,6 +798,22 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   
   
   print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
+  
+  
+  fout = open("for_cryo_fit.mdp", "wt")
+  fin = ''
+  if (many_step_____n__dot_pdb == False):
+    cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    fin = open("template_for_cryo_fit.mdp", "rt")
+  else:
+    cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
+    libtbx.easy_run.fully_buffered(cp_command_string)
+    fin = open("template_for_cryo_fit_many_step_____n__dot_pdb.mdp", "rt")
+  write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
+                         emweight_multiply_by, emwritefrequency, lincs_order)
+  
+  '''
   with open("template_for_cryo_fit.mdp", "rt") as fin:
     with open("for_cryo_fit.mdp", "wt") as fout:
       for line in fin:
@@ -794,6 +853,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
           fout.write(line)
     fout.close()
   fin.close()
+  '''
   
   cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
@@ -1218,6 +1278,12 @@ def run_cryo_fit(logfile, params, inputs):
   number_of_cores_to_use = params.cryo_fit.number_of_cores_to_use
   perturb_xyz_by = params.cryo_fit.perturb_xyz_by
   remove_metals = params.cryo_fit.remove_metals
+  many_step_____n__dot_pdb = params.cryo_fit.many_step_____n__dot_pdb
+  
+  if (many_step_____n__dot_pdb == True):
+    lincs_order = 2
+    emweight_multiply_by = 1
+  
   
   number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
                                                                             model_file_with_pathways, \
@@ -1382,7 +1448,7 @@ def run_cryo_fit(logfile, params, inputs):
     
     if (steps_list[6] == True):
       this_is_test_for_each_step = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-             emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path)
+             emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb)
       write_this = "Step 7 (Make a tpr file for cryo_fit) is successfully ran\n"
       if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
