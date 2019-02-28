@@ -180,7 +180,7 @@ Options
 
 many_step_____n__dot_pdb = False
   .type = bool
-  .short_caption = If true, emweight_multiply_by=1, lincs_order=2, annealing_gen_temp=40
+  .short_caption = If true, emweight_multiply_by=1, lincs_order=1, annealing_gen_temp=40
 devel = False
   .type = bool
   .short_caption = If true, just quick check for sanity
@@ -1281,8 +1281,9 @@ def run_cryo_fit(logfile, params, inputs):
   many_step_____n__dot_pdb = params.cryo_fit.many_step_____n__dot_pdb
   
   if (many_step_____n__dot_pdb == True):
-    lincs_order = 2
     emweight_multiply_by = 1
+    lincs_order = 1
+    time_step_for_cryo_fit = 0.001
   
   
   number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
