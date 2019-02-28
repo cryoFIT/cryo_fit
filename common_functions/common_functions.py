@@ -726,11 +726,17 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\t\t\temmap_x0:",emmap_x0 # tRNA: 0, emd_1044: 0, emd_8249: -12
     print "\t\t\temmap_y0:",emmap_y0 # tRNA: 0, emd_1044: 0, emd_8249: -12
     print "\t\t\temmap_z0:",emmap_z0 # tRNA: 0, emd_1044: 52, emd_8249: -12
+    #STOP()
     ### (begin) shift map origin if current map origin < 0
-    #if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0): not applicable to emd_8249
+    
+    #not applicable to emd_8249
+    #if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0): 
         #print "shift map origin since current map origin < 0"
+    
+    #'''
+    # when I gaussian filtered mrc by chimera, emmap_x0, emmap_y0, emmap_z0 were 0
     if (emmap_x0 != 0 or emmap_y0 != 0 or emmap_z0 != 0): 
-        print "\t\t\tshift map origin since current map origin != 0"    
+        print "\t\t\tShift map origin since current map origin != 0"    
         origin_shited_to_000 = True
         pdb_inp = iotbx.pdb.input(file_name=pdb_file_name)
         model = mmtbx.model.manager(
@@ -755,7 +761,36 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         print "\t\t\t\temmap_z0:",emmap_z0
     ### (end) shift map origin
         #pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
+    #'''
     
+    
+    ''' # "shifting map origin whether current map origin != 0 or = 0" failed the regression
+    print "\t\t\tShift map origin whether current map origin != 0 or = 0"
+    origin_shited_to_000 = True
+    pdb_inp = iotbx.pdb.input(file_name=pdb_file_name)
+    model = mmtbx.model.manager(
+        model_input = pdb_inp,
+        crystal_symmetry=inputs.crystal_symmetry,
+        build_grm=True)
+    target_map_data = shift_origin_of_mrc_map_if_needed(target_map_data, model)
+
+    shifted_in_z = target_map_data.origin()[2] - emmap_z0
+    shifted_in_y = target_map_data.origin()[1] - emmap_y0
+    shifted_in_x = target_map_data.origin()[0] - emmap_x0
+    
+    # origin is shifted, so reassign emmap_z0,y0,x0
+    emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98, emd_1044: 52, emd_8249: 0
+    emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+    emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+    print "\t\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
+    
+    print "\t\t\t(after shifting map origin)"
+    print "\t\t\t\temmap_x0:",emmap_x0
+    print "\t\t\t\temmap_y0:",emmap_y0
+    print "\t\t\t\temmap_z0:",emmap_z0
+    '''
+    
+        
     print "\t\ttarget_map_data.all():", target_map_data.all()
     
     print "\n\t\tConversion of mrc-> sit started."
@@ -826,6 +861,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         return new_map_file_name
 ################ end of mrc_to_sit(map_file_name)
 
+
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
       shutil.rmtree(this_folder)
@@ -835,13 +871,15 @@ def remake_and_move_to_this_folder(starting_dir, this_folder):
   os.chdir( new_path )
 ################ end of remake_and_move_to_this_folder function
 
+
 def remake_this_folder(this_folder):
   if (os.path.isdir(this_folder) == True):
       #print "\tRemove a former " + this_folder + " folder"
       shutil.rmtree(this_folder)
   #print "\tMake a new " + this_folder + " folder"
   os.mkdir(this_folder)
-# end of remake_this_folder function
+#### end of remake_this_folder function
+
 
 def remove_former_files():
     current_directory = os.getcwd()
