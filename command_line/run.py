@@ -351,7 +351,7 @@ def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of
       fout.write(line)
   fout.close()
   fin.close()
-###### end of write_for_cryo_fit_mdp(fout, fin):
+############### end of write_for_cryo_fit_mdp(fout, fin):
   
   
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
@@ -430,7 +430,14 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
       print line
     #check_whether_mdrun_is_accessible() is ran above, confirmed that there is no reason to suggest install gromacs_cryo_fit here again
     print "\nphenix.cryo_fit alone without any arguments introduces full options."
-    print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
+    
+    print '\nIf a user sees a message like\n\
+    "Fatal error: \n\
+    Atom xx in residue xx xxx was not found in rtp entry xx with xx atoms \n\
+    while sorting atoms.",'
+    print "remove/fix wrong atoms. Running real_spaace_refine via phenix GUI will show which atoms need to be removed/fixed."
+
+    print "\nEmail phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))
   
