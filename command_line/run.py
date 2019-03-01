@@ -1509,9 +1509,10 @@ def run_cryo_fit(logfile, params, inputs):
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
           write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. \n\
-                       \t\tMost likely, this means that initial cc is too low for MD simulation. \n\
-                       \t\tUCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \n\
-                       \t\tLess likely, but still a possible case is when the map weight is too high, lowering emweight_multiply_by may help. \n\
+                       \tMost likely, this means that initial cc is too low for MD simulation. \n\
+                       \tWhen Doonam ran real_space_refine first, then run real_space_refined atomic model in cryo_fit, it was solved \n\
+                       \tAlternatively, UCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \n\
+                       \tLess likely, but still a possible case is when the map weight is too high, lowering emweight_multiply_by may help. \n\
                        Exit now\n"
           print write_this
           logfile.write(write_this)
