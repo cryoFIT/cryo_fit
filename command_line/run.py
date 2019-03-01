@@ -1508,12 +1508,18 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = "state.cpt not found, step_8 may be full of stepxb_nx.pdb. \n\
+          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \n\n\
                        \tMost likely, this means that initial cc is too low for MD simulation. \n\
                        \tWhen Doonam ran real_space_refine first, then run real_space_refined atomic model in cryo_fit, it was solved \n\
-                       \tAlternatively, UCSF Chimera's 'fit in map' or UCSF ChimeraX's isolde may improve initial cc. \n\
+                       \tAlternatively, UCSF Chimera\'s \'fit in map\' or UCSF ChimeraX\'s isolde may improve initial cc. \n\n\
+                       \tIf a user sees \n\
+                       \t"Fatal error: \n\
+                       \tA charge group moved too far between two domain decomposition steps \n\
+                       \tThis usually means that your system is not well equilibrated" in his/her md.log, \n\
+                       \tusing macOS 10.13.6 helped rather than using Ubuntu 16.04. Maybe macOS has better numerical stability \n\
+                       \tOne gromacs expert suggested to try smaller time_step_for_cryo_fit. However but for Doonam, simply using macOS solved the problem \n\n\
                        \tLess likely, but still a possible case is when the map weight is too high, lowering emweight_multiply_by may help. \n\
-                       Exit now\n"
+                       Exit now\n'
           print write_this
           logfile.write(write_this)
           exit(1)
