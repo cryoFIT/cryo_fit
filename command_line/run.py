@@ -1309,7 +1309,7 @@ def run_cryo_fit(logfile, params, inputs):
   if (initial_cc_only == True):
     number_of_steps_for_cryo_fit = 100 
     no_rerun = True
-    number_of_cores_to_use = 2
+    number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
   
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
