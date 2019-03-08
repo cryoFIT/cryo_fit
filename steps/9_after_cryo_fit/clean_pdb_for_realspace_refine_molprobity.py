@@ -1,6 +1,5 @@
 # author: Doonam
 
-
 import glob, os, sys
 
 def clean_main(input_pdb_file_name):
