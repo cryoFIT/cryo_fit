@@ -1307,7 +1307,7 @@ def run_cryo_fit(logfile, params, inputs):
                                                                             model_file_with_pathways, \
                                                                             user_entered_number_of_steps_for_cryo_fit, devel)
   if (initial_cc_only == True):
-    number_of_steps_for_cryo_fit = 100
+    number_of_steps_for_cryo_fit = 100 
     no_rerun = True
     number_of_cores_to_use = 2
   
