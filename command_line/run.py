@@ -192,7 +192,7 @@ ignh = True
   .type = bool
   .short_caption = If true, ignore hydrogen atoms that are in the coordinate file
   .help = http://manual.gromacs.org/programs/gmx-pdb2gmx.html
-initial_cc_only = False
+initial_cc_wo_min = False
     .type = bool
 kill_mdrun_mpirun_in_linux = False
   .type = bool
@@ -1280,7 +1280,7 @@ def run_cryo_fit(logfile, params, inputs):
   no_rerun = params.cryo_fit.no_rerun
   force_field = params.cryo_fit.force_field
   ignh = params.cryo_fit.ignh
-  initial_cc_only = params.cryo_fit.initial_cc_only
+  initial_cc_wo_min = params.cryo_fit.initial_cc_wo_min
   kill_mdrun_mpirun_in_linux = params.cryo_fit.kill_mdrun_mpirun_in_linux
   lincs_order = params.cryo_fit.lincs_order
   missing = params.cryo_fit.missing
@@ -1306,10 +1306,12 @@ def run_cryo_fit(logfile, params, inputs):
   number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(model_file_without_pathways,\
                                                                             model_file_with_pathways, \
                                                                             user_entered_number_of_steps_for_cryo_fit, devel)
-  if (initial_cc_only == True):
-    number_of_steps_for_cryo_fit = 100 
+  if (initial_cc_wo_min == True):
     no_rerun = True
     number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
+    number_of_steps_for_minimization = 0
+    number_of_steps_for_cryo_fit = 100
+    #number_of_steps_for_cryo_fit = 0
   
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \

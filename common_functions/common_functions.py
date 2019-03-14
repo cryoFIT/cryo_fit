@@ -189,9 +189,10 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
     
-  multiply_by_this = 1.35
+  #multiply_by_this = 1.35
+  multiply_by_this = 1.2
   if (this_is_test == True):
-    multiply_by_this = 2.2
+    multiply_by_this = 2.2 # to finish quickly
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     if (cc_last > cc_30th_last):
