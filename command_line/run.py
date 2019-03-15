@@ -951,8 +951,13 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   returned = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
   
   if (returned != "success"):
-    print "Step 8 (Run cryo_fit) didn't run successfully"
-    logfile.write("Step 8 (Run cryo_fit) didn't run successfully\n")
+    write_this = "Step 8 (Run cryo_fit) didn't run successfully"
+    print write_this
+    logfile.write(write_this)
+    
+    write_this = "please see https://github.com/cryoFIT/cryo_fit/blob/master/documentation_pdf/Cryo_fit1%20FAQ.pdf"
+    print write_this
+    logfile.write(write_this)
     
     if (returned == "failed_with_nan_in_cc"):
       return "failed_with_nan_in_cc"
@@ -1185,7 +1190,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   if (returned != "success"):
     write_this = "Step final (arrange output) didn't run successfully"
     print write_this
-    logfile.write("Step final (arrange output) didn't run successfully\n")
+    logfile.write(write_this)
+    
     logfile.close()
     exit(1)
   
