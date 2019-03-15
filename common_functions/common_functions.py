@@ -41,8 +41,8 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to as
   print "\t\tparams.cryo_fit.Input.map_file_name a user provided: ", temp_map_file_name
   
   if (temp_map_file_name[len(temp_map_file_name)-5:len(temp_map_file_name)] == ".ccp4" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
-        temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
+      temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".map" or \
+      temp_map_file_name[len(temp_map_file_name)-4:len(temp_map_file_name)] == ".mrc" ):
     
     params.cryo_fit.Input.map_file_name = mrc_to_sit(inputs, params.cryo_fit.Input.map_file_name, params.cryo_fit.Input.model_file_name) # shift origin of map if needed
   
@@ -56,7 +56,7 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to as
   elif (map_file_with_pathways[len(map_file_with_pathways)-5:len(map_file_with_pathways)] == ".ccp4"):
     map_file_with_pathways = map_file_with_pathways[:-5] + "_converted_to_sit.sit"
   
-  # assign map_file_without_pathways
+  ### assign map_file_without_pathways
   splited_map_file_name = map_file_with_pathways.split("/")
   map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
   
@@ -76,8 +76,7 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
     print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
     exit(1)
   
-  ################## assign model file
-  # assign model_file_without_pathways (not final)
+  ### assign model_file_without_pathways (not final)
   splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
   model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
   
@@ -188,7 +187,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     print (msg)
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
-    
+
   #multiply_by_this = 1.35
   multiply_by_this = 1.2
   if (this_is_test == True):
@@ -468,7 +467,8 @@ def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cor
     else:
         command_used = minimize(int(number_of_cores_to_use), ns_type, common_command_string)
     return command_used
-# end of final_prepare_minimization function
+#################### end of final_prepare_minimization function
+
 
 def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart, cryo_fit_path):
     
@@ -495,6 +495,7 @@ def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, ta
     return command_used
 ####################### end of first_prepare_cryo_fit function
 
+
 def first_prepare_minimization(ns_type, number_of_available_cores, \
                                    number_of_cores_to_use, cryo_fit_path):
     common_command_string = cryo_fit_path + "mdrun -v -s to_minimize.tpr -c minimized.gro "    
@@ -504,6 +505,7 @@ def first_prepare_minimization(ns_type, number_of_available_cores, \
     command_used = command_used + "\n"    
     return command_used
 ####################### end of first_prepare_minimization function
+
 
 def get_fc(complete_set, xray_structure):
   f_calc = complete_set.structure_factors_from_scatterers(
@@ -710,31 +712,36 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
     emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98
     
-    ori_emmap_z0 = emmap_z0
-    ori_emmap_y0 = emmap_y0
-    ori_emmap_x0 = emmap_x0
+    ori_emmap_z0 = emmap_z0 # very original origin in z axis
+    ori_emmap_y0 = emmap_y0 # very original origin in y axis
+    ori_emmap_x0 = emmap_x0 # very original origin in x axis
     
     print "\t\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
     a,b,c = ccp4_map.unit_cell_parameters[:3]
+    print "ccp4_map.unit_cell_parameters[:3]:", ccp4_map.unit_cell_parameters[:3]
+    # L1 stalk: (377.9999694824219, 377.9999694824219, 377.9999694824219)
+    # emd_8249: (126.72000122070312, 126.72000122070312, 126.72000122070312
+    # tRNA: (74.4800033569336, 63.70000076293945, 72.52000427246094)
+    print "target_map_data.all():",target_map_data.all()
+    # L1 stalk: (169, 158, 156), emd_8249: (24, 24, 24), tRNA: (76, 65, 74)
     widthx = a/target_map_data.all()[0]
+    #STOP()
+    
     print "\t\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
+    # L1 stalk: 2.23668620996
     
     origin_shited_to_000 = False # just assume that it will not be shifted
     shifted_in_x = 0
     shifted_in_y = 0
     shifted_in_z = 0 
     print "\t\t(before shifting map origin)"
-    print "\t\t\temmap_x0:",emmap_x0 # tRNA: 0, emd_1044: 0, emd_8249: -12
-    print "\t\t\temmap_y0:",emmap_y0 # tRNA: 0, emd_1044: 0, emd_8249: -12
-    print "\t\t\temmap_z0:",emmap_z0 # tRNA: 0, emd_1044: 52, emd_8249: -12
-    #STOP()
-    ### (begin) shift map origin if current map origin < 0
     
-    #not applicable to emd_8249
-    #if (emmap_x0 < 0 or emmap_y0 < 0 or emmap_z0 < 0): 
-        #print "shift map origin since current map origin < 0"
+    print "current origins"
+    print "\t\t\temmap_x0:",emmap_x0 # L1 stalk: 97, tRNA: 0, emd_1044: 0, emd_8249: -12
+    print "\t\t\temmap_y0:",emmap_y0 # L1 stalk: 58, tRNA: 0, emd_1044: 0, emd_8249: -12
+    print "\t\t\temmap_z0:",emmap_z0 # L1 stalk: 167, tRNA: 0, emd_1044: 52, emd_8249: -12
     
-    #'''
+    ### (begin) shift map origin if current map origin != 0
     # when I gaussian filtered mrc by chimera, emmap_x0, emmap_y0, emmap_z0 were 0
     if (emmap_x0 != 0 or emmap_y0 != 0 or emmap_z0 != 0): 
         print "\t\t\tShift map origin since current map origin != 0"    
@@ -751,15 +758,15 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         shifted_in_x = target_map_data.origin()[0] - emmap_x0
         
         # origin is shifted, so reassign emmap_z0,y0,x0
-        emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98, emd_1044: 52, emd_8249: 0
-        emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
-        emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+        emmap_z0 = target_map_data.origin()[2] # L1_stalk: 167, tRNA: 0, nucleosome: -98, emd_1044: 52, emd_8249: 0
+        emmap_y0 = target_map_data.origin()[1] # L1_stalk: 58, tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
+        emmap_x0 = target_map_data.origin()[0] # L1_stalk: 97, tRNA: 0, nucleosome: -98, emd_1044: 0, emd_8249: 0
         print "\t\t\ttarget_map_data.origin() after shifting:",target_map_data.origin()
         
         print "\t\t\t(after shifting map origin)"
-        print "\t\t\t\temmap_x0:",emmap_x0
-        print "\t\t\t\temmap_y0:",emmap_y0
-        print "\t\t\t\temmap_z0:",emmap_z0
+        print "\t\t\t\temmap_x0 (origin in x axis):",emmap_x0
+        print "\t\t\t\temmap_y0 (origin in y axis):",emmap_y0
+        print "\t\t\t\temmap_z0 (origin in z axis):",emmap_z0
     ### (end) shift map origin
         #pdb_file_name = translate_pdb_file_by_xyz(pdb_file_name, shifted_in_x, shifted_in_y, shifted_in_z, widthx, False)
     #'''
@@ -791,25 +798,30 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\t\t\t\temmap_z0:",emmap_z0
     '''
     
-        
-    print "\t\ttarget_map_data.all():", target_map_data.all()
+    print "\t\ttarget_map_data.all():", target_map_data.all() # for L1 stalk, 169, 158, 156
     
     print "\n\t\tConversion of mrc-> sit started."
     print "\t\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
     print "\t\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
     print "\t\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
     
-    emmap_nz = target_map_data.all()[2] # for H40 -> 109, nucleosome: 196
-    emmap_ny = target_map_data.all()[1] # for H40 -> 104, nucleosome: 196
-    emmap_nx = target_map_data.all()[0] # for H40 -> 169, nucleosome: 196
+    emmap_nz = target_map_data.all()[2] # L1 talk: 156, H40: 109, nucleosome: 196
+    emmap_ny = target_map_data.all()[1] # L1 talk: 158, H40: 104, nucleosome: 196
+    emmap_nx = target_map_data.all()[0] # L1 talk: 169, H40: 169, nucleosome: 196
     
-    line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    print "\t\t\t\temmap_nx (dimension in x axis):",emmap_nx
+    print "\t\t\t\temmap_ny (dimension in y axis):",emmap_ny
+    print "\t\t\t\temmap_nz (dimension in z axis):",emmap_nz
+    
+    print "\n\t\t\t\temmap_x/y/z0 are origins in x/y/z axis"
+    #line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    line = str(1) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
     f_out.write(line)
     
     counter = 0
-    for k in xrange(emmap_z0, emmap_nz):
-      for j in xrange(emmap_y0, emmap_ny):
-        for i in xrange(emmap_x0, emmap_nx):
+    for k in xrange(emmap_z0, emmap_nz): # L1 stalk: 0 ~ 155
+      for j in xrange(emmap_y0, emmap_ny): # L1 stalk: 0 ~ 157
+        for i in xrange(emmap_x0, emmap_nx): # L1 stalk: 0 ~ 168
             #print "i:",i # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
             #print "j:",j # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
             #print "k:",k # emd_8249:0.0, tRNA: 0.0, emd_1044: 52
@@ -817,9 +829,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
             x=i/emmap_nx
             y=j/emmap_ny
             z=k/emmap_nz
-            #print "x:",x # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
-            #print "y:",y # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
-            #print "z:",z # emd_8249:0.0, tRNA: 0.0, emd_1044: 0.945454545455
+          #  print "x:",x # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+          #  print "y:",y # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
+          #  print "z:",z # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.945454545455
             #STOP()
             value = target_map_data.value_at_closest_grid_point((x,y,z)) # doesn't work when x,y,z < 0
             
@@ -834,11 +846,10 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     f_out.close()
     
     if (origin_shited_to_000 == True):
-        # reassign shifted_origin into original ones (not necessarily to 0,0,0)
-        first_line = True
+        print "\t\t\tReassign shifted_origin into original ones (not necessarily to 0,0,0)"
+        print "\t\t\t This reassigning of origins is needed so that step_8 cryo_fit can run model and map superposed as seen with fastest_run_emd_8249"
         print "\t\t\tmap_file_name:", map_file_name
         
-        #new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
         new_map_file_name_w_ori_origins = ''
         if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
             (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
@@ -849,14 +860,20 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')
+        first_line = True
         for line in f_in:
             if (first_line == True):
-                line = str(widthx) + " " + str(widthx*ori_emmap_x0) + " " + str(widthx*ori_emmap_y0) + " " + str(widthx*ori_emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+                # ori_emmap_x/y/z0 -> very original origins in x/y/z axis
+                # for L1 stalk, ori_emmap_x/y/z0 = 97, 58, 167 
+                # for L1 stalk, emmap_nx/y/z = 169, 158, 156
+                line = str(widthx) + " " + \
+                       str(widthx*ori_emmap_x0) + " " + str(widthx*ori_emmap_y0) + " " + str(widthx*ori_emmap_z0) + " " +\
+                       str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
                 first_line = False
             f_out.write(line)
         f_in.close()
         f_out.close()
-        subprocess.call(["rm", new_map_file_name])
+        #subprocess.call(["rm", new_map_file_name])
         return new_map_file_name_w_ori_origins
     else:
         return new_map_file_name
