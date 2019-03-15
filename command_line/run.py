@@ -955,7 +955,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print write_this
     logfile.write(write_this)
     
-    write_this = "please see https://github.com/cryoFIT/cryo_fit/blob/master/documentation_pdf/Cryo_fit1%20FAQ.pdf"
+    write_this = "\nplease see https://github.com/cryoFIT/cryo_fit/blob/master/documentation_pdf/Cryo_fit1%20FAQ.pdf"
     print write_this
     logfile.write(write_this)
     
@@ -1488,8 +1488,9 @@ def run_cryo_fit(logfile, params, inputs):
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
         
       if (results == "failed_with_nan_in_cc"):
-        print "\tStep 8 failed with nan error in cc calculation, the initial structure could be too far away from cryo-EM map\n"
-        logfile.write("\tStep 8 failed with nan error in cc calculation, the initial structure could be too far away from cryo-EM map\n")
+        write_this = "\n\tStep 8 failed with nan error in cc calculation, the initial structure could be too far away from cryo-EM map\n"
+        print write_this
+        logfile.write(write_this)
         return "failed" # flatly failed
       
       if (results == "failed"):
