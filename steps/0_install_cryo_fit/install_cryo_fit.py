@@ -59,13 +59,13 @@ if shell == "csh":
 
 
 ''' #using phenix library like libtbx.env.dist_path is useful, but depending on osX it didn't work
-so Doonam reverted to an old style (manual way) so that all osX can work (1/7/2019)
+so Doo Nam reverted to an old style (manual way) so that all osX can work (1/7/2019)
 
 
 # some header(s) among these are needed for libtbx.env.dist_path
 
 from libtbx import phil
-# With cshell, Doonam and Jun Dong can't import libtbx! (with bash, no problem)
+# With cshell, Doo Nam and Jun Dong can't import libtbx! (with bash, no problem)
 # At doonam's newest personal macbookpro (osX 10.13.6), "ImportError: No module named libtbx"  1/7/2019
 
 import libtbx.phil.command_line
@@ -207,7 +207,7 @@ def configure_cryo_fit (GMX_MD_INSTALL, GMX_MD_SRC, enable_mpi, enable_fftw, ent
     
   if (configure_result != "Y" and configure_result != "y"):
     color_print ("I'm sorry to hear that your configuration didn't go well", 'red')
-    color_print ("\nWhen Doonam saw this error", 'red')
+    color_print ("\nWhen Doo Nam saw this error", 'red')
     color_print ("\t...checking whether the C compiler works... no", 'red')
     color_print ("\t   configure: error: in `/Users/doonam/src/gromacs-4.5.5_cryo_fit_added':", 'red')
     color_print ("\t   configure: error: C compiler cannot create executables", 'red')
@@ -314,7 +314,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
 
   color_print ("\nIf you see", 'green')
   print "   replace __MACOSX/gromacs_cryo_fit/._.compile2.bat.swp? [y]es, [n]o, [A]ll, [N]one, [r]ename"
-  color_print ("Doonam recommends to press A\n", 'green')
+  color_print ("Doo Nam recommends to press A\n", 'green')
   
   print "enter_all:", enter_all
   if (str(enter_all) != "True"):
@@ -475,7 +475,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
     color_print ("when running cryo_fit in mpi mode", 'green')
     
     color_print ("\nHit enter key to export like this (Edition of ~/.bashrc or ~/.bash_profile is recommended for better convenience).", 'green')
-    ######## Doonam needs to code to edit .bashrc automatically
+    ######## Doo Nam needs to code to edit .bashrc automatically
     raw_input()
   '''
 ##################### end of install_gromacs_cryo_fit ()
