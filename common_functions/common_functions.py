@@ -195,10 +195,14 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     if (cc_last > cc_30th_last):
-        print "\t\tcc_last (",cc_last,") > cc_30th_last (", cc_30th_last, ")"
+        write_this = "\t\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
+        print write_this
+        logfile.write(write_this)
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        print "\t\tcc_last (",cc_last,") < cc_30th_last (", cc_30th_last, ")"
+        write_this = "\t\tcc_last (" + cc_last + ") < cc_30th_last (" + cc_30th_last + ")"
+        print write_this
+        logfile.write(write_this)
         return False
   else:
     return False # either this is a regression or the last 30 cc values tend NOT to be increased
