@@ -194,6 +194,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     multiply_by_this = 2.2 # to finish quickly
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    
     if (cc_last > cc_30th_last):
         write_this = "\t\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
         print write_this
@@ -722,11 +723,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     print "\t\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
     a,b,c = ccp4_map.unit_cell_parameters[:3]
-    print "ccp4_map.unit_cell_parameters[:3]:", ccp4_map.unit_cell_parameters[:3]
+    print "\t\tccp4_map.unit_cell_parameters[:3]:", ccp4_map.unit_cell_parameters[:3]
     # L1 stalk: (377.9999694824219, 377.9999694824219, 377.9999694824219)
     # emd_8249: (126.72000122070312, 126.72000122070312, 126.72000122070312
     # tRNA: (74.4800033569336, 63.70000076293945, 72.52000427246094)
-    print "target_map_data.all():",target_map_data.all()
+    print "\t\ttarget_map_data.all():",target_map_data.all()
     # L1 stalk: (169, 158, 156), emd_8249: (24, 24, 24), tRNA: (76, 65, 74)
     widthx = a/target_map_data.all()[0]
     #STOP()
@@ -740,7 +741,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     shifted_in_z = 0 
     print "\t\t(before shifting map origin)"
     
-    print "current origins"
+    print "\t\tcurrent origins"
     print "\t\t\temmap_x0:",emmap_x0 # L1 stalk: 97, tRNA: 0, emd_1044: 0, emd_8249: -12
     print "\t\t\temmap_y0:",emmap_y0 # L1 stalk: 58, tRNA: 0, emd_1044: 0, emd_8249: -12
     print "\t\t\temmap_z0:",emmap_z0 # L1 stalk: 167, tRNA: 0, emd_1044: 52, emd_8249: -12
