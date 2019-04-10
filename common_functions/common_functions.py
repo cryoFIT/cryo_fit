@@ -739,7 +739,8 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     widthx = a/ccp4_map.unit_cell_grid[0]
     
     print "\t\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
-    
+    # James_new_relion_image_handled_400: 0.665
+    # James_new_original:                 0.665000047141
     
     origin_shited_to_000 = False # just assume that it will not be shifted
     shifted_in_x = 0
