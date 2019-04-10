@@ -729,8 +729,12 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     # tRNA: (74.4800033569336, 63.70000076293945, 72.52000427246094)
     print "\t\ttarget_map_data.all():",target_map_data.all()
     # L1 stalk: (169, 158, 156), emd_8249: (24, 24, 24), tRNA: (76, 65, 74)
-    widthx = a/target_map_data.all()[0]
-    #STOP()
+    
+    ##### this works for most maps except phenix.map_box ed maps
+    #widthx = a/target_map_data.all()[0]
+    
+    
+    widthx = a/ccp4_map.unit_cell_grid[0]
     
     print "\t\twidthx:", widthx # with nucleosome, I confirmed that widthx doesn't change by origin shift
     # L1 stalk: 2.23668620996

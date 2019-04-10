@@ -128,7 +128,7 @@ Options
   restraint_algorithm_minimization = *default none none_default
     .type = choice
     .help = default will be "default" \
-            If a user see this error during minimization "Too many lincs warnings", try either none or none_default. \ 
+            If a user sees this error during minimization Too many lincs warnings try either none or none_default. \
             none_default will minimize twice. \
             e.g. first with restraint_algorithm_minimization = none \
             then with restraint_algorithm_minimization = default
@@ -1273,6 +1273,8 @@ def run_cryo_fit(logfile, params, inputs):
   
   # Options  
   restraint_algorithm_minimization = params.cryo_fit.Options.restraint_algorithm_minimization
+  #print "params.cryo_fit.Options.restraint_algorithm_minimization:",params.cryo_fit.Options.restraint_algorithm_minimization
+  #STOP()
   emsteps = params.cryo_fit.Options.emsteps
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
