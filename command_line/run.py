@@ -437,8 +437,18 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     "Fatal error: \n\
     Atom xx in residue xx xxx was not found in rtp entry xx with xx atoms \n\
     while sorting atoms.",'
-    print "remove/fix wrong atoms. Running real_spaace_refine via phenix GUI will show which atoms need to be removed/fixed."
-
+    
+    print 'or \n\
+    "Fatal error: \n\
+    Residue xxx not found in residue topology database"'
+    
+    print "Solution if these residue/atoms are important: Fix wrong names of atoms/residues. Running real_spaace_refine via phenix GUI will show which atoms need to be removed/fixed."
+    print "\tIf gromacs amber03 force field doesn't have parameters for these residue/atoms, you may need to add parameters."
+    print "\tIt is a rather sad fact that most MD simulation force fields do not support all kinds of rare residue/atoms."
+    print "\tcryo_fit2 is under development to address this issue using phenix.eLBOW"
+    
+    print "Solution if these residue/atoms are not important: Remove these \"wrong\" atoms/residues from user's input pdb file. Run cryo_fit again"
+    
     print "\nEmail phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))

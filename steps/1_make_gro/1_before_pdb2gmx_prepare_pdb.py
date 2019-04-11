@@ -368,6 +368,16 @@ def clean_unusual_residue(input_pdb_file_name):
       f_report.write(write_this)
       print write_this
       continue
+    elif ((line[0:6] == "HETATM") and (residue == "SO4")):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
+      continue
+    elif ((line[0:6] == "HETATM") and (residue == "CD ")):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
+      continue
     else:
       f_out.write(line)
   f_in.close()
