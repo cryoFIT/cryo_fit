@@ -449,10 +449,10 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     print "\tcryo_fit2 is under development to address this issue using phenix.eLBOW"
     
     print "Solution if these residue/atoms are not important:\n"
-    print "\tRemove these \"wrong\" atoms/residues from user's input pdb file. Run cryo_fit again"
+    print "\tRemove these \"wrong\" atoms/residues from user's input pdb file. Run cryo_fit again."
     
     print "Solution if user's input pdb file is big:\n"
-    print "\tProbably cryo_fit will change conformation just minimally, I would extract out these \"wrong\" atoms/residues from user's input pdb file, then add these extracted lines to cryo_fitted file"
+    print "\tProbably cryo_fit will change conformation just minimally, I would extract out these \"wrong\" atoms/residues from user's input pdb file, then add these extracted lines to cryo_fitted file later."
     
     print "\nEmail phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
