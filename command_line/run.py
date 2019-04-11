@@ -443,9 +443,9 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     Residue xxx not found in residue topology database"'
     
     print "Solution if these residue/atoms are important:\n"
-    print "\tFix wrong names of atoms/residues. Running real_space_refine via phenix GUI will show which atoms need to be removed/fixed."
+    print "\tFix wrong names of atoms/residues. Running real_space_refine via phenix GUI will show which atoms need to be fixed."
     print "\tIf gromacs amber03 force field doesn't have parameters for these residue/atoms, you may need to add parameters."
-    print "\tIt is a rather sad fact that most MD simulation force fields do not support all kinds of rare residue/atoms."
+    print "\tIt is rather a sad fact that most MD simulation force fields do not support all kinds of rare residue/atoms."
     print "\tcryo_fit2 is under development to address this issue using phenix.eLBOW"
     
     print "Solution if these residue/atoms are not important:\n"
