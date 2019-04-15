@@ -424,7 +424,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file)
   if (this_step_was_successfully_ran == "failed"):
     logfile.write("Step 1 didn't run successfully")
-    logfile.close()
+    
     print "Step 1 didn't run successfully"
     print "\nUser's command was"
     f_in = open('../../cryo_fit.input_command')
@@ -433,6 +433,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     #check_whether_mdrun_is_accessible() is ran above, confirmed that there is no reason to suggest install gromacs_cryo_fit here again
     print "\nphenix.cryo_fit alone without any arguments introduces full options."
     
+    '''
     print '\nIf a user sees a message like\n\
     "Fatal error: \n\
     Atom xx in residue xx xxx was not found in rtp entry xx with xx atoms \n\
@@ -453,6 +454,32 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     
     print "Solution if user's input pdb file is big:\n"
     print "\tProbably cryo_fit will change conformation just minimally, I would extract out these \"wrong\" atoms/residues from user's input pdb file, then add these extracted lines to cryo_fitted file later."
+    '''
+    
+    print_this = '''\nIf a user sees a message like\n\
+    "Fatal error: \n\
+    Atom xx in residue xx xxx was not found in rtp entry xx with xx atoms \n\
+    while sorting atoms."
+    
+    or \n\
+    "Fatal error: \n\
+    Residue xxx not found in residue topology database"
+    
+    Solution if these residue/atoms are important:\n
+    \tFix wrong names of atoms/residues. Running real_space_refine via phenix GUI will show which atoms need to be fixed.
+    \tIf gromacs amber03 force field doesn't have parameters for these residue/atoms, you may need to add parameters.
+    \tIt is rather a sad fact that most MD simulation force fields do not support all kinds of rare residue/atoms.
+    \tcryo_fit2 is under development to address this issue using phenix.eLBOW
+    
+    Solution if these residue/atoms are not important:\n
+    \tRemove these \"wrong\" atoms/residues from user's input pdb file. Run cryo_fit again.
+    
+    Solution if user's input pdb file is big:\n
+    \tProbably cryo_fit will change conformation just minimally, I would extract out these \"wrong\" atoms/residues from user's input pdb file, then add these extracted lines to cryo_fitted file later.
+    '''
+    print print_this
+    logfile.write(print_this)
+    logfile.close()
     
     print "\nEmail phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
