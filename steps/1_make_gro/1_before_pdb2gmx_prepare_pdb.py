@@ -233,7 +233,8 @@ def clean_RNA_for_chimera_derived_ribosome(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of clean_RNA_for_chimera_derived_ribosome function
+############## end of clean_RNA_for_chimera_derived_ribosome function
+
 
 def clean_RNA_residues_for_amber03(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -268,7 +269,8 @@ def clean_RNA_residues_for_amber03(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of clean_RNA_residues_for_amber03 function
+################ end of clean_RNA_residues_for_amber03 function
+
 
 def clean_RNA_atoms_for_amber03(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -286,7 +288,8 @@ def clean_RNA_atoms_for_amber03(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of clean_RNA_atoms_for_amber03 function
+##################### end of clean_RNA_atoms_for_amber03 function
+
 
 def remove_the_fourth_character(input_pdb_file_name):
   # remove the fourth character in residue part, it should be either two characters like RA or \

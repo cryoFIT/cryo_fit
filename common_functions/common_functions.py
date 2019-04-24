@@ -825,7 +825,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\t\t\t\temmap_ny (dimension in y axis):",emmap_ny
     print "\t\t\t\temmap_nz (dimension in z axis):",emmap_nz
     
-    print "\n\t\t\t\temmap_x/y/z0 are origins in x/y/z axis"
+    #print "\n\t\t\t\temmap_x/y/z0 are origins in x/y/z axis"
     #line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
     line = str(1) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
     f_out.write(line)
@@ -908,7 +908,7 @@ def remake_this_folder(this_folder):
       shutil.rmtree(this_folder)
   #print "\tMake a new " + this_folder + " folder"
   os.mkdir(this_folder)
-#### end of remake_this_folder function
+################# end of remake_this_folder function
 
 
 def remove_former_files():
@@ -946,6 +946,7 @@ def remove_water_for_gromacs(input_pdb_file_name):
     '''
 ########################### end of remove_water_for_gromacs ()
 
+
 def renumber_cc_record_full(cc_record_full):
    f_in = open(cc_record_full)
    renumbered_cc_record_full = cc_record_full + "_renumbered"
@@ -976,6 +977,7 @@ def renumber_cc_record_full(cc_record_full):
    f_out.close()
 ################################ end of renumber_cc_record_full
 
+
 def return_number_of_atoms_in_gro():
   for check_this_file in glob.glob("*.gro"): # there will be only one *.gro file for step_5
     command_string = "wc -l " + check_this_file
@@ -983,7 +985,8 @@ def return_number_of_atoms_in_gro():
     splited = wc_result[0].split()
     print "\tUser's ", check_this_file, " has ", str(splited[0]), " atoms"
     return str(splited[0])
-# end of return_number_of_atoms_in_gro function
+############################## end of return_number_of_atoms_in_gro function
+
 
 def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
     command_string = '' # just initial
