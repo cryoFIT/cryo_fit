@@ -104,6 +104,18 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
 ####################### end of assign_model_name()
 
 
+def check_first_cc(cc_record):
+    f_in = open(cc_record, 'r')
+    cc = ''
+    for line in f_in:
+      splited = line.split()
+      cc = splited[4]
+      break
+    f_in.close()
+    return cc
+########### end of check_first_cc
+
+
 def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   print "\tCheck_whether_cc_has_been_increased"
   
@@ -262,7 +274,7 @@ def check_whether_mdrun_is_accessible():
 ######################## end of check_whether_mdrun_is_accessible()
 
 
-def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
+def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logfile):
     if (os.path.isfile(check_this_file)):
         returned_file_size = file_size(check_this_file)
         if (returned_file_size > 0):
@@ -272,6 +284,21 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
                         cc_record_file.close()
                         return "failed_with_nan_in_cc"
                     else:
+                        #'''
+                        user_s_cc = get_users_cc(check_this_file)
+                        if (float(user_s_cc) < 0.0001):
+                            write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
+                            print write_this
+                            logfile.write(write_this)
+                            write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
+                            print write_this
+                            logfile.write(write_this)
+                            write_this = "\nExit cryo_fit now\n"
+                            print write_this
+                            logfile.write(write_this)
+                            exit(1)
+                        #'''
+                        
                         cc_record_file.close()
             print step_name, " successfully ran"
             return "success"
@@ -338,7 +365,8 @@ def cif_as_pdb(file_name):
     except Exception, e:
       print "Error converting %s to PDB format:" %file_name
       print " ", str(e)
-# end of cif_as_pdb()
+######## end of cif_as_pdb()
+
 
 def color_print(text, color):
     if (termcolor_installed == True):
@@ -547,7 +575,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 #  open(pdb_file, "w").write(pdb_in.hierarchy.as_pdb_string(xrs))
   fc = xrs.structure_factors(d_min=1.5).f_calc()
   #print dir(fc).statistical_mean
-# end of get_structure_factor_from_pdb_string function
+############# end of get_structure_factor_from_pdb_string function
 
 def get_users_cc(cc_record):
   #print "\tGet user provided atomic model's cc"
@@ -558,7 +586,8 @@ def get_users_cc(cc_record):
     f_in.close()
     print "\tUser provided atomic model's cc: ", cc
     return cc
-# end of get_users_cc(cc_record)
+################ end of get_users_cc(cc_record)
+
 
 def id_shell():
   from os import environ
@@ -826,8 +855,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\t\t\t\temmap_nz (dimension in z axis):",emmap_nz
     
     #print "\n\t\t\t\temmap_x/y/z0 are origins in x/y/z axis"
-    #line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
-    line = str(1) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    line = str(widthx) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    
+    ############ only use for temporary development!!!!!!!!
+    #line = str(1) + " " + str(emmap_x0) + " " + str(emmap_y0) + " " + str(emmap_z0) + " " + str(emmap_nx) + " " + str(emmap_ny) + " " + str(emmap_nz) + "\n"
+    
     f_out.write(line)
     
     counter = 0

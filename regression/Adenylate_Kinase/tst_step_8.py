@@ -16,7 +16,8 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
       return 1
   print step_name, " didn't successfully ran"
   exit(1)
-# end of check_whether_the_step_was_successfully_ran function
+###### end of check_whether_the_step_was_successfully_ran function
+
 
 def check_cc(cc_record):
     f_in = open(cc_record, 'r')
@@ -26,7 +27,8 @@ def check_cc(cc_record):
       cc = splited[4]
     f_in.close()
     return cc
-# end of check_cc
+########### end of check_cc
+
 
 def run(prefix="tst_step_8"):
   """
@@ -55,7 +57,8 @@ def run(prefix="tst_step_8"):
   os.chdir( new_path )
   
   cc = check_cc("cc_record")
-  assert (cc != 0.004804)
+  #assert (cc != 0.004804)
+  assert (cc > 0.4)
   
   the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
   if (the_step_was_successfully_ran != 1):

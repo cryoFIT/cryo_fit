@@ -421,7 +421,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   
   this_step_was_successfully_ran = "failed" # just an initial value
   for check_this_file in glob.glob("*_by_pdb2gmx.gro"): # there will be only one *_by_pdb2gmx.gro file
-    this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file)
+    this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 1", check_this_file, logfile)
   if (this_step_was_successfully_ran == "failed"):
     logfile.write("Step 1 didn't run successfully")
     
@@ -472,7 +472,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
 ############################################## end of step_1 function
 
 
-def step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
+def step_2(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
            force_field, perturb_xyz_by, remove_metals):
   show_header("Step 2: Clean gro file to be compatible for amber03 forcefield")
   os.chdir (starting_dir)
@@ -512,7 +512,7 @@ def step_2(command_path, starting_dir, model_file_with_pathways, model_file_with
     
   this_step_was_successfully_ran = "failed" # just an initial value
   for check_this_file in glob.glob("*.gro"): # there will be only "will_be_minimized_cleaned.gro"
-    this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 2", check_this_file)
+    this_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 2", check_this_file, logfile)
 
   if (this_step_was_successfully_ran == "failed"):
     color_print (("Step 2 didn't run successfully"), 'red')
@@ -618,7 +618,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
 ############################ end of step_3 (prepare minimization) function
 
 
-def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
+def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cores, \
            number_of_cores_to_use, model_file_without_pathways, cryo_fit_path):
   show_header("Step 4: Minimize a gro file (to prevent \"blowup\" during Molecular Dynamics Simulation)")
   os.chdir (starting_dir)
@@ -679,7 +679,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   for gro_file_name in glob.glob("*.gro"): # there will be only one file like this
     final_gro_file_name = gro_file_name
     
-  returned = check_whether_the_step_was_successfully_ran("Step 4-1", final_gro_file_name)
+  returned = check_whether_the_step_was_successfully_ran("Step 4-1", final_gro_file_name, logfile)
   if returned == "failed":
     #bool_enable_mpi = know_output_bool_enable_mpi_by_ls()
     #if bool_enable_mpi == True:
@@ -727,7 +727,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 
-  check_whether_the_step_was_successfully_ran("Step 4-2", "minimized_c_term_renamed_by_resnum_oc.gro")
+  check_whether_the_step_was_successfully_ran("Step 4-2", "minimized_c_term_renamed_by_resnum_oc.gro", logfile)
   os.chdir( starting_dir )
   if (this_is_test_for_each_step == True):
     return True
@@ -735,7 +735,7 @@ def step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
 ############################ end of step_4 (minimization) function
     
 
-def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
+def step_5(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path):
   show_header("Step 5: Make contact potential (restraints) and topology file with it")
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_restraints")
   
@@ -755,7 +755,7 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
   print "\tcommand: ", command_string
   libtbx.easy_run.fully_buffered(command_string)
 
-  check_whether_the_step_was_successfully_ran("Step 5", "minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top")
+  check_whether_the_step_was_successfully_ran("Step 5", "minimized_c_term_renamed_by_resnum_oc_including_disre2_itp.top", logfile)
   end = time.time()
   print "Step 5", (show_time(start, end))
   
@@ -769,7 +769,7 @@ def step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_pat
 ########################### end of step_5 (make restraints) function
 
 
-def step_6(command_path, starting_dir, model_file_without_pathways):
+def step_6(logfile, command_path, starting_dir, model_file_without_pathways):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
 
@@ -794,7 +794,7 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
   end = time.time()
 
   for check_this_file in glob.glob("*_0_charge.top"): # there will be only one file like this
-    check_whether_the_step_was_successfully_ran("Step 6", check_this_file)
+    check_whether_the_step_was_successfully_ran("Step 6", check_this_file, logfile)
     
   print "Step 6", (show_time(start, end))
   os.chdir( starting_dir )
@@ -804,13 +804,12 @@ def step_6(command_path, starting_dir, model_file_without_pathways):
 ######################################## end of step_6 (neutralize charge) function
 
 
-def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
+def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
            emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, \
            model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
 
-  
   
   this_is_test_for_each_step = False # default
   if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
@@ -827,8 +826,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   
   
   print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
-  
-  
+    
   fout = open("for_cryo_fit.mdp", "wt")
   fin = ''
   if (many_step_____n__dot_pdb == False):
@@ -896,7 +894,7 @@ def step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_mu
   
   if (this_is_test_for_each_step == True):
     return True
-  check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr")
+  check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr", logfile)
   print "Step 7", (show_time(start_make_tpr, end_make_tpr))
   os.chdir( starting_dir )
   return False # this is not a test for each step
@@ -968,7 +966,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   if (this_is_test_for_each_step == True):
     return this_is_test_for_each_step
   
-  returned = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
+  returned = check_whether_the_step_was_successfully_ran("Step 8", "cc_record", logfile)
   
   if (returned != "success"):
     write_this = "Step 8 (Run cryo_fit) didn't run successfully"
@@ -1141,7 +1139,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   returned = ''
   if (this_is_test_for_each_step == False):
-    returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered")
+    returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
   
   print "\n\tOutputs are in \"output\" folder"
   print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
@@ -1328,7 +1326,7 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write(write_this)
     
   if (steps_list[1] == True):
-    this_is_test_for_each_step = step_2(command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, \
+    this_is_test_for_each_step = step_2(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, force_field, \
            perturb_xyz_by, remove_metals)
     write_this = "Step 2 (Clean gro file to be compatible for amber03 forcefield) is successfully ran\n"
     if (this_is_test_for_each_step == True):
@@ -1349,7 +1347,7 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write(write_this)
       
     if (steps_list[3] == True):
-      this_is_test_for_each_step = step_4(command_path, starting_dir, ns_type, number_of_available_cores, \
+      this_is_test_for_each_step = step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cores, \
                             number_of_cores_to_use, model_file_without_pathways, cryo_fit_path)
       write_this = "Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n"
       if (this_is_test_for_each_step == True):
@@ -1400,7 +1398,7 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write(write_this)
   
   if (steps_list[4] == True):
-    this_is_test_for_each_step = step_5(command_path, starting_dir, model_file_without_pathways, cryo_fit_path)
+    this_is_test_for_each_step = step_5(logfile, command_path, starting_dir, model_file_without_pathways, cryo_fit_path)
     write_this = "Step 5 (Make contact potential (restraints) and topology file with it) is successfully ran\n"
     if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
@@ -1408,7 +1406,7 @@ def run_cryo_fit(logfile, params, inputs):
       logfile.write(write_this)
   
   if (steps_list[5] == True):
-    this_is_test_for_each_step = step_6(command_path, starting_dir, model_file_without_pathways)
+    this_is_test_for_each_step = step_6(logfile, command_path, starting_dir, model_file_without_pathways)
     write_this = "Step 6 (Make all charges of atoms be 0) is successfully ran\n"
     if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
@@ -1442,7 +1440,7 @@ def run_cryo_fit(logfile, params, inputs):
       break
     
     if (steps_list[6] == True):
-      this_is_test_for_each_step = step_7(command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
+      this_is_test_for_each_step = step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
              emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb)
       write_this = "Step 7 (Make a tpr file for cryo_fit) is successfully ran\n"
       if (this_is_test_for_each_step == True):
@@ -1456,6 +1454,12 @@ def run_cryo_fit(logfile, params, inputs):
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
       
       if (results == True): # this is a test for each step
+        
+        # '''
+        cc = check_first_cc("cc_record")
+        assert (cc > 0.4)
+        # '''
+        
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
         
       if (results == "failed_with_nan_in_cc"):
