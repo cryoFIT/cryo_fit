@@ -973,7 +973,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print write_this
     logfile.write(write_this)
     
-    write_this = "\nplease see https://github.com/cryoFIT/cryo_fit/blob/master/documentation_pdf/Cryo_fit1%20FAQ.pdf"
+    write_this = "\nplease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html"
     print write_this
     logfile.write(write_this)
     
@@ -1452,18 +1452,40 @@ def run_cryo_fit(logfile, params, inputs):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
+    
+      ################### (begin) check user_s_cc sanity
+      cwd = os.getcwd()
+      splited_cwd = cwd.split("/")
+      user_s_cc = ''
+      if (splited_cwd[len(splited_cwd)-1] != "8_cryo_fit"):
+        user_s_cc = check_first_cc("steps/8_cryo_fit/cc_record")
+      else:
+        user_s_cc = check_first_cc("cc_record")
+      
+      print_this = "\nUser's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+      print print_this
+        
+      if (float(user_s_cc) < 0.0001):
+        write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
+        print write_this
+        logfile.write(write_this)
+        write_this = "Please read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
+        print write_this
+        logfile.write(write_this)
+        write_this = "Sleep 10,000 seconds, so that this error is recognized instantly \n"
+        print write_this
+        logfile.write(write_this)
+        time.sleep(10000)
+      ################ (end) check user_s_cc sanity
       
       if (results == True): # this is a test for each step
-        
-        # '''
-        cc = check_first_cc("cc_record")
-        assert (cc > 0.4)
-        # '''
-        
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
         
       if (results == "failed_with_nan_in_cc"):
-        write_this = "\n\tStep 8 failed with nan error in cc calculation, the map box size should be larger or the initial atomic model should better fit to cryo-EM map.\n"
+        write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
+        print write_this
+        logfile.write(write_this)
+        write_this = "\n\tPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
         print write_this
         logfile.write(write_this)
         return "failed" # flatly failed

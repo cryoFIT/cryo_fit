@@ -56,10 +56,6 @@ def run(prefix="tst_step_8"):
   new_path = starting_dir + "/steps/8_cryo_fit"
   os.chdir( new_path )
   
-  cc = check_cc("cc_record")
-  #assert (cc != 0.004804)
-  assert (cc > 0.4)
-  
   the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step 8", "cc_record")
   if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"

@@ -5,7 +5,8 @@ from subprocess import check_output
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
-# end of file_size()
+######## end of file_size()
+
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   if (os.path.isfile(check_this_file)):
@@ -18,17 +19,20 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   exit(1)
 ####################### end of check_whether_the_step_was_successfully_ran function
 
+
 def run():
     """
     Exercise phenix.cryo_fit with all defaults with the smallest dataset"
     """
     
+    input_pdb_file = "data/regression_pdb5khe.pdb"
+    
     assert (os.path.isfile("data/emd_8249.map") == True)
-    assert (os.path.isfile("data/regression_pdb5khe.pdb") == True)
+    assert (os.path.isfile(input_pdb_file) == True)
     
     cmd = " ".join([
       "phenix.cryo_fit",
-      "data/regression_pdb5khe.pdb",
+      input_pdb_file,
       "data/emd_8249.map",
       "devel=True"
       ])
@@ -38,7 +42,8 @@ def run():
     starting_dir = os.getcwd()
     new_path = starting_dir + "/output"
     if (os.path.exists(new_path) == False):
-        print "regression with pdb5khe.pdb failed"
+        print_this = "regression with " + input_pdb_file + " failed"
+        print print_this
         exit(1)
     
     os.chdir( new_path )
@@ -55,9 +60,9 @@ def run():
     shutil.rmtree("steps")
 ############ end of run()
 
+
 if (__name__ == "__main__"):
   t0=time.time()
   returned = run()
   print "Time: %6.4f"%(time.time()-t0) #on Doonam's lanl 13inch laptop, it took 2 seconds
   print "OK"
-
