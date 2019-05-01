@@ -1475,6 +1475,9 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "Sleep 10,000 seconds, so that this error is recognized instantly \n"
         print write_this
         logfile.write(write_this)
+        write_this = "Exit cryo_fit by ctrl+C \n"
+        print write_this
+        logfile.write(write_this)
         time.sleep(10000)
       ################ (end) check user_s_cc sanity
       
@@ -1593,6 +1596,7 @@ def run_cryo_fit(logfile, params, inputs):
   #if (steps_list[8] == True):
   #  step_9(command_path, starting_dir, model_file_without_pathways, map_file_without_pathways)
 ############################# end of run_cryo_fit function
+
 
 # parse through command line arguments
 def cmd_run(args, validated=False, out=sys.stdout):
