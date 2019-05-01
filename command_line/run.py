@@ -1007,8 +1007,10 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
         return "re_run_with_longer_steps"
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
         return "re_run_with_higher_map_weight"
-      else:
-        print "\tcc has been saturated, so go ahead to the next step (e.g. final_output_arrange_step)"
+      else: # cc_has_been_increased = False
+        write_this = "\tcc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
+        print write_this
+        logfile.write(write_this)
   
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
@@ -1511,7 +1513,10 @@ def run_cryo_fit(logfile, params, inputs):
         
       elif results == "re_run_with_longer_steps":
         if (no_rerun == True): # usually for development purpose
-          write_this = "re_run_with_longer_steps is recommended, but no_rerun = True, Step 8 (cryo_fit itself) is successfully ran\n"
+          write_this = "re_run_with_longer_steps is recommended, but no_rerun = True\n"
+          print write_this
+          logfile.write(write_this)
+          write_this = "Step 8 (cryo_fit itself) is successfully ran\n"
           print write_this
           logfile.write(write_this)
           this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, no_rerun) # just to arrange final output
@@ -1579,7 +1584,7 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
-  logfile.write("Step 8 (cryo_fit itself) is successfully ran\n")
+  logfile.write("\nStep 8 (cryo_fit itself) is successfully ran\n")
   
   this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                             cryo_fit_path, no_rerun) # just to arrange final output

@@ -201,7 +201,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     return "re_run_with_higher_map_weight"
 
   #multiply_by_this = 1.35
-  multiply_by_this = 1.2
+  #multiply_by_this = 1.2 # with this value L1 stalk may have lost a valuable opportunity
+  multiply_by_this = 1.1
   if (this_is_test == True):
     multiply_by_this = 2.2 # to finish quickly
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
@@ -213,7 +214,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
         logfile.write(write_this)
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        write_this = "\t\tcc_last (" + cc_last + ") < cc_30th_last (" + cc_30th_last + ")"
+        write_this = "\t\tcc_last (" + cc_last + ") <= cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
         return False
@@ -374,6 +375,7 @@ def color_print(text, color):
     else:
         print text
 ###### end of color_print()
+
 
 def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
                                           user_entered_number_of_steps_for_cryo_fit, devel):
@@ -597,6 +599,7 @@ def id_shell():
   return shell
 #################### end of id_shell ()
 
+
 def kill_mdrun_mpirun_in_linux():
     color_print ("\tkill any existing mdrun jobs (gromacs)", 'green')
     command_string = "top -b -d 1 | head -200 > top_200"
@@ -611,7 +614,8 @@ def kill_mdrun_mpirun_in_linux():
           print command_string
           libtbx.easy_run.call(command=command_string) 
     f.close()
-# end of kill_mdrun_mpirun_in_linux function
+################# end of kill_mdrun_mpirun_in_linux function
+
 
 def know_number_of_atoms_in_input_pdb(starting_pdb):
     command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
@@ -620,7 +624,8 @@ def know_number_of_atoms_in_input_pdb(starting_pdb):
     number_of_atoms_in_input_pdb = int(num_ATOMs[0])
     print "\t\tThis pdb file, ", starting_pdb, ", has ", number_of_atoms_in_input_pdb, " atoms"
     return number_of_atoms_in_input_pdb
-# end of know_number_of_atoms_in_input_pdb()
+################# end of know_number_of_atoms_in_input_pdb()
+
 
 ''' # no longer needed
 def know_output_bool_enable_mpi_by_ls():
@@ -651,7 +656,8 @@ def know_home_cryo_fit_bin_dir_by_ls_find(): # really used
     else: # folder_of_cryo_fit[0] == "gromacs-4.5.5_cryo_fit_added_mpi":
         home_cryo_fit_bin_dir = home_dir + "/bin/gromacs-4.5.5_cryo_fit_mpi/bin"
     return home_cryo_fit_bin_dir
-# end of know_output_bool_enable_mpi_by_ls_find function
+################# end of know_output_bool_enable_mpi_by_ls_find function
+
 
 def know_total_number_of_cores():
     if ((platform.system() != "Darwin") and (platform.system() != "Linux")):
@@ -691,7 +697,8 @@ def locate_Phenix_executable():
     STOP()
     return command_path
     '''
-# end of locate_Phenix_executable function
+############################## end of locate_Phenix_executable function
+
 
 def make_trajectory_gro(cryo_fit_path):
     print "\n\tMake a trajectory.gro file"
@@ -897,9 +904,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         new_map_file_name_w_ori_origins = ''
         if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
             (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
-            new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+            #new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+            new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered_to_user_mrc.sit"
         elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
-            new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered.sit"
+            #new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered.sit"
+            new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered_to_user_mrc.sit"
     
         print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
