@@ -347,7 +347,7 @@ def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of
         new_line = "lincs-order  = " + str(lincs_order) + "\n"
         fout.write(new_line)
     elif splited[0] == "nsteps":
-      new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
+      new_line = "nsteps          = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
       fout.write(new_line)
     else:
       fout.write(line)
@@ -550,10 +550,10 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
       for line in fin:
         splited = line.split()
         if splited[0] == "nsteps":
-          new_line = "nsteps  = " + str(number_of_steps_for_minimization) + " ; Maximum number of minimization steps to perform\n"
+          new_line = "nsteps          = " + str(number_of_steps_for_minimization) + " ; Maximum number of minimization steps to perform\n"
           fout.write(new_line)
         elif splited[0] == "ns_type":
-          new_line = "ns_type  = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
+          new_line = "ns_type         = " + str(ns_type) + " ; Method to determine neighbor list (simple, grid)\n"
           fout.write(new_line)
         else:
           fout.write(line)
