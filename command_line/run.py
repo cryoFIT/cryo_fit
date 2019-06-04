@@ -1336,7 +1336,7 @@ def run_cryo_fit(logfile, params, inputs):
     else:
       logfile.write(write_this)
   
-  print "restraint_algorithm_minimization:",restraint_algorithm_minimization
+  print "\trestraint_algorithm_minimization:",restraint_algorithm_minimization
   
   if str(restraint_algorithm_minimization) != "none_default": # this is default for "regular running" and "regression running"
     if (steps_list[2] == True):
