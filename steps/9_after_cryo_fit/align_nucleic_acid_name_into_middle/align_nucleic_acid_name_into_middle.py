@@ -10,11 +10,11 @@ def align_nucleic_acid_name_into_middle(input_pdb_file_name):
     if (residue == "A"):
       new_line = line[:17] + ' A ' + line[20:]
       f_out.write(new_line)
+    elif (residue == "T"):
+      new_line = line[:17] + ' T ' + line[20:]
+      f_out.write(new_line)
     elif (residue == "U"):
       new_line = line[:17] + ' U ' + line[20:]
-      print "line[:17]",line[:17]
-      print "new_line:",new_line
-
       f_out.write(new_line)
     elif (residue == "G"):
       new_line = line[:17] + ' G ' + line[20:]
