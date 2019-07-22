@@ -1465,10 +1465,16 @@ def run_cryo_fit(logfile, params, inputs):
       else:
         user_s_cc = check_first_cc("cc_record")
       
-      print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
-      # David Thal -> "ValueError : could not convert string to float:"
-      print print_this
-      logfile.write(print_this)
+      try:
+        print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+        # David Thal -> "ValueError : could not convert string to float:"
+        print print_this
+        logfile.write(print_this)
+      except:
+        print_this = "cryo_fit cannot calculate CC with user input pdb file. Please contact doonam@lanl.gov"
+        print print_this
+        logfile.write(print_this)
+        return "failed" # flatly failed
         
       if (float(user_s_cc) < 0.0001):
         write_this = "\nA user's provided input pdb file has less than 0.0001 cc\n"
