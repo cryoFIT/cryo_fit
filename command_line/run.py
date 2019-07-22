@@ -985,13 +985,14 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       return "failed"
     else:
       return "re_run_w_smaller_MD_time_step"
-    
+  
+  '''
   if ((str(restart_w_longer_steps) == "False") and (str(re_run_with_higher_map_weight) == "False")):
     user_s_cc = get_users_cc("cc_record")
     user_s_cc = round(float(user_s_cc),3)
-    write_this = "\nUser's provided atomic model had " + str(user_s_cc) + " cc\n\n"
+    write_this = "\nA user's provided atomic model had " + str(user_s_cc) + " cc\n\n"
     logfile.write(write_this)
-    
+  '''
     
   if (no_rerun == False):
     this_is_test = False
@@ -1464,11 +1465,13 @@ def run_cryo_fit(logfile, params, inputs):
       else:
         user_s_cc = check_first_cc("cc_record")
       
-      print_this = "\nUser's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+      print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+      # David Thal -> "ValueError : could not convert string to float:"
       print print_this
+      logfile.write(print_this)
         
       if (float(user_s_cc) < 0.0001):
-        write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
+        write_this = "\nA user's provided input pdb file has less than 0.0001 cc\n"
         print write_this
         logfile.write(write_this)
         write_this = "Please read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"

@@ -579,6 +579,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
   #print dir(fc).statistical_mean
 ############# end of get_structure_factor_from_pdb_string function
 
+
 def get_users_cc(cc_record):
   #print "\tGet user provided atomic model's cc"
   f_in = open(cc_record)
