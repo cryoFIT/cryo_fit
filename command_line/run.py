@@ -1475,7 +1475,7 @@ def run_cryo_fit(logfile, params, inputs):
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
-        
+
       if (float(user_s_cc) < 0.0001):
         write_this = "\nA user's provided input pdb file has less than 0.0001 cc\n"
         print write_this
@@ -1499,7 +1499,7 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
         print write_this
         logfile.write(write_this)
-        write_this = "\n\tPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
+        write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
         print write_this
         logfile.write(write_this)
         return "failed" # flatly failed
@@ -1539,9 +1539,7 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \n\
-                       \tplease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \n\
-                       Exit cryo_fit now\n'
+          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
           print write_this
           logfile.write(write_this)
           exit(1)
