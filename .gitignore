@@ -1,13 +1,14 @@
 *~
 #*
+*cryo_fit.input_command
+*cryo_fit.overall_log
 *.DS_Store
 */.DS_Store
-steps/.DS_Store
 fftw*
 *pyc
 regression/*/steps
 regression/*/output
+restart_record.txt
 *.sit
+steps/.DS_Store
 *swo
-*cryo_fit.input_command
-*cryo_fit.overall_log

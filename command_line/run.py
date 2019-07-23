@@ -1073,11 +1073,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
     cp_command_string = "cp ../steps/8_cryo_fit/for_cryo_fit.tpr ../steps/8_cryo_fit/traj.xtc ."
     libtbx.easy_run.fully_buffered(cp_command_string)
-  
+
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
     print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
-  
+
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
   print "\t\tcommand: ", command_string
   libtbx.easy_run.call(command_string)
@@ -1100,7 +1100,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\t\tcommand: ", run_this
   libtbx.easy_run.call(run_this)
   
-  
   pdb_file_with_original_chains = ''
   for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
@@ -1109,7 +1108,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   logfile = open(log_file_name, "a+") # append
   
   if (this_is_test_for_each_step == False): # recover chain information
-    print "\n\tRecover chain information (since gromacs erased it). "
+    print "\n\tRecover chain information (since gromacs erased it)."
     for pdb in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with GTPase_activation_center and Dieter's molecule
       print "\n\t\tcommand: ", command_string
@@ -1456,6 +1455,10 @@ def run_cryo_fit(logfile, params, inputs):
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
     
+      if (results == True): # this is a test for each step
+        end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
+        
+        
       ################### (begin) check user_s_cc sanity
       cwd = os.getcwd()
       splited_cwd = cwd.split("/")
@@ -1466,12 +1469,12 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record")
       
       try:
-        print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
-        # David Thal -> "ValueError : could not convert string to float:"
-        print print_this
-        logfile.write(print_this)
+        user_s_cc_rounded = str(round(float(user_s_cc), 3))
+        #print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+        #print print_this
+        #logfile.write(print_this)
       except:
-        print_this = "cryo_fit cannot calculate CC with user input pdb file. Please contact doonam@lanl.gov"
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file. Please contact doonam@lanl.gov"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1492,8 +1495,7 @@ def run_cryo_fit(logfile, params, inputs):
         time.sleep(10000)
       ################ (end) check user_s_cc sanity
       
-      if (results == True): # this is a test for each step
-        end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
+      
         
       if (results == "failed_with_nan_in_cc"):
         write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
@@ -1588,6 +1590,11 @@ def run_cryo_fit(logfile, params, inputs):
         os.chdir( starting_dir ) # needed for re-running
         
       else: # normal ending of cryo_fit
+        
+        print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
+        print print_this
+        logfile.write(print_this)
+        
         charge_group_moved = False
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False

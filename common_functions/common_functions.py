@@ -200,9 +200,12 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
 
-  #multiply_by_this = 1.35
-  #multiply_by_this = 1.2 # with this value L1 stalk may have lost a valuable opportunity
-  multiply_by_this = 1.1
+    
+  #multiply_by_this = 1.5 # cryo_fit will run quickly, this is for devel
+  #multiply_by_this = 1.2 # with this value, L1 stalk may have lost a valuable opportunity
+  multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
+  
+  
   if (this_is_test == True):
     multiply_by_this = 2.2 # to finish quickly
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
@@ -581,7 +584,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 
 
 def get_users_cc(cc_record):
-  #print "\tGet user provided atomic model's cc"
+  print "\tGet a user provided atomic model's cc"
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")

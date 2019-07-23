@@ -102,6 +102,9 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
            os.system(cmd)
         else:
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
+            print "cc:",cc
+            print "users_cc:",users_cc
+            
             if (float(cc) > float(users_cc)):
                 print "\t\t\t\tso rename it to cryo_fitted.gro"
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
@@ -114,6 +117,8 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
 def get_users_cc_from_overall_log(log):
   f_in = open(log)
   for line in f_in:
+    
+    '''
     splited_by_apostrophe = line.split("'")
     if (splited_by_apostrophe[0] == "User"):
         splited = line.split(" ")
@@ -121,6 +126,15 @@ def get_users_cc_from_overall_log(log):
         f_in.close()
         print "\tUser provided atomic model's cc: ", cc
         return cc
+    '''
+    splited = line.split(" ")
+    if (splited[0] == "A"):
+        if (splited[1] == "user's"):
+            cc = splited[7]
+            f_in.close()
+            print "\tUser provided atomic model's cc: ", cc
+            return cc
+    
 ################# end of get_users_cc(cc_record)
 
 
@@ -148,11 +162,17 @@ if (__name__ == "__main__") :
         
         if (no_rerun == "False"): # default running
             # this cc_record is step_adjusted if restarted
+            if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
+                print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam@lanl.gov"
+                exit(1)
             result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     else: # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    print "3 highest cc steps that need to be extracted:", result
+    
+    
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]
