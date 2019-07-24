@@ -26,6 +26,11 @@ def run():
     
     assert (os.path.isfile("data/emd_8249.map") == True)
     assert (os.path.isfile("data/regression_pdb5khe.pdb") == True)
+  
+    # to avoid 322122547200 steps !!!!!!!
+    if (os.path.isfile("restart_record.txt") == True):
+        cmd = "rm restart_record.txt"
+        easy_run(cmd)
     
     cmd = " ".join([
       "phenix.cryo_fit",
