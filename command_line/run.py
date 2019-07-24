@@ -985,7 +985,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       return "failed"
     else:
       return "re_run_w_smaller_MD_time_step"
-  
+
   '''
   if ((str(restart_w_longer_steps) == "False") and (str(re_run_with_higher_map_weight) == "False")):
     user_s_cc = get_users_cc("cc_record")
@@ -993,14 +993,14 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     write_this = "\nA user's provided atomic model had " + str(user_s_cc) + " cc\n\n"
     logfile.write(write_this)
   '''
-    
+
   if (no_rerun == False):
     this_is_test = False
     if "regression_" in model_file_without_pathways:
       this_is_test = True
     cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record", this_is_test)
     print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
-    
+
     if (devel == True):
         no_rerun = True
     if (no_rerun == False):
@@ -1012,16 +1012,16 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
         write_this = "\tcc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
         print write_this
         logfile.write(write_this)
-  
+
   f_out = open('log.step_8', 'at+')
   write_this_time = show_time(time_start_cryo_fit, time_end_cryo_fit)
   write_this_time = "\n\nStep 8" + write_this_time + "\n"
   f_out.write(write_this_time)
   f_out.close()
-  
+
   renumber_cc_record_full("../../cc_record_full")
   os.remove("../../cc_record_full")
-  
+
   f_in = open('../../cc_record_full_renumbered')
   cc_record = list()
   for line in f_in:
@@ -1141,7 +1141,11 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   returned = ''
   if (this_is_test_for_each_step == False):
-    returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
+    for pdb in glob.glob("*.pdb"):
+      returned = check_whether_the_step_was_successfully_ran("Step final", pdb, logfile)
+      break
+    #returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
+    # sometimes misclassified as success run although it failed to convert to pdb file
   
   print "\n\tOutputs are in \"output\" folder"
   print "  \t\tIf cryo_fit fitted better than a user provided atomic model, a model with the highest cc value is cryo_fitted.pdb"
@@ -1449,15 +1453,14 @@ def run_cryo_fit(logfile, params, inputs):
         end_regression(starting_dir, write_this)
       else:
         logfile.write(write_this)
-        
+
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
-    
+
       if (results == True): # this is a test for each step
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
-        
         
       ################### (begin) check user_s_cc sanity
       cwd = os.getcwd()
@@ -1494,9 +1497,7 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write(write_this)
         time.sleep(10000)
       ################ (end) check user_s_cc sanity
-      
-      
-        
+
       if (results == "failed_with_nan_in_cc"):
         write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
         print write_this
@@ -1504,12 +1505,12 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
         print write_this
         logfile.write(write_this)
-        return "failed" # flatly failed
+        return "failed" # flat fail
       
-      if (results == "failed"):
-        return "failed" # flatly failed
+      if (results == "failed"): # flat fail
+        return "failed"
         # For a small peptide, this error was possible "The initial cell size (0.392390) is smaller than the cell size limit (0.421512), change options -dd, -rdd or -rcon, see the log file for details
-      
+
       elif results == "re_run_w_smaller_MD_time_step":
         charge_group_moved = True
         re_run_with_higher_map_weight = False
@@ -1560,7 +1561,7 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        # restart_record.txt is essential to extract gro from traj.xtc when restarted
+        # restart_record.txt is essential to extract gro from traj.xtc when restarted WITH LONGER STEPS (not restarted w/ higher map weight)
         restart_record = open("../../restart_record.txt", "a+")
         write_this = str(number_of_steps_for_cryo_fit)+"\n"
         restart_record.write(write_this)
@@ -1572,9 +1573,9 @@ def run_cryo_fit(logfile, params, inputs):
           logfile.write(write_this)
           break # no need to use exit(1) since this break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
-      
+
       elif results == "re_run_with_higher_map_weight":
-        emweight_multiply_by = emweight_multiply_by * 2
+        emweight_multiply_by = emweight_multiply_by * 2 # this new emweight_multiply_by will be used at step 7 (tpr file generation)
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
@@ -1588,7 +1589,7 @@ def run_cryo_fit(logfile, params, inputs):
           logfile.write(write_this)
           break # no need to use exit(1) since this break will break this while loop
         os.chdir( starting_dir ) # needed for re-running
-        
+
       else: # normal ending of cryo_fit
         
         print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
@@ -1599,7 +1600,7 @@ def run_cryo_fit(logfile, params, inputs):
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
   logfile.write("\nStep 8 (cryo_fit itself) is successfully ran\n")
-  
+
   this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                             cryo_fit_path, no_rerun) # just to arrange final output
   write_this = "step final is done"

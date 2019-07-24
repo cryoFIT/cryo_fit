@@ -10,9 +10,10 @@ def adjust_step_number():
         number_of_lines = number_of_lines + 1
     f.close()
     
+    #last_step_to_be_added = '' # initial
+    last_step_to_be_added = 0 # initial
     f = open('../restart_record.txt', 'r')
     j = 0
-    last_step_to_be_added = '' # initial
     for line in f:
         last_step_to_be_added = int(line) # just in case when there is only one value like nucleosome case
         j = j + 1
@@ -156,10 +157,10 @@ if (__name__ == "__main__") :
     result = '' # initial temporary assignment
     if (this_is_test == "False"): # default running
         # adjust step number if I restarted
-        if (os.path.isfile("../restart_record.txt") == True):
+        if (os.path.isfile("../restart_record.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
             os.remove("../restart_record.txt") # only for development, keep this file
-        
+
         if (no_rerun == "False"): # default running
             # this cc_record is step_adjusted if restarted
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
