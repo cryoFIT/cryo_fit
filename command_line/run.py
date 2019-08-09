@@ -1471,13 +1471,19 @@ def run_cryo_fit(logfile, params, inputs):
       else:
         user_s_cc = check_first_cc("cc_record")
       
+      if (user_s_cc == ''):
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. cc_record seems not found. Please contact doonam@lanl.gov"
+        print print_this
+        logfile.write(print_this)
+        return "failed" # flatly failed
+      
       try:
-        user_s_cc_rounded = str(round(float(user_s_cc), 3))
+        user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is stil '', "ValueError: could not convert string to float:"
         #print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
         #print print_this
         #logfile.write(print_this)
       except:
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file. Please contact doonam@lanl.gov"
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. Please contact doonam@lanl.gov"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed

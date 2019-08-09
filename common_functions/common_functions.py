@@ -288,7 +288,6 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                         cc_record_file.close()
                         return "failed_with_nan_in_cc"
                     else:
-                        #'''
                         user_s_cc = get_users_cc(check_this_file)
                         if (float(user_s_cc) < 0.0001):
                             write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
@@ -301,15 +300,15 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                             print write_this
                             logfile.write(write_this)
                             exit(1)
-                        #'''
-                        
                         cc_record_file.close()
-            print step_name, " successfully ran"
+            if (step_name != "Step 8"):
+                print step_name, " successfully ran"
+            else:
+                print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
             return "success"
     print step_name, " didn't successfully run"
     if (step_name == "Step 4" or step_name == "Step 8"):
       return "failed"
-    #exit(1)
 ######################## end of check_whether_the_step_was_successfully_ran function
 
 
