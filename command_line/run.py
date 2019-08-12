@@ -642,7 +642,7 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2) + " " + str(cryo_fit_path)
               # set number_of_cores_to_use = 2 to minimize a possibility of having cell size error
   print "\tcommand: ", command_string
-  print "\n\tA user can check progress of minimiation at ", starting_dir + "/steps/4_minimize\n"
+  print "\n\tA user can check progress of minimization at ", starting_dir + "/steps/4_minimize\n"
   start = time.time()
   
   libtbx.easy_run.call(command_string)
