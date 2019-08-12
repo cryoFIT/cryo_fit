@@ -732,13 +732,19 @@ def minimize(cores_to_use, ns_type, common_command_string):
 def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\n\tConvert mrc format map to situs format map"
     
-    # (old) new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
     new_map_file_name = ''
     if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
         (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
         new_map_file_name = map_file_name[:-4] + "_converted_to_sit.sit"
     elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
         new_map_file_name = map_file_name[:-5] + "_converted_to_sit.sit"
+    
+    new_map_file_name = new_map_file_name.replace(" ","")
+    new_map_file_name = new_map_file_name.replace("(","")
+    new_map_file_name = new_map_file_name.replace(")","")
+    # macOS can't deal with /bin/sh: -c: line 0: syntax error near unexpected token `('
+    #/bin/sh: -c: line 0: `DYLD_FALLBACK_LIBRARY_PATH="/Users/doonam/bin/phenix-1.15rc3-3442/build/lib:/Users/doonam/bin/phenix-1.15rc3-3442/build/../conda_base/lib" exec python runme_cryo_fit.py /Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit/ 4 max /Users/doonam/research/cryo_fit/Nick/input/cryosparc_P20_J268_005_volume_map_sharp(5)_converted_to_sit.sit /Users/doonam/research/cryo_fit/Nick False False /Users/doonam/bin/cryo_fit/bin/'
+    #Step 8  didn't successfully run
     
     f_out = open(new_map_file_name, 'wt')
     user_input_map = map_file_name
@@ -905,6 +911,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         print "\t\t\tmap_file_name:", map_file_name
         
         new_map_file_name_w_ori_origins = ''
+        '''
+        # changed "cryosparc_P20_J268_005_volume_map_sharp (5).mrc"
+        #to "cryosparc_P20_J268_005_volume_map_sharp (5)_converted_to_sit.sit" which causes "/bin/sh: -c: line 0: syntax error near unexpected token `('"
         if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
             (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
             #new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
@@ -912,7 +921,11 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
             #new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered.sit"
             new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered_to_user_mrc.sit"
-    
+        '''
+        
+        new_map_file_name_w_ori_origins = new_map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
+        
+        
         print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
         f_out = open(new_map_file_name_w_ori_origins, 'wt')

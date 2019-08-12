@@ -271,11 +271,11 @@ def print_author():
 
 def show_header(title):
   print "\n"
-  print '#'*105
-  number_of_remaining_sharp = 105 - len(title)
+  print '#'*95
+  number_of_remaining_sharp = 95 - len(title)
   put_this_number_of_sharp = int(int(number_of_remaining_sharp)/2)
   print '#'*(put_this_number_of_sharp-1) + " " + title + " " + '#'*(put_this_number_of_sharp-1)
-  print '#'*105
+  print '#'*95
 # end of show_header function
 
 def validate_params(params): # validation for GUI
@@ -642,7 +642,7 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2) + " " + str(cryo_fit_path)
               # set number_of_cores_to_use = 2 to minimize a possibility of having cell size error
   print "\tcommand: ", command_string
-  print "\n\tA user can check progress at ", starting_dir + "/steps/4_minimize\n"
+  print "\n\tA user can check progress of minimiation at ", starting_dir + "/steps/4_minimize\n"
   start = time.time()
   
   libtbx.easy_run.call(command_string)
@@ -924,7 +924,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
               + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
               + " " + str(this_is_test_for_each_step) + " " + str(restart_w_longer_steps) + " " + str(cryo_fit_path)
   print "\n\tcommand: ", command_string
-  print "\n\tA user can check progress at ", starting_dir + "/steps/8_cryo_fit\n"
+  print "\n\tA user can check progress of step_8 at ", starting_dir + "/steps/8_cryo_fit\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   time_end_cryo_fit = time.time()
