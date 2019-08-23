@@ -303,7 +303,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                         cc_record_file.close()
             if (step_name != "Step 8"):
                 print step_name, " successfully ran"
-            else:
+            else: # step 8 again
                 print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
             return "success"
     print step_name, " didn't successfully run"
@@ -486,7 +486,8 @@ def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, co
     else:
         command_used = run_cryo_fit_itself(int(number_of_cores_to_use), common_command_string, restart)
     return command_used
-# end of final_prepare_cryo_fit function
+######## end of final_prepare_cryo_fit function
+
 
 def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use, common_command_string):
     command_used = '' #just initial value
@@ -910,21 +911,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
         print "\t\t\t This reassigning of origins is needed so that step_8 cryo_fit can run model and map superposed as seen with fastest_run_emd_8249"
         print "\t\t\tmap_file_name:", map_file_name
         
-        new_map_file_name_w_ori_origins = ''
-        '''
-        # changed "cryosparc_P20_J268_005_volume_map_sharp (5).mrc"
-        #to "cryosparc_P20_J268_005_volume_map_sharp (5)_converted_to_sit.sit" which causes "/bin/sh: -c: line 0: syntax error near unexpected token `('"
-        if ((map_file_name[len(map_file_name)-4:len(map_file_name)] == ".map") or \
-            (map_file_name[len(map_file_name)-4:len(map_file_name)] == ".mrc")):
-            #new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
-            new_map_file_name_w_ori_origins = map_file_name[:-4] + "_converted_to_sit_origin_recovered_to_user_mrc.sit"
-        elif (map_file_name[len(map_file_name)-5:len(map_file_name)] == ".ccp4"):
-            #new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered.sit"
-            new_map_file_name_w_ori_origins = map_file_name[:-5] + "_converted_to_sit_origin_recovered_to_user_mrc.sit"
-        '''
-        
         new_map_file_name_w_ori_origins = new_map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"
-        
         
         print "\t\t\tnew_map_file_name_with original origins:", new_map_file_name_w_ori_origins
         f_in = open(new_map_file_name, 'r')
@@ -942,7 +929,6 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
             f_out.write(line)
         f_in.close()
         f_out.close()
-        #subprocess.call(["rm", new_map_file_name])
         return new_map_file_name_w_ori_origins
     else:
         return new_map_file_name

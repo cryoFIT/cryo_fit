@@ -1078,8 +1078,13 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
     print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
 
+  log_file_name = "../cryo_fit.overall_log"
+  logfile = open(log_file_name, "a+") # append
+  
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
-  print "\t\tcommand: ", command_string
+  write_this = command_string + "\n\n"
+  logfile.write(write_this)
+  print "\t\tcommand: ", write_this
   libtbx.easy_run.call(command_string)
 
   print "\n\tConvert .gro -> .pdb"
@@ -1088,7 +1093,9 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   for extracted_gro in glob.glob("*.gro"): # just deals .gro files in alphabetical order not in cc order
     command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    print "\t\tcommand: ", command_string
+    write_this = command_string + "\n\n"
+    logfile.write(write_this)
+    print "\t\tcommand: ", write_this
     libtbx.easy_run.fully_buffered(command_string)
   
   # deal with trajectory files
@@ -1104,11 +1111,14 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   for pdb_with_original_chains in glob.glob("../steps/1_make_gro/*.pdb"):
     pdb_file_with_original_chains = pdb_with_original_chains
   
-  log_file_name = "../cryo_fit.overall_log"
-  logfile = open(log_file_name, "a+") # append
+  # log_file_name = "../cryo_fit.overall_log"
+  # logfile = open(log_file_name, "a+") # append
   
   if (this_is_test_for_each_step == False): # recover chain information
-    print "\n\tRecover chain information (since gromacs erased it)."
+    write_this = "\n\tRecover chain information (since gromacs erased it).\n"
+    logfile.write(write_this)
+    print write_this
+    
     for pdb in glob.glob("*.pdb"):
       command_string = "python recover_chain.py " + pdb_file_with_original_chains + " " + pdb # worked perfectly with GTPase_activation_center and Dieter's molecule
       print "\n\t\tcommand: ", command_string

@@ -144,8 +144,13 @@ if (__name__ == "__main__") :
     this_is_test = args[0]
     cryo_fit_path = args[1]
     no_rerun = args[2]
-
-    print "\n\t\tExtract 3 highest cc gro (among the whole run, not just the last run)"
+    
+    gro_extraction_note_file = open("gro_extraction.txt","w+")
+    
+    write_this = "\nExtract 3 highest cc gro (among the whole run, not just the last run)\n"
+    gro_extraction_note_file.write(write_this)
+    print write_this
+    
     # Although I assign number_of_steps_for_cryo_fit*2 as a new number_of_steps_for_cryo_fit,
     #due to state.cpt, mdrun runs only until a new number_of_steps_for_cryo_fit INCLUDING FORMERLY RAN STEPS  
     
@@ -165,19 +170,30 @@ if (__name__ == "__main__") :
             # this cc_record is step_adjusted if restarted
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
                 result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-                print "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit bumped up map_weight only"
+                write_this = "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit bumped up map_weight only"
+                gro_extraction_note_file.write(write_this)
+                print write_this
             else:    
                 result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     else: # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    print "3 highest cc steps that need to be extracted:", result
-    
+    #print "3 highest cc steps that need to be extracted:", result
+    write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
+    gro_extraction_note_file.write(write_this)
+    print write_this
     
     for i in range(len(result)):
         splited = result[i].split()
         target_step = splited[1]
         cc = splited[4]
-        print "\t\t\ttarget_step for extracting a gro file: ", target_step
+        
+        write_this = "Cryo_fit will extract a gro file from this target_step: " + str(target_step)
+        #print "\t\t\ttarget_step for extracting a gro file: ", target_step
+        gro_extraction_note_file.write(write_this)
+        print write_this
+        
         extract_gro(target_step, i, cc, cryo_fit_path)
+    
+    gro_extraction_note_file.close()
