@@ -36,54 +36,19 @@ def adjust_step_number():
 ################# end of def adjust_step_number ()
 
 
-def extract_gro(target_step, i, cc, cryo_fit_path):
-    for_cryo_fit_mdp_location = ''
-    if (this_is_test == "False"):
-        for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
-    else:
-        print "\t This is a test in extract_gro"
-        for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
-    
-    grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
-    
-    print "\t\t\t\tcommand:", grep_dt_string
-    result = os.popen(grep_dt_string).read()
-    splited = result.split()
-    dt = splited[2]
-
-    print_this = "\t\t\t\tdt:" + dt + "\n"
-    print print_this
-    
-    grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
-    result = os.popen(grep_nsteps_string).read()
-    splited = result.split()
-    nsteps = splited[2]
-    print_this = "\t\t\t\tnsteps:" + str(nsteps) + "\n"
-    print print_this
-    
-    total_ps = float(dt)*float(nsteps)
-
-    print_this = "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
-    print print_this
-    
-    ''' reading_frame is relevant only when restarted
-    print_this = "\t\t\t\tEstimated reading_frame = total_ps/((dt)*1,000) = " + str(float(total_ps)/((float(dt))*1000.0)) + " ps \n"
-    print print_this
-    f_out.write(print_this)
-    '''
-    
-    print_this = "\t\t\t\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
-    print print_this
-    
+def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc):
     print_this = "\t\t\t\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
     print print_this
+    gro_extraction_note_file.write(print_this)
         
     print_this = "\t\t\t\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
     print print_this
+    gro_extraction_note_file.write(print_this)
 
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
     print_this = "\t\t\t\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
     print print_this
+    gro_extraction_note_file.write(print_this)
     
     output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
     
@@ -92,6 +57,7 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
     cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
     print "\t\t\t\tcommand: ",cmd
+    gro_extraction_note_file.write(cmd)
     os.system(cmd)
     
     if (i == 0):
@@ -101,6 +67,7 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
            cmd = "mv " + output_gro_name + " user_provided.gro"
            print "\t\t\t\t\tcommand:", cmd, "\n"
            os.system(cmd)
+           gro_extraction_note_file.write(cmd)
         else:
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
             print "cc:",cc
@@ -111,8 +78,59 @@ def extract_gro(target_step, i, cc, cryo_fit_path):
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
                 print "\t\t\t\t\tcommand:", cmd, "\n"
                 os.system(cmd)
+                gro_extraction_note_file.write(cmd)
     os.remove("input_parameters")
 ################# end of extract_gro function
+
+
+
+def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
+    for_cryo_fit_mdp_location = ''
+    if (this_is_test == "False"):
+        for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
+    else:
+        print "\t This is a test in extract_gro"
+        for_cryo_fit_mdp_location = "for_cryo_fit.mdp"
+    
+    grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
+    
+    print "\t\t\t\tcommand:", grep_dt_string
+    gro_extraction_note_file.write(grep_dt_string)
+    result = os.popen(grep_dt_string).read()
+    splited = result.split()
+    dt = splited[2]
+
+    print_this = "\t\t\t\tdt:" + dt + "\n"
+    print print_this
+    gro_extraction_note_file.write(print_this)
+    
+    grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
+    result = os.popen(grep_nsteps_string).read()
+    splited = result.split()
+    nsteps = splited[2]
+    print_this = "\t\t\t\tnsteps:" + str(nsteps) + "\n"
+    print print_this
+    gro_extraction_note_file.write(print_this)
+    
+    total_ps = float(dt)*float(nsteps)
+
+    print_this = "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
+    print print_this
+    gro_extraction_note_file.write(print_this)
+    
+    ''' reading_frame is relevant only when restarted
+    print_this = "\t\t\t\tEstimated reading_frame = total_ps/((dt)*1,000) = " + str(float(total_ps)/((float(dt))*1000.0)) + " ps \n"
+    print print_this
+    f_out.write(print_this)
+    '''
+    
+    print_this = "\t\t\t\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
+    print print_this
+    gro_extraction_note_file.write(print_this)
+    
+    return nsteps, total_ps
+################# end of extract_gro function
+
 
 
 def get_users_cc_from_overall_log(log):
@@ -153,31 +171,34 @@ if (__name__ == "__main__") :
     # Although I assign number_of_steps_for_cryo_fit*2 as a new number_of_steps_for_cryo_fit,
     #due to state.cpt, mdrun runs only until a new number_of_steps_for_cryo_fit INCLUDING FORMERLY RAN STEPS  
     
-    # The last run probably has the highest CC anyway, so let me extract only in the last run.
+    ########## (wrong) The last run probably has the highest CC anyway, so let me extract only in the last run.
     # traj.xtc is overwritten every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
-    # Actually previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
+    
+    ########## (correct) Actually previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
     # --> so cc_record_full_renumbered should NOT be used for extrqcting gro, should be used only for overall cc change
 
     result = '' # initial temporary assignment
-    if (this_is_test == "False"): # default running
+    if (this_is_test == "True"): # test
+        result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    else: # default running
         # adjust step number if I restarted
         if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
             os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
 
         if (no_rerun == "False"): # default running
-            # this cc_record is step_adjusted if restarted
-            if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
-                result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+            if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == True):
+                result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+            else:
                 write_this = "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit bumped up map_weight only"
                 gro_extraction_note_file.write(write_this)
                 print write_this
-            else:    
-                result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+                result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    else: # test
-        result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    
+    nsteps, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)
+    
     #print "3 highest cc steps that need to be extracted:", result
     write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
     gro_extraction_note_file.write(write_this)
@@ -193,6 +214,6 @@ if (__name__ == "__main__") :
         gro_extraction_note_file.write(write_this)
         print write_this
         
-        extract_gro(target_step, i, cc, cryo_fit_path)
+        extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
     
     gro_extraction_note_file.close()
