@@ -3,7 +3,7 @@ import os, subprocess, sys
 # It is ESSENTIAL to adjust step number if restarted
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart."
-    f = open('../restart_record.txt', 'r')
+    f = open('../restart_record_for_longer_steps.txt', 'r')
     # count # of lines
     number_of_lines = 0
     for line in f:
@@ -12,7 +12,7 @@ def adjust_step_number():
     
     #last_step_to_be_added = '' # initial
     last_step_to_be_added = 0 # initial
-    f = open('../restart_record.txt', 'r')
+    f = open('../restart_record_for_longer_steps.txt', 'r')
     j = 0
     for line in f:
         last_step_to_be_added = int(line) # just in case when there is only one value like nucleosome case
@@ -135,7 +135,6 @@ def get_users_cc_from_overall_log(log):
             f_in.close()
             print "\tUser provided atomic model's cc: ", cc
             return cc
-    
 ################# end of get_users_cc(cc_record)
 
 
@@ -162,9 +161,9 @@ if (__name__ == "__main__") :
     result = '' # initial temporary assignment
     if (this_is_test == "False"): # default running
         # adjust step number if I restarted
-        if (os.path.isfile("../restart_record.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
+        if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
-            os.remove("../restart_record.txt") # only for development, keep this file
+            os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
 
         if (no_rerun == "False"): # default running
             # this cc_record is step_adjusted if restarted

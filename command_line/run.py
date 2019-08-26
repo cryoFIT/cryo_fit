@@ -1577,8 +1577,8 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        # restart_record.txt is essential to extract gro from traj.xtc when restarted WITH LONGER STEPS (not restarted w/ higher map weight)
-        restart_record = open("../../restart_record.txt", "a+")
+        # restart_record_for_longer_steps.txt is essential to extract gro from traj.xtc when restarted WITH LONGER STEPS (not restarted w/ higher map weight)
+        restart_record = open("../../restart_record_for_longer_steps.txt", "a+")
         write_this = str(number_of_steps_for_cryo_fit)+"\n"
         restart_record.write(write_this)
         restart_record.close()
