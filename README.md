@@ -1,7 +1,6 @@
 # cryo_fit
 
-- To install cryo_fit, see
-https://www.phenix-online.org/documentation/reference/cryo_fit.html
+- Visit https://www.phenix-online.org/documentation/reference/cryo_fit.html for detail
 
 - To dos by developers:
 * Allow to calculate electrostatic interaction as well

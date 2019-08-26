@@ -8,6 +8,7 @@ fftw*
 *pyc
 regression/*/steps
 regression/*/output
+regression/*/restart_record_for_longer_steps.txt
 restart_record.txt
 *.sit
 steps/.DS_Store

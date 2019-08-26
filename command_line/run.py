@@ -1076,7 +1076,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
-    print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov"
+    print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov. Exit now"
+    exit(1)
 
   log_file_name = "../cryo_fit.overall_log"
   logfile = open(log_file_name, "a+") # append

@@ -2,7 +2,7 @@ import os, subprocess, sys
 
 # It is ESSENTIAL to adjust step number if restarted
 def adjust_step_number():
-    print "\n\t\t\tAdjust step number due to restart."
+    print "\n\t\t\tAdjust step number due to restart for longer steps."
     f = open('../restart_record_for_longer_steps.txt', 'r')
     # count # of lines
     number_of_lines = 0
@@ -171,17 +171,19 @@ if (__name__ == "__main__") :
     # Although I assign number_of_steps_for_cryo_fit*2 as a new number_of_steps_for_cryo_fit,
     #due to state.cpt, mdrun runs only until a new number_of_steps_for_cryo_fit INCLUDING FORMERLY RAN STEPS  
     
-    ########## (wrong) The last run probably has the highest CC anyway, so let me extract only in the last run.
-    # traj.xtc is overwritten every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
-    
-    ########## (correct) Actually previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
-    # --> so cc_record_full_renumbered should NOT be used for extrqcting gro, should be used only for overall cc change
+    # Previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
+    # Therefore, cc_record_full_renumbered should NOT be used for extrqcting gro. It should be used only for overall cc change.
 
+
+    ''' # /home/doonam/research/run/phenix/cryo_fit/christl/save_screen_to_file/ran_08_26_for_debug/steps/8_cryo_fit failed
+        # (tried to extract 19.4 ps xyz from 16 total_ps data)
+    
     result = '' # initial temporary assignment
     if (this_is_test == "True"): # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     else: # default running
-        # adjust step number if I restarted
+        
+        # adjust step number if cryo_fit restarted for longer steps
         if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
             #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
@@ -190,19 +192,21 @@ if (__name__ == "__main__") :
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == True):
                 result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
             else:
-                write_this = "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit bumped up map_weight only"
+                write_this = "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit didn't have to re-run or it bumped up map_weight only."
                 gro_extraction_note_file.write(write_this)
                 print write_this
                 result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    '''
+        
+    result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     
-    nsteps, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)
-    
-    #print "3 highest cc steps that need to be extracted:", result
     write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
     gro_extraction_note_file.write(write_this)
     print write_this
+    
+    nsteps, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)
     
     for i in range(len(result)):
         splited = result[i].split()
@@ -210,7 +214,6 @@ if (__name__ == "__main__") :
         cc = splited[4]
         
         write_this = "Cryo_fit will extract a gro file from this target_step: " + str(target_step)
-        #print "\t\t\ttarget_step for extracting a gro file: ", target_step
         gro_extraction_note_file.write(write_this)
         print write_this
         
