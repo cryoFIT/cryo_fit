@@ -139,7 +139,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   f_in.close()
 
   step_number_for_judging = 30
-  print "this_is_test:", this_is_test
+  #print "this_is_test:", this_is_test
   if (this_is_test == True):
     step_number_for_judging = 5
   if (len(cc_has_been_increased_array) < step_number_for_judging):

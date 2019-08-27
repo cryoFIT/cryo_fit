@@ -1592,19 +1592,29 @@ def run_cryo_fit(logfile, params, inputs):
         os.chdir( starting_dir ) # needed for re-running
 
       elif results == "re_run_with_higher_map_weight":
-        emweight_multiply_by = emweight_multiply_by * 2 # this new emweight_multiply_by will be used at step 7 (tpr file generation)
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
+        write_this = "\nStep 8 itself ran well, but correlation coefficient values tend to decrease over the last 30 steps\n"
         print write_this
         logfile.write(write_this)
+        
+        emweight_multiply_by = emweight_multiply_by * 2 # this new emweight_multiply_by will be used at step 7 (tpr file generation)
+        
+        # this check is important to avoid infinite loop and "vtot is inf: inf" error
+        if (emweight_multiply_by > 1000 ):
+          # 1,024 resulted in "vtot is inf: inf" with christl's molecule
+          write_this = "emweight_multiply_by > 1000, cryo_fit will exit, because 1,024 emweight_multiply_by once resulted in \"vtot is inf: inf\""
+          print write_this
+          logfile.write(write_this)
+          
+          # "; emweight is the energetic weight of the em term.  Since the total stabilizing energy in an all-atom SBM is set to the number of atoms,
+          #we typically give a weight that is 1-2 times the overall stabilizing energy.  Here, AKE has 22k atoms, so we will use a weight of 44k."
+          
+          break # no need to use exit(1) since this break will break this while loop
+          
         write_this = "Therefore, step 7 & 8 will re-run with a higher emweight_multiply_by (e.g. " + str(emweight_multiply_by) + ")\n\n"
         print write_this
         logfile.write(write_this)
         re_run_with_higher_map_weight = True
-        if (emweight_multiply_by > 1000000000000000 ): # to avoid infinite loop
-          write_this = "emweight_multiply_by > 1000000000000000, exit now"
-          print write_this
-          logfile.write(write_this)
-          break # no need to use exit(1) since this break will break this while loop
+        
         os.chdir( starting_dir ) # needed for re-running
 
       else: # normal ending of cryo_fit
@@ -1616,7 +1626,7 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
-  logfile.write("\nStep 8 (cryo_fit itself) is successfully ran\n")
+  logfile.write("\nStep 8 ran\n")
 
   this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                             cryo_fit_path, no_rerun) # just to arrange final output
