@@ -37,7 +37,7 @@ def adjust_step_number():
 
 
 def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc):
-    print_this = "\t\t\t\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
+    print_this = "\n\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
         
@@ -100,7 +100,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     splited = result.split()
     dt = splited[2]
 
-    print_this = "\t\t\t\tdt:" + dt + "\n"
+    print_this = "\n\tdt:" + dt + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
@@ -213,7 +213,7 @@ if (__name__ == "__main__") :
         target_step = splited[1]
         cc = splited[4]
         
-        write_this = "Cryo_fit will extract a gro file from this target_step: " + str(target_step)
+        write_this = "\nCryo_fit will extract a gro file from this target_step: " + str(target_step)
         gro_extraction_note_file.write(write_this)
         print write_this
         
