@@ -312,6 +312,79 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
 ######################## end of check_whether_the_step_was_successfully_ran function
 
 
+'''
+def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logfile):
+    if (os.path.isfile(check_this_file)):
+        returned_file_size = file_size(check_this_file)
+        if (returned_file_size > 0):
+            if (step_name == "Step 8"):
+                with open(check_this_file) as cc_record_file:
+                    if "nan" in cc_record_file.read():
+                        cc_record_file.close()
+                        return "failed_with_nan_in_cc"
+                    else:
+                        user_s_cc = get_users_cc(check_this_file)
+                        if (float(user_s_cc) < 0.0001):
+                            write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
+                            print write_this
+                            logfile.write(write_this)
+                            write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
+                            print write_this
+                            logfile.write(write_this)
+                            write_this = "\nExit cryo_fit now\n"
+                            print write_this
+                            logfile.write(write_this)
+                            exit(1)
+                        cc_record_file.close()
+            if (step_name != "Step 8"):
+                print step_name, " successfully ran"
+            else: # step 8 again
+                print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
+            return "success"
+    print step_name, " didn't successfully run"
+    if (step_name == "Step 4" or step_name == "Step 8"):
+      return "failed"
+######################## end of check_whether_the_step_was_successfully_ran function
+'''
+
+'''
+# https://www.geeksforgeeks.org/args-kwargs-python/
+def check_whether_the_step_was_successfully_ran(**kargs):
+    for step_name, check_this_file, logfile, regression in kwargs.items(): 
+        if (os.path.isfile(check_this_file)):
+            returned_file_size = file_size(check_this_file)
+            if (returned_file_size > 0):
+                if (step_name == "Step 8"):
+                    with open(check_this_file) as cc_record_file:
+                        if "nan" in cc_record_file.read():
+                            cc_record_file.close()
+                            return "failed_with_nan_in_cc"
+                        else:
+                            user_s_cc = get_users_cc(check_this_file)
+                            if (float(user_s_cc) < 0.0001):
+                                write_this = "\nUser's provided input pdb file has less than 0.0001 cc\n"
+                                print write_this
+                                logfile.write(write_this)
+                                write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
+                                print write_this
+                                logfile.write(write_this)
+                                write_this = "\nExit cryo_fit now\n"
+                                print write_this
+                                logfile.write(write_this)
+                                exit(1)
+                            cc_record_file.close()
+                if (step_name != "Step 8"):
+                    if (regression != "regression"):
+                        print step_name, " successfully ran"
+                else: # step 8 again
+                    print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
+                return "success"
+        print step_name, " didn't successfully run"
+        if (step_name == "Step 4" or step_name == "Step 8"):
+          return "failed"
+######################## end of check_whether_the_step_was_successfully_ran function
+'''
+
 def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     if (os.path.isfile(check_this_file)):
         returned_file_size = file_size(check_this_file)

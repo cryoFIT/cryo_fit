@@ -8,16 +8,18 @@ def file_size(fname):
     return statinfo.st_size
 ############### end of file_size()
 
-def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
+
+def check_whether_the_step_was_successfully_ran_in_regression(step_name, check_this_file):
   if (os.path.isfile(check_this_file)):
     returned_file_size = file_size(check_this_file)
     if (returned_file_size > 0):
-      if (step_name != "Step 8"): # for step_8 (drawing a graph), determining a success now is early
-        print step_name, " successfully ran"
+      #if (step_name != "Step 8"): # for step_8 (drawing a graph), determining a success now is early
+      #  print step_name, " successfully ran"
       return 1
   print step_name, " didn't successfully ran"
   return 0
-####################### end of check_whether_the_step_was_successfully_ran function
+####################### end of check_whether_the_step_was_successfully_ran_in_regression function
+
 
 def run():
     """
@@ -50,7 +52,7 @@ def run():
     
     os.chdir( new_path )
     
-    the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "trajectory/trajectory.gro")
+    the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", "trajectory/trajectory.gro")
     
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
