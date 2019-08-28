@@ -1168,7 +1168,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
   print "\n\t\tTo watch/record a trajectory movie, see \"https://www.phenix-online.org/documentation/tutorials/cryo_fit_movie.html\""
   
-  if (this_is_test_for_each_step == True):
+  if (this_is_test_for_each_step == True): # test for each individual steps like steps 1~final
     return this_is_test_for_each_step
     
   
@@ -1180,7 +1180,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     logfile.write(write_this)
     
     logfile.close()
-    return 0
+    return "failed"
     #exit(1) # even when step final failed, whole regression test appear as success
   
   for py in glob.glob("*.py"): # most users will not need *.py
@@ -1557,10 +1557,10 @@ def run_cryo_fit(logfile, params, inputs):
           this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, no_rerun) # just to arrange final output
           
           write_this = "result was re_run_with_longer_steps, but this is a test for each step"
-          if (this_is_test_for_each_step == True):
-            end_regression(starting_dir, write_this)
-          elif (this_is_test_for_each_step == 0):
+          if (this_is_test_for_each_step == "failed"):
             exit(1)
+          elif (this_is_test_for_each_step == True):
+            end_regression(starting_dir, write_this)
           else:
             logfile.write(write_this)
         
@@ -1641,10 +1641,10 @@ def run_cryo_fit(logfile, params, inputs):
   this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                             cryo_fit_path, no_rerun) # just to arrange final output
   write_this = "step final is done"
-  if (this_is_test_for_each_step == True):
-    end_regression(starting_dir, write_this)
-  elif (this_is_test_for_each_step == 0):
+  if (this_is_test_for_each_step == "failed"):
     exit(1)
+  elif (this_is_test_for_each_step == True):
+    end_regression(starting_dir, write_this)
   else:
     if "regression_" in model_file_without_pathways: # regression for all steps
       return True
