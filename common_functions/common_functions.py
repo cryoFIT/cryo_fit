@@ -861,7 +861,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     print "\n\t\tConversion of mrc-> sit started."
     print "\t\t\t(If a user's mrc map file is big like ~300MB, this conversion takes 7~17 minutes requiring ~1.5 Gigabytes of harddisk)"
     print "\t\t\t(Therefore, if a user want to re-run cryo_fit, providing the already converted .sit file will save the conversion time)"
-    print "\t\t\t(However, reading ~1.5 Gigabytes .sit file also takes > 5 minutes anyway)\n"
+    print "\t\t\t(However, reading ~1.5 gigabytes .sit file also takes > 5 minutes anyway)\n"
     
     emmap_nz = target_map_data.all()[2] # L1 talk: 156, H40: 109, nucleosome: 196
     emmap_ny = target_map_data.all()[1] # L1 talk: 158, H40: 104, nucleosome: 196
