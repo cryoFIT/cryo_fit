@@ -1085,9 +1085,14 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
   write_this = command_string + "\n\n"
   logfile.write(write_this)
-  print "\t\tcommand: ", write_this
+  print "\tcommand: ", write_this
   libtbx.easy_run.call(command_string)
 
+  for extracted_gro in glob.glob("*.gro"):
+    returned_file_size = file_size(extracted_gro)
+    if (returned_file_size == 0):
+        exit(1)
+        
   print "\n\tConvert .gro -> .pdb"
   print "\t\t(.gro file is for Chimera/Gromacs/Pymol/VMD)"
   print "\t\t(.pdb file is for Chimera/ChimeraX/Pymol/VMD)"
@@ -1171,8 +1176,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   if (this_is_test_for_each_step == True): # test for each individual steps like steps 1~final
     return this_is_test_for_each_step
     
-  
-  #returned = "not success" # temporary
   
   if (returned != "success"):
     write_this = "Step final (arrange output) didn't run successfully"
@@ -1494,9 +1497,6 @@ def run_cryo_fit(logfile, params, inputs):
       
       try:
         user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is stil '', "ValueError: could not convert string to float:"
-        #print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
-        #print print_this
-        #logfile.write(print_this)
       except:
         print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. Please contact doonam@lanl.gov"
         print print_this

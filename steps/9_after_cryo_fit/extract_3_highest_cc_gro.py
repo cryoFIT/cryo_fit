@@ -18,7 +18,9 @@ sys.path.insert(0, common_functions_path)
 from common_functions import *
 '''
 
-# It is ESSENTIAL to adjust step number if restarted
+# This is ESSENTIAL to adjust step number if restarted for longer steps to extract gro file
+# Otherwise, there will be "WARNING no output, last frame read at t=xxx".
+# Even with cc_record.txt, 
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart for longer steps."
     f = open('../restart_record_for_longer_steps.txt', 'r')
@@ -39,7 +41,7 @@ def adjust_step_number():
             last_step_to_be_added = int(line)
             break
     f.close()
-    print "\t\t\t\tAdd this step number to each current step number:", last_step_to_be_added
+    print "\t\t\t\tAdd this step number to each current step number in cc_record file:", last_step_to_be_added
     
     f_in = open('cc_record', 'r')
     f_out = open('cc_record_adjusted_step_use_for_extraction', 'w')
@@ -55,11 +57,8 @@ def adjust_step_number():
 
 
 def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc):
-    # print_this = "\n\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
-    # print print_this
-    # gro_extraction_note_file.write(print_this)
-        
-    print_this = "\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
+
+    print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
 
@@ -74,40 +73,42 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
     
     cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
-    write_this = cmd + "\n"
+    write_this = "\t" + cmd + "\n"
     print write_this
     gro_extraction_note_file.write(write_this)
     os.system(cmd)
     
     returned_file_size = file_size(output_gro_name)
     if (returned_file_size == 0):
-        write_this = "extracted gro file is empty, check step numbers, exit now"
+        write_this = "extracted gro file is empty, check step numbers, cryo_fit will exit soon."
         print write_this
         gro_extraction_note_file.write(write_this)
-        return 0 
-        #exit(1) # didn't exit the whole program
-    
+        gro_extraction_note_file.close()
+        return "empty" 
+        
     if (i == 0):
         print "\t", target_step, " step has the highest cc"
         if (target_step == "0"): # works as expected
            print "\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
            cmd = "mv " + output_gro_name + " user_provided.gro"
-           print "\tcommand:", cmd, "\n"
+           write_this = "\t" + cmd + "\n"
+           print write_this
+           gro_extraction_note_file.write(write_this)
+           
            os.system(cmd)
-           #libtbx.easy_run.fully_buffered(cmd)
-           gro_extraction_note_file.write(cmd)
+           
         else:
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
-            print "cc:",cc
-            print "users_cc:",users_cc
+            # print "cc:",cc
+            # print "users_cc:",users_cc
             
             if (float(cc) > float(users_cc)):
                 print "\ttherefore rename it to cryo_fitted.gro"
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
-                print "\tcommand:", cmd, "\n"
-                os.system(cmd)
-                #libtbx.easy_run.fully_buffered(cmd)
+                print "\t", cmd, "\n"
                 gro_extraction_note_file.write(cmd)
+                os.system(cmd)
+                
     os.remove("input_parameters")
     return 1
 ################# end of extract_gro function
@@ -206,10 +207,8 @@ if (__name__ == "__main__") :
     # Previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
     # Therefore, cc_record_full_renumbered should NOT be used for extrqcting gro. It should be used only for overall cc change.
 
-
-    #''' # /home/doonam/research/run/phenix/cryo_fit/christl/save_screen_to_file/ran_08_26_for_debug/steps/8_cryo_fit failed
-        # (tried to extract 19.4 ps xyz from 16 total_ps data)
     
+    #'''
     result = '' # initial temporary assignment
     if (this_is_test == "True"): # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
@@ -219,19 +218,6 @@ if (__name__ == "__main__") :
         if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
             #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
-
-        '''
-        if (no_rerun == "False"): # default running
-            if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == True):
-                result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
-            else:
-                write_this = "cc_record_adjusted_step_use_for_extraction is not found, probably cryo_fit didn't have to re-run or it bumped up map_weight only."
-                gro_extraction_note_file.write(write_this)
-                print write_this
-                result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-        else:
-            result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-        '''
         
         if (no_rerun == "False"): # default running
             # this cc_record is step_adjusted if restarted
@@ -250,6 +236,10 @@ if (__name__ == "__main__") :
     gro_extraction_note_file.write(write_this)
     print write_this
     
+    if (len(result) == 0):
+        print "no steps to be extracted, please email doonam@lanl.gov"
+        exit(1)
+    
     nsteps, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)
     
     for i in range(len(result)):
@@ -261,9 +251,10 @@ if (__name__ == "__main__") :
         gro_extraction_note_file.write(write_this)
         print write_this
         
+        #extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
+        
         returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
-        if (returned == 0):
-            gro_extraction_note_file.close()
+        if (returned == "empty"):
             exit(1)
     
     gro_extraction_note_file.close()
