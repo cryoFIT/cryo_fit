@@ -1172,7 +1172,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     return this_is_test_for_each_step
     
   
-  returned = "not success" # temporary
+  #returned = "not success" # temporary
   
   if (returned != "success"):
     write_this = "Step final (arrange output) didn't run successfully"

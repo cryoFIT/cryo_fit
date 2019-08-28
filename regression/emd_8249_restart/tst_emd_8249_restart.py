@@ -52,7 +52,14 @@ def run():
     
     os.chdir( new_path )
     
-    the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", "trajectory/trajectory.gro")
+    
+    
+    #the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", "trajectory/trajectory.gro")
+    
+    the_step_was_successfully_ran = ''
+    for gro in glob.glob("*.gro"):
+      the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", gro)
+      break
     
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
