@@ -212,12 +212,12 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     
     if (cc_last > cc_30th_last):
-        write_this = "\t\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
+        write_this = "\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
-        write_this = "\t\tcc_last (" + cc_last + ") <= cc_30th_last (" + cc_30th_last + ")"
+        write_this = "\tcc_last (" + cc_last + ") <= cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
         return False

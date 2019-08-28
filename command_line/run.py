@@ -1601,7 +1601,7 @@ def run_cryo_fit(logfile, params, inputs):
         # this check is important to avoid infinite loop and "vtot is inf: inf" error
         if (emweight_multiply_by > 1000 ):
           # 1,024 resulted in "vtot is inf: inf" with christl's molecule
-          write_this = "emweight_multiply_by > 1000, cryo_fit will exit, because 1,024 emweight_multiply_by once resulted in \"vtot is inf: inf\""
+          write_this = "emweight_multiply_by > 1000, cryo_fit will exit, because 1,024 emweight_multiply_by once resulted in \"vtot is inf: inf\". This often means that user's initial atomistic model already fit to cryo-EM map well."
           print write_this
           logfile.write(write_this)
           

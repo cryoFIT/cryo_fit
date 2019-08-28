@@ -1,5 +1,23 @@
 import os, subprocess, sys
 
+def file_size(fname):
+    statinfo = os.stat(fname)
+    return statinfo.st_size
+######## end of file_size(fname)
+
+''' do not import these, to avoid "extract_3_highest_cc_gro.py:121: UserWarning: os.popen() is not safe: please use the subprocess module or libtbx.easy_run instead."
+# this is needed to import all common functions
+path = subprocess.check_output(["which", "phenix.cryo_fit"])
+splited = path.split("/")
+command_path = ''
+for i in range(len(splited)-3):
+  command_path = command_path + splited[i] + "/"
+command_path = command_path + "modules/cryo_fit/"
+common_functions_path = command_path + "common_functions/"
+sys.path.insert(0, common_functions_path)
+from common_functions import *
+'''
+
 # It is ESSENTIAL to adjust step number if restarted
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart for longer steps."
@@ -37,16 +55,16 @@ def adjust_step_number():
 
 
 def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc):
-    print_this = "\n\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
-    print print_this
-    gro_extraction_note_file.write(print_this)
+    # print_this = "\n\tCryo_fit needs to extract a gro file from " + str(target_step) + " step(s)" + "\n"
+    # print print_this
+    # gro_extraction_note_file.write(print_this)
         
-    print_this = "\t\t\t\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
+    print_this = "\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
 
     target_ps = (float(target_step)/float(nsteps))*float(total_ps)
-    print_this = "\t\t\t\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
+    print_this = "\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
@@ -56,17 +74,27 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
     
     cmd = cryo_fit_path + "trjconv -f traj.xtc -dump " + str(target_ps) + " -o " + str(output_gro_name) + \
           " -s for_cryo_fit.tpr < input_parameters"
-    print "\t\t\t\tcommand: ",cmd
-    gro_extraction_note_file.write(cmd)
+    write_this = cmd + "\n"
+    print write_this
+    gro_extraction_note_file.write(write_this)
     os.system(cmd)
     
+    returned_file_size = file_size(output_gro_name)
+    if (returned_file_size == 0):
+        write_this = "extracted gro file is empty, check step numbers, exit now"
+        print write_this
+        gro_extraction_note_file.write(write_this)
+        return 0 
+        #exit(1) # didn't exit the whole program
+    
     if (i == 0):
-        print "\t\t\t\t", target_step, " step has the highest cc"
+        print "\t", target_step, " step has the highest cc"
         if (target_step == "0"): # works as expected
-           print "\t\t\t\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
+           print "\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
            cmd = "mv " + output_gro_name + " user_provided.gro"
-           print "\t\t\t\t\tcommand:", cmd, "\n"
+           print "\tcommand:", cmd, "\n"
            os.system(cmd)
+           #libtbx.easy_run.fully_buffered(cmd)
            gro_extraction_note_file.write(cmd)
         else:
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
@@ -74,12 +102,14 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
             print "users_cc:",users_cc
             
             if (float(cc) > float(users_cc)):
-                print "\t\t\t\tso rename it to cryo_fitted.gro"
+                print "\ttherefore rename it to cryo_fitted.gro"
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
-                print "\t\t\t\t\tcommand:", cmd, "\n"
+                print "\tcommand:", cmd, "\n"
                 os.system(cmd)
+                #libtbx.easy_run.fully_buffered(cmd)
                 gro_extraction_note_file.write(cmd)
     os.remove("input_parameters")
+    return 1
 ################# end of extract_gro function
 
 
@@ -94,7 +124,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     
     grep_dt_string = "grep dt " + for_cryo_fit_mdp_location + " | grep -v when"
     
-    print "\t\t\t\tcommand:", grep_dt_string
+    print "\tcommand:", grep_dt_string
     gro_extraction_note_file.write(grep_dt_string)
     result = os.popen(grep_dt_string).read()
     splited = result.split()
@@ -105,16 +135,18 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     gro_extraction_note_file.write(print_this)
     
     grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
+    
     result = os.popen(grep_nsteps_string).read()
+    
     splited = result.split()
     nsteps = splited[2]
-    print_this = "\t\t\t\tnsteps:" + str(nsteps) + "\n"
+    print_this = "\tnsteps: " + str(nsteps) + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
     total_ps = float(dt)*float(nsteps)
 
-    print_this = "\t\t\t\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
+    print_this = "\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
@@ -124,7 +156,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     f_out.write(print_this)
     '''
     
-    print_this = "\t\t\t\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
+    print_this = "\tTherefore, total mdrun running time was: " + str(total_ps) + " pico (10^-12) second" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
@@ -213,10 +245,13 @@ if (__name__ == "__main__") :
         target_step = splited[1]
         cc = splited[4]
         
-        write_this = "\nCryo_fit will extract a gro file from this target_step: " + str(target_step)
+        write_this = "\n\nCryo_fit will extract a gro file from this target_step: " + str(target_step)
         gro_extraction_note_file.write(write_this)
         print write_this
         
-        extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
+        returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
+        if (returned == 0):
+            gro_extraction_note_file.close()
+            exit(1)
     
     gro_extraction_note_file.close()
