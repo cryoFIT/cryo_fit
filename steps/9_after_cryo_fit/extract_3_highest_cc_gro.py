@@ -207,7 +207,7 @@ if (__name__ == "__main__") :
     # Therefore, cc_record_full_renumbered should NOT be used for extrqcting gro. It should be used only for overall cc change.
 
 
-    ''' # /home/doonam/research/run/phenix/cryo_fit/christl/save_screen_to_file/ran_08_26_for_debug/steps/8_cryo_fit failed
+    #''' # /home/doonam/research/run/phenix/cryo_fit/christl/save_screen_to_file/ran_08_26_for_debug/steps/8_cryo_fit failed
         # (tried to extract 19.4 ps xyz from 16 total_ps data)
     
     result = '' # initial temporary assignment
@@ -220,6 +220,7 @@ if (__name__ == "__main__") :
             adjust_step_number ()
             #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
 
+        '''
         if (no_rerun == "False"): # default running
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == True):
                 result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
@@ -230,9 +231,20 @@ if (__name__ == "__main__") :
                 result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    '''
+        '''
         
-    result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+        if (no_rerun == "False"): # default running
+            # this cc_record is step_adjusted if restarted
+            if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
+                print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam@lanl.gov"
+                exit(1)
+            result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+        else:
+            result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+            
+    #'''
+        
+    #result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     
     write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
     gro_extraction_note_file.write(write_this)
