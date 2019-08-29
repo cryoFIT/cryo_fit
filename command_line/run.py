@@ -1614,10 +1614,9 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = "emweight_multiply_by > 1000, cryo_fit will exit, because 1,024 emweight_multiply_by once resulted in \"vtot is inf: inf\". This often means that user's initial atomistic model already fit to cryo-EM map well."
           print write_this
           logfile.write(write_this)
-          
-          # "; emweight is the energetic weight of the em term.  Since the total stabilizing energy in an all-atom SBM is set to the number of atoms,
-          #we typically give a weight that is 1-2 times the overall stabilizing energy.  Here, AKE has 22k atoms, so we will use a weight of 44k."
-          
+            # "; emweight is the energetic weight of the em term.  Since the total stabilizing energy in an all-atom SBM is set to the number of atoms,
+            #we typically give a weight that is 1-2 times the overall stabilizing energy.  Here, AKE has 22k atoms, so we will use a weight of 44k."
+            
           break # no need to use exit(1) since this break will break this while loop
           
         write_this = "Therefore, step 7 & 8 will re-run with a higher emweight_multiply_by (e.g. " + str(emweight_multiply_by) + ")\n\n"

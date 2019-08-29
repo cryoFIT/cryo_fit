@@ -201,9 +201,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     return "re_run_with_higher_map_weight"
 
     
-  #multiply_by_this = 1.5 # cryo_fit will run quickly, this is for devel
+  multiply_by_this = 1.5 # cryo_fit will run quickly, this is for devel
   #multiply_by_this = 1.2 # with this value, L1 stalk may have lost a valuable opportunity
-  multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
+  #multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
   
   
   if (this_is_test == True):

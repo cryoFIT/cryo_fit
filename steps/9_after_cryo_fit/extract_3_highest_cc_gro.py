@@ -169,16 +169,6 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
 def get_users_cc_from_overall_log(log):
   f_in = open(log)
   for line in f_in:
-    
-    '''
-    splited_by_apostrophe = line.split("'")
-    if (splited_by_apostrophe[0] == "User"):
-        splited = line.split(" ")
-        cc = splited[5]
-        f_in.close()
-        print "\tUser provided atomic model's cc: ", cc
-        return cc
-    '''
     splited = line.split(" ")
     if (splited[0] == "A"):
         if (splited[1] == "user's"):
@@ -208,7 +198,6 @@ if (__name__ == "__main__") :
     # Therefore, cc_record_full_renumbered should NOT be used for extrqcting gro. It should be used only for overall cc change.
 
     
-    #'''
     result = '' # initial temporary assignment
     if (this_is_test == "True"): # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
@@ -228,10 +217,6 @@ if (__name__ == "__main__") :
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
             
-    #'''
-        
-    #result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-    
     write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
     gro_extraction_note_file.write(write_this)
     print write_this
