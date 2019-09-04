@@ -366,6 +366,11 @@ def clean_unusual_residue(input_pdb_file_name):
       f_report.write(write_this)
       print write_this
       continue
+    elif (residue == "GTP"):
+      write_this = str(residue) + " removed\n"
+      f_report.write(write_this)
+      print write_this
+      continue
     elif ((residue == "NAG") or (residue == "PTQ") or (residue == "SEP") or (residue == "TRX") or (residue == "UNK")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
