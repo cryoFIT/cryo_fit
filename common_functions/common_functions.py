@@ -176,6 +176,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     msg=(
     '\n\t\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.\n'
     
+    'read https://github.com/cryoFIT/cryo_fit/blob/master/temporary_FAQ.txt'
+    
+'''
     '\t\tHere are possible causes and solutions\n'
     
     '\n\t\t\t 1) Providing higher (better) resolution map tends to help this problem.\n'
@@ -193,7 +196,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     
     '\n\t\t\t 4) If the initial model is not properly aligned to a map, \n'
     '  \t\t\t     fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
-    
+'''
+
     '\n\t\t Here, cryo_fit will try stronger map weight automatically.\n'
     )
     print (msg)

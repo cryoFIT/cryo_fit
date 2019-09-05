@@ -80,7 +80,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
     
     returned_file_size = file_size(output_gro_name)
     if (returned_file_size == 0):
-        write_this = "extracted gro file is empty, check step numbers, cryo_fit will exit soon."
+        write_this = "extracted gro file is empty, check step numbers, cryo_fit will exit soon.\n"
         print write_this
         gro_extraction_note_file.write(write_this)
         gro_extraction_note_file.close()
@@ -209,12 +209,14 @@ if (__name__ == "__main__") :
             #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
         
         if (no_rerun == "False"): # default running
-            # this cc_record is step_adjusted if restarted
+            
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
+                ##### need to use cc_record when cryo_fit bumped up map_weight only
                 result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
                 #print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam@lanl.gov"
                 #exit(1)
             else:
+                # number of steps of cc_record is adjusted if it was restarted for longer steps
                 result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
