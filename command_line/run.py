@@ -1009,7 +1009,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
         return "re_run_with_higher_map_weight"
       else: # cc_has_been_increased = False
-        write_this = "\tcc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
+        write_this = "\ncc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
         print write_this
         logfile.write(write_this)
 

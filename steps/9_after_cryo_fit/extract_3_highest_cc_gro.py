@@ -211,9 +211,11 @@ if (__name__ == "__main__") :
         if (no_rerun == "False"): # default running
             # this cc_record is step_adjusted if restarted
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
-                print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam@lanl.gov"
-                exit(1)
-            result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
+                result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+                #print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam@lanl.gov"
+                #exit(1)
+            else:
+                result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
             
