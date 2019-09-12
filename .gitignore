@@ -12,4 +12,5 @@ regression/*/restart_record_for_longer_steps.txt
 restart_record.txt
 *.sit
 steps/.DS_Store
+steps/1_make_gro/*pdb
 *swo
