@@ -176,27 +176,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     msg=(
     '\n\t\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.\n'
     
-    'read https://github.com/cryoFIT/cryo_fit/blob/master/temporary_FAQ.txt'
-    
-'''
-    '\t\tHere are possible causes and solutions\n'
-    
-    '\n\t\t\t 1) Providing higher (better) resolution map tends to help this problem.\n'
-    
-    '\n\t\t\t 2) Enforcing stronger map weight tends to help this problem.\n'
-    
-    '\n\t\t\t 3) If cryo_fit is provided a giant cryoem map with a tiny atomic model.\n'
-    '\t\t\t\t Then, the cryo_fit calculates the gradient of CC because of the large empty space not filled. \n'
-    '\t\t\t\t The constraint forces for the model are not helping as they are very small.\n'
-    '\t\t\t\t 3-1) Re-run cryo_fit with an atomic model that fits the majority of the map. \n'
-    '\t\t\t\t      Fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. \n'
-    '\t\t\t\t      Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12  \n'
-    
-    '\n\t\t\t\t 3-2) Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model\n'
-    
-    '\n\t\t\t 4) If the initial model is not properly aligned to a map, \n'
-    '  \t\t\t     fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map\n'
-'''
+    '\n\t\tRead https://github.com/cryoFIT/cryo_fit/blob/master/temporary_FAQ.txt'
 
     '\n\t\t Here, cryo_fit will try stronger map weight automatically.\n'
     )

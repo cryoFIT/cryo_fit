@@ -1,4 +1,4 @@
-I observe cc values keep decreasing (or do not increase that much) during step 8
+Doo Nam observe cc values keep decreasing (or do not increase that much) during step 8
  
 Initial few steps of cryo_fit in step 8 may decrease cc values temporarily as an initial perturbation.
 
@@ -11,14 +11,14 @@ However, if it keeps decreasing continuously (or do not increase that much), it 
 
 There are four possible solutions
   
-  Providing higher (better) resolution map tends to help this problem.
+  1. Providing higher (better) resolution map tends to help this problem.
   
-  Enforcing stronger map weight tends to help this problem.
+  2. Enforcing stronger map weight tends to help this problem.
   
-  If cryo_fit is provided a giant cryoem map with a tiny atomic model.
+  3. If cryo_fit is provided a giant cryoem map with a tiny atomic model.
     Then, the cryo_fit calculates the gradient of CC because of the large empty space not filled. The constraint forces for the model are not helping as they are very small.
     3-1. Re-run cryo_fit with an atomic model that fits the majority of the map.
          Fit multiple atomic models into a symmetric map or sequential fitting into a non-symmetric map. Watch https://www.youtube.com/watch?v=6VGYo1pRRZ8&t=0s&list=PLVetO1F9gm_oa--j37yrjzJ4yVJYzPVN5&index=12
     3-2. Re-run cryo_fit with only relevant map region. A user can extract relevant map region by phenix.map_box (preferred) or phenix.map_to_model
 
-  If the initial model is not properly aligned to a map, fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map
+  4. If the initial model is not properly aligned to a map, fit using UCSF Chimera -> Tools -> Volume Data -> Fit in Map

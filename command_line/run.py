@@ -368,7 +368,8 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   start = time.time()
-  cp_command_string = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
+  #cp_command_string = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   if (model_file_without_pathways.find("_cleaned_for_gromacs") == -1):
@@ -390,7 +391,8 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
     
-  cp_command_string = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
+  #cp_command_string = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/2_runme_make_gro.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   os.chdir (starting_dir)
@@ -494,7 +496,8 @@ def step_2(logfile, command_path, starting_dir, model_file_with_pathways, model_
 
   start_time_renaming = time.time()
   print "\nStep 2: Add C prefix to terminal amino acid/nucleic acid for minimization by gromacs"
-  command_script = "cp " + command_path + "steps/2_clean_gro/*.py ."
+  #command_script = "cp " + command_path + "steps/2_clean_gro/*.py ."
+  command_script = "cp " + command_path + "files_for_steps/2_clean_gro/*.py ."
   libtbx.easy_run.fully_buffered(command_script)
 
   command_script = "python 1_rename_term_res_to_Cres.py " # there will be only 1 gro file, so it is ok
@@ -537,7 +540,8 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
   remake_this_folder("steps/3_make_tpr_to_minimize")
   remake_and_move_to_this_folder(starting_dir, "steps/3_make_tpr_to_minimize")
 
-  cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/minimization_template.mdp ."
+  #cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/minimization_template.mdp ."
+  cp_command_script = "cp " + command_path + "files_for_steps/3_make_tpr_to_minimize/minimization_template.mdp ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb") \
@@ -570,7 +574,8 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
     fout.close()
   fin.close()
   
-  cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
+  #cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
+  cp_command_script = "cp " + command_path + "files_for_steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   cp1_command_string = '' #initialization
@@ -626,7 +631,8 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\nStep 4-1: Minimization itself"
   remake_and_move_to_this_folder(starting_dir, "steps/4_minimize")
 
-  cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
+  #cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
+  cp_command_script = "cp " + command_path + "files_for_steps/4_minimize/runme_minimize.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   this_is_test_for_each_step = False # default
@@ -720,7 +726,8 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "Step 4-1", (show_time(start, end))
   
   print "\nStep 4-2: Add C prefix to terminal amino acids to minimized.gro for grompp by gromacs"
-  cp_command_string = "cp " + command_path + "steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
+  #cp_command_string = "cp " + command_path + "steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   command_string = "python 1_rename_term_res_to_Cres.py "
@@ -740,7 +747,8 @@ def step_5(logfile, command_path, starting_dir, model_file_without_pathways, cry
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_restraints")
   
   start = time.time()
-  cp_command_string = "cp " + command_path + "steps/5_make_restraints/runme_make_contact_potential.py ."
+  #cp_command_string = "cp " + command_path + "steps/5_make_restraints/runme_make_contact_potential.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/5_make_restraints/runme_make_contact_potential.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test_for_each_step = False # default
@@ -773,10 +781,12 @@ def step_6(logfile, command_path, starting_dir, model_file_without_pathways):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
 
-  cp_command_string = "cp " + command_path + "steps/6_make_0_charge/changetop.awk ."
+  #cp_command_string = "cp " + command_path + "steps/6_make_0_charge/changetop.awk ."
+  cp_command_string = "cp " + command_path + "files_for_steps/6_make_0_charge/changetop.awk ."
   libtbx.easy_run.fully_buffered(cp_command_string)
       
-  cp_command_string = "cp " + command_path + "steps/6_make_0_charge/runme_make_0_charge.py ."
+  #cp_command_string = "cp " + command_path + "steps/6_make_0_charge/runme_make_0_charge.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/6_make_0_charge/runme_make_0_charge.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test_for_each_step = False # default
@@ -830,11 +840,13 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   fout = open("for_cryo_fit.mdp", "wt")
   fin = ''
   if (many_step_____n__dot_pdb == False):
-    cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
+    #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
+    cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     fin = open("template_for_cryo_fit.mdp", "rt")
   else:
-    cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
+    #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
+    cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     fin = open("template_for_cryo_fit_many_step_____n__dot_pdb.mdp", "rt")
   write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
@@ -882,7 +894,8 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   fin.close()
   '''
   
-  cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
+  #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   start_make_tpr = time.time()
@@ -909,7 +922,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
-  command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
+  #command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
+  command_string = "cp " + command_path + "files_for_steps/8_cryo_fit/* ."
   libtbx.easy_run.fully_buffered(command_string)
   
   if (str(restart_w_longer_steps) == "True"):
@@ -1054,7 +1068,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   this_is_test_for_each_step = False # just initial value assignment
   splited_starting_dir = starting_dir.split("/")
   
-  cp_command_string = "cp " + command_path + "steps/9_after_cryo_fit/*.py ."
+  #cp_command_string = "cp " + command_path + "steps/9_after_cryo_fit/*.py ."
+  cp_command_string = "cp " + command_path + "files_for_steps/9_after_cryo_fit/*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
   logfile.close() # to write user's cc for now
@@ -1168,7 +1183,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tTo draw a figure for cc,"
-  print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
+  #print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
+  print "  \t\t\tpython <phenix_path>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
   print "\n\t\tTo watch/record a trajectory movie, see \"https://www.phenix-online.org/documentation/tutorials/cryo_fit_movie.html\""
@@ -1310,7 +1326,6 @@ def run_cryo_fit(logfile, params, inputs):
     number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
     number_of_steps_for_minimization = 0
     number_of_steps_for_cryo_fit = 100
-    #number_of_steps_for_cryo_fit = 0
   
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
