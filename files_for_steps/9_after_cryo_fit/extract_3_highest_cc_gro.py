@@ -206,7 +206,7 @@ if (__name__ == "__main__") :
         # adjust step number if cryo_fit restarted for longer steps
         if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
-            #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
+            os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
         
         if (no_rerun == "False"): # default running
             
