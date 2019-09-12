@@ -1,5 +1,5 @@
 I observe cc values keep decreasing (or do not increase that much) during step 8
-
+ 
 Initial few steps of cryo_fit in step 8 may decrease cc values temporarily as an initial perturbation.
 
 However, if it keeps decreasing continuously (or do not increase that much), it may indicate two possible reasons.
