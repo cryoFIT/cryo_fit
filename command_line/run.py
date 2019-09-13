@@ -922,7 +922,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   remake_and_move_to_this_folder(starting_dir, "steps/8_cryo_fit")
   
-  #command_string = "cp " + command_path + "steps/8_cryo_fit/* ."
   command_string = "cp " + command_path + "files_for_steps/8_cryo_fit/* ."
   libtbx.easy_run.fully_buffered(command_string)
   
@@ -1471,13 +1470,18 @@ def run_cryo_fit(logfile, params, inputs):
   restart_w_longer_steps = False # this is a proper initial assignment
   re_run_with_higher_map_weight = False # this is a proper initial assignment
   
+  # iterate until any condition is met
   while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
     if ((this_is_test_for_each_step == True) \
-                                or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
-                                and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
-                                and steps_list[6] == False and steps_list[7] == False)):
+       or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
+           and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
+           and steps_list[6] == False and steps_list[7] == False)):
       break
     
+    if (re_run_with_higher_map_weight == True):
+      restart_w_longer_steps = False
+      # w/o this, cryo_fit will think that restart_w_longer_steps is still True
+      
     if (steps_list[6] == True):
       this_is_test_for_each_step = step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
              emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb)
@@ -1487,6 +1491,8 @@ def run_cryo_fit(logfile, params, inputs):
       else:
         logfile.write(write_this)
 
+    
+      
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \

@@ -52,7 +52,7 @@ def adjust_step_number():
     f_in.close()
     f_out.close()
     
-    os.remove("cc_record") # no longer neeeded
+    #os.remove("cc_record") # no longer needed, but keep for development
 ################# end of def adjust_step_number ()
 
 
@@ -116,6 +116,22 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
 
 
 def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
+    
+    md_log_location = "../steps/8_cryo_fit/md.log"
+    grep_step_colon = "grep step: " + md_log_location
+    print "\tcommand:", grep_step_colon
+    gro_extraction_note_file.write(grep_step_colon)
+    result = os.popen(grep_step_colon).read()
+    state_cpt_used = True
+    used_step = ''
+    nsteps = ''
+    try:
+        splited = result.split()
+        nsteps = splited[1] # actually used step_number
+    except:
+        state_cpt_used = False
+    
+    # <begin> extract dt
     for_cryo_fit_mdp_location = ''
     if (this_is_test == "False"):
         for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
@@ -134,16 +150,21 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     print_this = "\n\tdt:" + dt + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
+    # <end> extract dt
     
-    grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
     
-    result = os.popen(grep_nsteps_string).read()
+    if (state_cpt_used == False):
+        grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
+        
+        result = os.popen(grep_nsteps_string).read()
+        splited = result.split()
+        nsteps = splited[2]
+        
+        print_this = "\tnsteps: " + str(nsteps) + "\n"
+        print print_this
+        
+        gro_extraction_note_file.write(print_this)
     
-    splited = result.split()
-    nsteps = splited[2]
-    print_this = "\tnsteps: " + str(nsteps) + "\n"
-    print print_this
-    gro_extraction_note_file.write(print_this)
     
     total_ps = float(dt)*float(nsteps)
 
@@ -206,7 +227,7 @@ if (__name__ == "__main__") :
         # adjust step number if cryo_fit restarted for longer steps
         if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number ()
-            os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
+            #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
         
         if (no_rerun == "False"): # default running
             
@@ -239,8 +260,6 @@ if (__name__ == "__main__") :
         write_this = "\n\nCryo_fit will extract a gro file from this target_step: " + str(target_step)
         gro_extraction_note_file.write(write_this)
         print write_this
-        
-        #extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
         
         returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, target_step, i, cc)
         if (returned == "empty"):
