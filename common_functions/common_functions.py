@@ -454,21 +454,22 @@ def file_size(fname):
 ######## end of file_size(fname)
 
 
-def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart):
+def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, \
+                           common_command_string, restart_w_longer_steps):
     command_used = '' #just initial value
     if (number_of_cores_to_use == "max"):
         if (number_of_available_cores < 4):
-            command_used = run_cryo_fit_itself(2, common_command_string, restart)
+            command_used = run_cryo_fit_itself(2, common_command_string, restart_w_longer_steps)
         elif (number_of_available_cores < 8):
-            command_used = run_cryo_fit_itself(4, common_command_string, restart)
+            command_used = run_cryo_fit_itself(4, common_command_string, restart_w_longer_steps)
         elif (number_of_available_cores < 12):
-            command_used = run_cryo_fit_itself(8, common_command_string, restart)
+            command_used = run_cryo_fit_itself(8, common_command_string, restart_w_longer_steps)
         elif (number_of_available_cores < 16):
-            command_used = run_cryo_fit_itself(12, common_command_string, restart)
+            command_used = run_cryo_fit_itself(12, common_command_string, restart_w_longer_steps)
         else: # ribosome benchmark showed that maximum useful number of cores is 16
-            command_used = run_cryo_fit_itself(16, common_command_string, restart)
+            command_used = run_cryo_fit_itself(16, common_command_string, restart_w_longer_steps)
     else:
-        command_used = run_cryo_fit_itself(int(number_of_cores_to_use), common_command_string, restart)
+        command_used = run_cryo_fit_itself(int(number_of_cores_to_use), common_command_string, restart_w_longer_steps)
     return command_used
 ######## end of final_prepare_cryo_fit function
 
@@ -492,7 +493,7 @@ def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cor
 #################### end of final_prepare_minimization function
 
 
-def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart, cryo_fit_path):
+def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart_w_longer_steps, cryo_fit_path):
     
     common_command_string = cryo_fit_path + "mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                             target_map + " -nosum  -noddcheck "
@@ -512,7 +513,7 @@ def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, ta
                             #           for the domain decomposition cell sizes. By default -rdd is determined by mdrun based on the initial coordinates. \
                             #           The chosen value will be a balance between interaction range and communication cost.
             
-    command_used = final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart)
+    command_used = final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart_w_longer_steps)
     command_used = command_used + "\n"    
     return command_used
 ####################### end of first_prepare_cryo_fit function
@@ -1015,31 +1016,31 @@ def return_number_of_atoms_in_gro():
 ############################## end of return_number_of_atoms_in_gro function
 
 
-def run_cryo_fit_itself(cores_to_use, common_command_string, restart):
+def run_cryo_fit_itself(cores_to_use, common_command_string, restart_w_longer_steps):
     command_string = '' # just initial
-    print "\trestarted with longer cryo_fit steps:",restart
+    print "\trestarted with longer cryo_fit steps:", restart_w_longer_steps
     if (cores_to_use == 2):
-        if (str(restart) == "False"):
+        if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 2 -dd 2 1 1 "
         else:
             command_string = common_command_string + " -nt 2 -dd 2 1 1 -cpi state.cpt"
     elif (cores_to_use == 4):
-        if (str(restart) == "False"):
+        if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 4 -dd 2 2 1 "
         else:
             command_string = common_command_string + " -nt 4 -dd 2 2 1 -cpi state.cpt"
     elif (cores_to_use == 8):
-        if (str(restart) == "False"):
+        if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 8 -dd 2 2 2 "
         else:
             command_string = common_command_string + " -nt 8 -dd 2 2 2 -cpi state.cpt"
     elif (cores_to_use == 12):
-        if (str(restart) == "False"):
+        if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 12 -dd 3 2 2 " # [keep this comment] for -nt 12, -dd 3 2 2 is needed instead of 2 2 3
         else:
             command_string = common_command_string + " -nt 12 -dd 3 2 2 -cpi state.cpt"
     else: #elif (cores_to_use == 16):
-        if (str(restart) == "False"):
+        if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 16 -dd 4 2 2 "
         else:
             command_string = common_command_string + " -nt 16 -dd 4 2 2 -cpi state.cpt"

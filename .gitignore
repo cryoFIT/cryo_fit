@@ -9,6 +9,7 @@ fftw*
 regression/*/steps
 regression/*/output
 regression/*/restart_record_for_longer_steps.txt
+regression/*/state.cpt
 restart_record.txt
 *.sit
 steps/.DS_Store
