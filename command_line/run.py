@@ -1471,7 +1471,9 @@ def run_cryo_fit(logfile, params, inputs):
   re_run_with_higher_map_weight = False # this is a proper initial assignment
   
   # iterate until any condition is met
-  while ((cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
+  iteration_numner = 0
+  while ((iteration_numner >= 20) or (cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
+    iteration_numner += 1
     if ((this_is_test_for_each_step == True) \
        or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
            and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
@@ -1491,7 +1493,6 @@ def run_cryo_fit(logfile, params, inputs):
       else:
         logfile.write(write_this)
 
-    
       
     if (steps_list[7] == True):
       results = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
@@ -1590,12 +1591,23 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. ' \
-                       + 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is \
-                        too high. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
+          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
           print write_this
           logfile.write(write_this)
-          exit(1)
+          #exit(1)
+          
+          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is \
+                        too high. cryo_fit will divide emweight_multiply_by by 3 (so that \
+                        emweight_multiply_by becomes ' + \
+                        str(emweight_multiply_by/3) + ') and rerun again.\n'
+          
+          emweight_multiply_by = emweight_multiply_by/3
+          
+          print write_this
+          logfile.write(write_this)
+          
+          continue
+          
         
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
