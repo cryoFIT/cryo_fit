@@ -986,7 +986,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print write_this
     logfile.write(write_this)
     
-    write_this = "\nplease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html"
+    write_this = "\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html"
     print write_this
     logfile.write(write_this)
     
@@ -1590,7 +1590,9 @@ def run_cryo_fit(logfile, params, inputs):
         
         # copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
+          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. ' \
+                       + 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is \
+                        too high. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
           print write_this
           logfile.write(write_this)
           exit(1)
