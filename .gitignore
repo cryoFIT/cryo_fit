@@ -6,10 +6,11 @@
 */.DS_Store
 fftw*
 *pyc
-regression/*/steps
+regression/*/cc_record_full
 regression/*/output
 regression/*/restart_record_for_longer_steps.txt
 regression/*/state.cpt
+regression/*/steps
 restart_record.txt
 *.sit
 steps/.DS_Store
