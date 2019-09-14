@@ -47,11 +47,11 @@ def clean(input_pdb_file_name):
     residue = line[17:20]
     
     if ((CRYST_MODEL == "CRYST") or (CRYST_MODEL == "MODEL") or (ENDMDL == "ENDMDL")): # remove CRYST for real_space_refine, remove MODEL for molprobity
-      #print "\t\t\t omitted ", line # print unnecessary \n at the end
+      #print "\t\t\t omitted ", line # it prints unnecessary \n at the end
       print "\t\t\t omitted ", line[:len(line)-2]
       continue
     elif atom == "OC2":
-      print "\t\t\t omitted OC2 for molprobity running"
+      print "\t\t\t omitted  OC2 for molprobity running"
       continue
     elif (line[0:4] != "ATOM") and (line[0:6] != "HETATM"):
       f_out.write(line)

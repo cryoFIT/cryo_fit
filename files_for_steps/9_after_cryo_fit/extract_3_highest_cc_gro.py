@@ -58,20 +58,23 @@ def adjust_step_number():
 
 def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_state_cpt, dt, total_ps, target_step, i, cc):
 
-    print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
-    print print_this
-    gro_extraction_note_file.write(print_this)
-
     # old style when state.cpt is not considered
     #target_ps = (float(target_step)/float(nsteps))*float(total_ps)
     
     # new style when state.cpt is considered
     target_ps = ''
+    print_this = ''
     if (nsteps_from_state_cpt != ''):
         target_ps = (float(target_step)/float(nsteps))*float(total_ps) + float(dt)*float(nsteps_from_state_cpt)
+        print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps) + float(dt)*float(nsteps_from_state_cpt)" + "\n"
     else:
-        target_ps = (float(target_step)/float(nsteps))*float(total_ps)
-        
+        target_ps = (float(target_step)/float(nsteps))*float(total_ps)    
+        print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
+
+    print print_this
+    gro_extraction_note_file.write(print_this)
+
+    
     print_this = "\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
