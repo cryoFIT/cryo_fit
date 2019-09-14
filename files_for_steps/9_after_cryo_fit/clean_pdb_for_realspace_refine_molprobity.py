@@ -3,11 +3,11 @@
 import glob, os, sys
 
 def clean_main(input_pdb_file_name):
-  print "\n\t\tFor realspace_refine, remove CRYST line to avoid error \"Crystal symmetry mismatch between different files\""
-  print "\t\t\t\t      U instead of RU to avoid error"
-  print "\t\t\t\t      add element at the end of each line"
-  print "\n\t\tFor molprobity, change OC1 and OC2 to avoid error"
-  print "\t\t\t\t      Omit MODEL and ENDMDL lines to avoid error"
+  print "\n\tFor realspace_refine, remove CRYST line to avoid error \"Crystal symmetry mismatch between different files\""
+  print "\t\t  U instead of RU to avoid error"
+  print "\t\t  add element at the end of each line"
+  print "\n\tFor molprobity, change OC1 and OC2 to avoid error"
+  print "\t\t  Omit MODEL and ENDMDL lines to avoid error"
 
   output_pdb_file_name = clean (input_pdb_file_name) 
   
@@ -17,6 +17,7 @@ def clean_main(input_pdb_file_name):
   
   #output_pdb_file_name = clean_for_chimeraX (input_pdb_file_name) 
 ##################################### end of clean_main function
+
 
 def ILE_CD_to_CD1(residue, atom, new_line):
   if residue == "ILE":
@@ -80,6 +81,7 @@ def clean(input_pdb_file_name):
   return output_pdb_file_name
 ##################################### end of clean function
 
+
 '''
 def clean_for_chimeraX(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -121,6 +123,7 @@ def clean_for_chimeraX(input_pdb_file_name):
   return output_pdb_file_name
 ##################################### end of clean_for_chimeraX function
 '''
+
 
 if (__name__ == "__main__") :
   args=sys.argv[1:]

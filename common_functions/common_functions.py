@@ -893,7 +893,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     if (origin_shited_to_000 == True):
         print "\t\t\tReassign shifted_origin into original ones (not necessarily to 0,0,0)"
-        print "\t\t\t This reassigning of origins is needed so that step_8 cryo_fit can run model and map superposed as seen with fastest_run_emd_8249"
+        print "\t\t\tThis reassigning of origins is needed so that step_8 cryo_fit can run model and map superposed as seen with fastest_run_emd_8249"
         print "\t\t\tmap_file_name:", map_file_name
         
         new_map_file_name_w_ori_origins = new_map_file_name[:-4] + "_converted_to_sit_origin_recovered.sit"

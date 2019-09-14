@@ -1113,7 +1113,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   
   for extracted_gro in glob.glob("*.gro"): # just deals .gro files in alphabetical order not in cc order
     command_string = cryo_fit_path + "editconf -f " + extracted_gro + " -o " + extracted_gro[:-4] + ".pdb"
-    write_this = command_string + "\n\n"
+    write_this = command_string + "\n"
     logfile.write(write_this)
     print "\t\tcommand: ", write_this
     libtbx.easy_run.fully_buffered(command_string)
@@ -1619,7 +1619,7 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        write_this = "Therefore, step 7 & 8 will re-run with longer steps (including already ran steps, up to " + str(number_of_steps_for_cryo_fit) + ")\n\n"
+        write_this = "Therefore, step 7 & 8 will re-run with longer steps (including all previously ran steps, up to " + str(number_of_steps_for_cryo_fit) + ")\n\n"
         print write_this
         logfile.write(write_this)
         
