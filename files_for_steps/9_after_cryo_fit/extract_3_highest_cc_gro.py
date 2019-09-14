@@ -114,9 +114,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, total_ps, targe
 ################# end of extract_gro function
 
 
-
 def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
-    
     md_log_location = "../steps/8_cryo_fit/md.log"
     grep_step_colon = "grep step: " + md_log_location
     print "\tcommand:", grep_step_colon
@@ -147,11 +145,10 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     splited = result.split()
     dt = splited[2]
 
-    print_this = "\n\tdt:" + dt + "\n"
+    print_this = "\n\tdt:" + dt #+ "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     # <end> extract dt
-    
     
     if (state_cpt_used == False):
         grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
@@ -160,7 +157,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
         splited = result.split()
         nsteps = splited[2]
         
-        print_this = "\tnsteps: " + str(nsteps) + "\n"
+        print_this = "\tnsteps: " + str(nsteps) #+ "\n"
         print print_this
         
         gro_extraction_note_file.write(print_this)
@@ -168,7 +165,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     
     total_ps = float(dt)*float(nsteps)
 
-    print_this = "\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps) + "\n"
+    print_this = "\ttotal_ps = float(dt)*float(nsteps) = " + str(total_ps)#+ "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
@@ -184,7 +181,6 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     
     return nsteps, total_ps
 ################# end of extract_gro function
-
 
 
 def get_users_cc_from_overall_log(log):
@@ -218,15 +214,15 @@ if (__name__ == "__main__") :
     # Previous traj.xtc is erased (not keeping previous record) every time when em_weight or number_of_steps_for_cryo_fit is reassigned.
     # Therefore, cc_record_full_renumbered should NOT be used for extrqcting gro. It should be used only for overall cc change.
 
-    
+    ''' # old style whic results in an error
     result = '' # initial temporary assignment
     if (this_is_test == "True"): # test
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     else: # default running
-        
         # adjust step number if cryo_fit restarted for longer steps
-        if (os.path.isfile("../restart_record_for_longer_steps.txt") == True): # this exists only when cryo_fit restarted with longer steps, not with higher map
-            adjust_step_number ()
+        if (os.path.isfile("../restart_record_for_longer_steps.txt") == True):
+            # this exists for only a case when cryo_fit restarted with longer steps, not with higher map
+            adjust_step_number()
             #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
         
         if (no_rerun == "False"): # default running
@@ -241,7 +237,11 @@ if (__name__ == "__main__") :
                 result = os.popen("cat cc_record_adjusted_step_use_for_extraction | sort -nk5 -r | head -3").readlines()
         else:
             result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-            
+    '''
+    
+    # new style    
+    result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+        
     write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
     gro_extraction_note_file.write(write_this)
     print write_this
