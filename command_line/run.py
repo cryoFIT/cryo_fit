@@ -894,7 +894,6 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   fin.close()
   '''
   
-  #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
@@ -1181,7 +1180,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "  \t\tThis best fitted bio-molecule may not necessarily be the \"best\" atomic model depending on user's specific purposes."
   print "  \t\tTherefore, a user may use other slightly less fitted extracted_x_steps_x_ps.gro/pdb as well."
   print "\n\t\tTo draw a figure for cc,"
-  #print "  \t\t\tpython <phenix_path>/modules/cryo_fit/steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
   print "  \t\t\tpython <phenix_path>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/draw_cc/draw_cc.py cc_record"
   print "  \t\t\t(Phenix GUI shows this figure automatically)."
   print "  \t\t\t(If a user is using ssh linked linux, set DISPLAY to avoid \"Unable to access the X Display, is $DISPLAY set properly?\")"
@@ -1468,9 +1466,16 @@ def run_cryo_fit(logfile, params, inputs):
   restart_w_longer_steps = False # this is a proper initial assignment
   re_run_with_higher_map_weight = False # this is a proper initial assignment
   
-  # iterate until any condition is met
+  # Iterate until any condition is met
   iteration_numner = 0
-  while ((iteration_numner >= 20) or (cc_has_been_increased == True) or (charge_group_moved == True) or (re_run_with_higher_map_weight == True)):
+  
+  while ((iteration_numner >= 20) or (cc_has_been_increased == True) or (charge_group_moved == True) \
+         or (re_run_with_higher_map_weight == True)):
+    
+    if "regression_" in model_file_without_pathways:
+      if (iteration_numner >= 5):
+        break
+      
     iteration_numner += 1
     if ((this_is_test_for_each_step == True) \
        or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
@@ -1592,7 +1597,6 @@ def run_cryo_fit(logfile, params, inputs):
           write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
           print write_this
           logfile.write(write_this)
-          #exit(1)
           
           write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is \
                         too high. cryo_fit will divide emweight_multiply_by by 3 (so that \
@@ -1604,8 +1608,7 @@ def run_cryo_fit(logfile, params, inputs):
           print write_this
           logfile.write(write_this)
           
-          continue
-          
+          break
         
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()

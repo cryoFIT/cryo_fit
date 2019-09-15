@@ -139,7 +139,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   f_in.close()
 
   step_number_for_judging = 30
-  #print "this_is_test:", this_is_test
+  print "this_is_test:", this_is_test
   if (this_is_test == True):
     step_number_for_judging = 5
   if (len(cc_has_been_increased_array) < step_number_for_judging):
@@ -175,9 +175,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   if (cc_has_been_decreased > cc_has_been_increased):
     msg=(
     '\n\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.'
-    
     '\n\tRead https://github.com/cryoFIT/cryo_fit/blob/master/temporary_FAQ.txt'
-
     '\n\tHere, cryo_fit will try stronger map weight automatically.'
     )
     print (msg)
@@ -189,9 +187,9 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   #multiply_by_this = 1.2 # with this value, L1 stalk may have lost a valuable opportunity
   multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
   
-  
   if (this_is_test == True):
     multiply_by_this = 2.2 # to finish quickly
+    
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     
@@ -267,6 +265,15 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
         returned_file_size = file_size(check_this_file)
         if (returned_file_size > 0):
             if (step_name == "Step 8"):
+                
+                with open("md.log") as md_log_file:
+                    if "Too many LINCS warnings" in md_log_file.read():
+                        md_log_file.close()
+                        write_this = "\nToo many LINCS warnings. Run phenix.real_space_refine first to stabilize starting molecule\n"
+                        print write_this
+                        logfile.write(write_this)
+                        return "failed"
+                    
                 with open(check_this_file) as cc_record_file:
                     if "nan" in cc_record_file.read():
                         cc_record_file.close()
@@ -280,10 +287,11 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                             write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
                             print write_this
                             logfile.write(write_this)
-                            write_this = "\nExit cryo_fit now\n"
-                            print write_this
-                            logfile.write(write_this)
-                            exit(1)
+                            #write_this = "\nExit cryo_fit now\n"
+                            #print write_this
+                            #logfile.write(write_this)
+                            #exit(1)
+                            return "failed"
                         cc_record_file.close()
             if (step_name != "Step 8"):
                 print step_name, " successfully ran"
@@ -1018,7 +1026,7 @@ def return_number_of_atoms_in_gro():
 
 def run_cryo_fit_itself(cores_to_use, common_command_string, restart_w_longer_steps):
     command_string = '' # just initial
-    print "\trestarted with longer cryo_fit steps:", restart_w_longer_steps
+    print "\tRestarted with longer steps:", restart_w_longer_steps
     if (cores_to_use == 2):
         if (str(restart_w_longer_steps) == "False"):
             command_string = common_command_string + " -nt 2 -dd 2 1 1 "

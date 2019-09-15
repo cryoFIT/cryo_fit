@@ -52,10 +52,6 @@ def run():
     
     os.chdir( new_path )
     
-    
-    
-    #the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", "trajectory/trajectory.gro")
-    
     the_step_was_successfully_ran = ''
     for gro in glob.glob("*.gro"):
       the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran_in_regression("Step final", gro)
@@ -69,6 +65,10 @@ def run():
     os.chdir(starting_dir)
     shutil.rmtree("output")
     shutil.rmtree("steps")
+    
+    if (os.path.isfile("restart_record_for_longer_steps.txt") == True):
+        os.remove("restart_record_for_longer_steps.txt")
+    
 ############ end of run()
 
 if (__name__ == "__main__"):
