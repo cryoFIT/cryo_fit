@@ -1468,7 +1468,6 @@ def run_cryo_fit(logfile, params, inputs):
   
   # Iterate until any condition is met
   iteration_numner = 0
-  
   while ((iteration_numner >= 20) or (cc_has_been_increased == True) or (charge_group_moved == True) \
          or (re_run_with_higher_map_weight == True)):
     

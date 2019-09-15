@@ -93,7 +93,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
     
     returned_file_size = file_size(output_gro_name)
     if (returned_file_size == 0):
-        write_this = "extracted gro file is empty, check step numbers, cryo_fit will exit soon.\n"
+        write_this = "Extracted gro file is empty, check step numbers, cryo_fit will exit soon.\n"
         print write_this
         gro_extraction_note_file.write(write_this)
         gro_extraction_note_file.close()
@@ -113,11 +113,11 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
             # print "cc:",cc
             print "users_cc:",users_cc
-            if (users_cc == ''):
-                write_this = "user's cc can't be retrieved. Please email doonam@lanl.gov"
+            if ((users_cc == '') or (users_cc == None)):
+                write_this = "User's cc can't be retrieved. Please email doonam@lanl.gov"
                 print write_this
                 gro_extraction_note_file.write(write_this)
-                exit(1)
+                return "empty"
             
             if (float(cc) > float(users_cc)):
                 print "\tTherefore, rename this gro file to cryo_fitted.gro"

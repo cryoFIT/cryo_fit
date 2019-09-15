@@ -157,6 +157,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     if cc > the_highest_cc:
       the_highest_cc = cc
   print "\t\tthe_highest_cc:",the_highest_cc,"cc_last:",cc_last
+  
   if the_highest_cc == cc_last:
     print "\t\tDefinitely re-run with longer cryo_fit steps since the_highest_cc = cc_last"
     return True
@@ -182,26 +183,36 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     logfile.write(msg)
     return "re_run_with_higher_map_weight"
 
-    
   #multiply_by_this = 1.5 # cryo_fit will run quickly, this is for devel
   #multiply_by_this = 1.2 # with this value, L1 stalk may have lost a valuable opportunity
   multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
-  
+
   if (this_is_test == True):
     multiply_by_this = 2.2 # to finish quickly
     
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    cc_20th_last = cc_array[len(cc_array)-(step_number_for_judging+11)]
     
-    if (cc_last > cc_30th_last):
+    if ((cc_last > cc_30th_last) and (cc_last > cc_15th_last)):
         write_this = "\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
+        
+        write_this = "\tcc_last (" + cc_last + ") > cc_20th_last (" + cc_20th_last + ")"
+        print write_this
+        logfile.write(write_this)
+        
         return True # the last 30 cc values tend to be increased, so re-run with longer steps
     else:
         write_this = "\tcc_last (" + cc_last + ") <= cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
+        
+        write_this = "\tOr cc_last (" + cc_last + ") <= cc_20th_last (" + cc_20th_last + ")"
+        print write_this
+        logfile.write(write_this)
+        
         return False
   else:
     return False # either this is a regression or the last 30 cc values tend NOT to be increased
