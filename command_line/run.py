@@ -1100,6 +1100,9 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   print "\tcommand: ", write_this
   libtbx.easy_run.call(command_string)
 
+  if (os.path.isfile("extract_gro_failed.txt") == True):
+    return "failed"
+  
   for extracted_gro in glob.glob("*.gro"):
     returned_file_size = file_size(extracted_gro)
     if (returned_file_size == 0):
@@ -1591,7 +1594,7 @@ def run_cryo_fit(logfile, params, inputs):
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
         
-        # copy for a next restart step
+        # Copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
           write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
           print write_this

@@ -281,7 +281,11 @@ if (__name__ == "__main__") :
         print write_this
         
         returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_state_cpt, dt, total_ps, target_step, i, cc)
+        if (os.path.isfile("extract_gro_failed.txt") == True):
+            os.remove("extract_gro_failed.txt")
+            
         if (returned == "empty"):
-            exit(1)
+            f= open("extract_gro_failed.txt","w+")
+            f.close()
     
     gro_extraction_note_file.close()
