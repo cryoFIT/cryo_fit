@@ -754,7 +754,7 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     
     print "\t\tccp4_map.unit_cell_parameters", ccp4_map.unit_cell_parameters
     a,b,c = ccp4_map.unit_cell_parameters[:3]
-    print "\t\tccp4_map.unit_cell_parameters[:3]:", ccp4_map.unit_cell_parameters[:3]
+    #print "\t\tccp4_map.unit_cell_parameters[:3]:", ccp4_map.unit_cell_parameters[:3]
     # L1 stalk: (377.9999694824219, 377.9999694824219, 377.9999694824219)
     # emd_8249: (126.72000122070312, 126.72000122070312, 126.72000122070312
     # tRNA: (74.4800033569336, 63.70000076293945, 72.52000427246094)

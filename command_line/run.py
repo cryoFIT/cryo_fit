@@ -1067,7 +1067,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   this_is_test_for_each_step = False # just initial value assignment
   splited_starting_dir = starting_dir.split("/")
   
-  #cp_command_string = "cp " + command_path + "steps/9_after_cryo_fit/*.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/9_after_cryo_fit/*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
@@ -1308,7 +1307,6 @@ def run_cryo_fit(logfile, params, inputs):
     emweight_multiply_by = 1
     lincs_order = 1
     time_step_for_cryo_fit = 0.001
-  
   
   number_of_steps_for_minimization = determine_number_of_steps_for_minimization(model_file_without_pathways,\
                                                                             model_file_with_pathways, \
@@ -1672,18 +1670,19 @@ def run_cryo_fit(logfile, params, inputs):
         re_run_with_higher_map_weight = False
   logfile.write("\nStep 8 ran\n")
 
-  this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
-                            cryo_fit_path, no_rerun) # just to arrange final output
-  write_this = "step final is done"
-  if (this_is_test_for_each_step == "failed"):
-    exit(1)
-  elif (this_is_test_for_each_step == True):
-    end_regression(starting_dir, write_this)
-  else:
-    if "regression_" in model_file_without_pathways: # regression for all steps
-      return True
-    else: # regular running
-      return results
+  if (initial_cc_wo_min== False):
+    this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
+                              cryo_fit_path, no_rerun) # just to arrange final output
+    write_this = "step final is done"
+    if (this_is_test_for_each_step == "failed"):
+      exit(1)
+    elif (this_is_test_for_each_step == True):
+      end_regression(starting_dir, write_this)
+    else:
+      if "regression_" in model_file_without_pathways: # regression for all steps
+        return True
+      else: # regular running
+        return results
             
   # keep for now for this cc draw
   #if (steps_list[8] == True):
