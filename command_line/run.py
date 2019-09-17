@@ -985,7 +985,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print write_this
     logfile.write(write_this)
     
-    write_this = "\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html"
+    write_this = "\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
     print write_this
     logfile.write(write_this)
     
