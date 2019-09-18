@@ -188,7 +188,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   multiply_by_this = 1.1 # cryo_fit will run slowly, but it may find a better fit
 
   if (this_is_test == True):
-    multiply_by_this = 2.2 # to finish quickly
+    #multiply_by_this = 2.2 # to finish quickly. However because of this trick, below codes may not be tested
+    multiply_by_this = 2 # to finish quickly. However because of this trick, below codes may not be tested
     
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
