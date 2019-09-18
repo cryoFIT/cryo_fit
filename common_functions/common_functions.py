@@ -194,7 +194,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
     cc_20th_last = cc_array[len(cc_array)-(step_number_for_judging+11)]
     
-    if ((cc_last > cc_30th_last) and (cc_last > cc_15th_last)):
+    if ((cc_last > cc_30th_last) and (cc_last > cc_20th_last)):
         write_this = "\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
         print write_this
         logfile.write(write_this)
