@@ -195,6 +195,9 @@ ignh = True
 initial_cc_wo_min = False
     .type = bool
     .short_caption = It is useful when cc_cryo_fit only is required.
+initial_cc_w_min = False
+    .type = bool
+    .short_caption = It is useful when cc_cryo_fit only is required.
 kill_mdrun_mpirun_in_linux = False
   .type = bool
   .short_caption = If true, kill any existing md run and mpirun.
@@ -1296,6 +1299,7 @@ def run_cryo_fit(logfile, params, inputs):
   force_field = params.cryo_fit.force_field
   ignh = params.cryo_fit.ignh
   initial_cc_wo_min = params.cryo_fit.initial_cc_wo_min
+  initial_cc_w_min = params.cryo_fit.initial_cc_w_min
   kill_mdrun_mpirun_in_linux = params.cryo_fit.kill_mdrun_mpirun_in_linux
   lincs_order = params.cryo_fit.lincs_order
   missing = params.cryo_fit.missing
@@ -1326,6 +1330,11 @@ def run_cryo_fit(logfile, params, inputs):
     number_of_steps_for_minimization = 0
     number_of_steps_for_cryo_fit = 100
   
+  if (initial_cc_w_min == True):
+    no_rerun = True
+    number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
+    number_of_steps_for_cryo_fit = 100
+    
   
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
@@ -1677,7 +1686,7 @@ def run_cryo_fit(logfile, params, inputs):
         re_run_with_higher_map_weight = False
   logfile.write("\nStep 8 ran\n")
 
-  if (initial_cc_wo_min == False):
+  if ((initial_cc_wo_min == False) and (initial_cc_w_min == False)):
     this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                               cryo_fit_path, no_rerun) # just to arrange final output
     write_this = "step final is done"
