@@ -196,7 +196,8 @@ def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of start_atom_num_at_1_at_each_chain
+########## end of start_atom_num_at_1_at_each_chain
+
 
 def clean_RNA_for_chimera_derived_ribosome(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
@@ -350,7 +351,7 @@ def clean_unusual_residue(input_pdb_file_name):
           
   for line in f_in:
     residue = line[17:20]
-    if ((residue == "7C4") or (residue == "BMA") or (residue == "CSX")):
+    if ((residue == "34G") or (residue == "7C4") or (residue == "BMA") or (residue == "CSX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
@@ -361,7 +362,6 @@ def clean_unusual_residue(input_pdb_file_name):
       print write_this
       continue
     elif ((residue == "GDP") or (residue == "HYP") or (residue == "ILX")):
-    #elif ((residue == "HYP") or (residue == "ILX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
