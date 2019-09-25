@@ -132,6 +132,17 @@ Options
             none_default will minimize twice. \
             e.g. first with restraint_algorithm_minimization = none \
             then with restraint_algorithm_minimization = default
+  time_step_for_minimization = 0.001
+    .type = float
+    .help = Default value is 0.001. Try 0.0005 if a user see this error during minimization
+    "Fatal error: A charge group moved too far between two domain decomposition steps \
+    This usually means that your system is not well equilibrated"
+  number_of_steps_for_minimization = None
+    .type = int
+    .short_caption = Number of steps for minimization
+    .help = Specify number of steps for minimization. \
+           If this is left blank, cryo_fit will estimate it depending on molecule size. \
+           Enough minimization will prevent "blow-up" during MD simulation later.
   emsteps = None
     .type = int
     .short_caption = EM steps
@@ -140,7 +151,7 @@ Options
             If it is left blank, the cryo_fit will automatically determine the emsteps
   emweight_multiply_by = 8
     .type = int
-    .short_caption = EM weight multiply by this number
+    .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 8) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
@@ -153,29 +164,19 @@ Options
     .help = Frequency with which the simulated maps are written to file. \
             If this frequency is too small, it can cause extremely large amounts of data to be written.\
             If it is left blank, the cryo_fit will use default value of 1,000,000
-  number_of_steps_for_minimization = None
-    .type = int
-    .short_caption = Number of steps for minimization
-    .help = Specify number of steps for minimization. \
-           If this is left blank, cryo_fit will estimate it depending on molecule size. \
-           Enough minimization will prevent "blow-up" during MD simulation later.
   number_of_steps_for_cryo_fit = None
     .type = int
-    .short_caption = Number of steps for cryo_fit
+    .short_caption = Number of steps for the 1st iteration of cryo_fit
     .help = It should be > 100. \
-           This is the initial number of steps for cryo_fit. Eventually, cryo_fit will increase it depending on molecule size and cc trend. \
-           For tutorial files, this will be 70,000
+            This is the initial number of steps for the 1st iteration of cryo_fit. \
+            Eventually, cryo_fit will increase it iteratively until it reaches cc plateau. \
+            (For tutorial files, this will be a fixed value, e.g. 70,000)
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
     .help = Default value is 0.002. Try 0.001 if a user see this error during cryo_fit \
       "Fatal error: A charge group moved too far between two domain decomposition steps \
       This usually means that your system is not well equilibrated"
-  time_step_for_minimization = 0.001
-    .type = float
-    .help = Default value is 0.001. Try 0.0005 if a user see this error during minimization
-    "Fatal error: A charge group moved too far between two domain decomposition steps \
-    This usually means that your system is not well equilibrated"
 }
 
 many_step_____n__dot_pdb = False
