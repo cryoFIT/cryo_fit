@@ -171,10 +171,10 @@ Options
   number_of_steps_for_cryo_fit = None
     .type = int
     .short_caption = Number of steps for the 1st iteration of cryo_fit
-    .help = It should be > 100. \
-            This is the initial number of steps for the 1st iteration of cryo_fit. \
+    .help = This is the initial number of steps for the 1st iteration of cryo_fit. \
             Eventually, cryo_fit will increase it iteratively until it reaches cc plateau. \
-            (For tutorial files, this will be a fixed value, e.g. 70,000)
+            This value should be > 100. \
+            (Just for tutorial files, this will be a fixed value, e.g. 70,000, unless a user specifies it)
   time_step_for_cryo_fit = 0.002
     .type = float
     .short_caption = Time step for MD simulation during cryo_fit
