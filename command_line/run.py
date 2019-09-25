@@ -164,6 +164,10 @@ Options
     .help = Frequency with which the simulated maps are written to file. \
             If this frequency is too small, it can cause extremely large amounts of data to be written.\
             If it is left blank, the cryo_fit will use default value of 1,000,000
+  no_rerun         = False
+    .type          = bool
+    .short_caption = No automatic re-run of cryo_fit
+    .help          = If checked/true, cryo_fit does not re-run even its cc values kept increasing.
   number_of_steps_for_cryo_fit = None
     .type = int
     .short_caption = Number of steps for the 1st iteration of cryo_fit
@@ -208,9 +212,6 @@ lincs_order = None
   .short_caption = LINear Constraint Solver
   .help = The accuracy in set with lincs-order, which sets the number of matrices in the expansion for the matrix inversion. \
           If it is not specified, the cryo_fit will use 4.
-no_rerun = False
-  .type = bool
-  .short_caption = If true, no_rerun
 missing = True
   .type = bool
   .short_caption = If true, Continue when atoms are missing, dangerous
@@ -1282,13 +1283,12 @@ def run_cryo_fit(logfile, params, inputs):
   model_file_with_pathways = returned[0]
   model_file_without_pathways = returned[1]
   
-  # Options  
+  # Options used for GUI based specification as well
   restraint_algorithm_minimization = params.cryo_fit.Options.restraint_algorithm_minimization
-  #print "params.cryo_fit.Options.restraint_algorithm_minimization:",params.cryo_fit.Options.restraint_algorithm_minimization
-  #STOP()
   emsteps = params.cryo_fit.Options.emsteps
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
+  no_rerun = params.cryo_fit.Options.no_rerun
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
@@ -1296,7 +1296,6 @@ def run_cryo_fit(logfile, params, inputs):
   
   # Development options
   devel = params.cryo_fit.devel
-  no_rerun = params.cryo_fit.no_rerun
   force_field = params.cryo_fit.force_field
   ignh = params.cryo_fit.ignh
   initial_cc_wo_min = params.cryo_fit.initial_cc_wo_min
