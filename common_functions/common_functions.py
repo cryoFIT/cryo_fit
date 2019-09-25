@@ -393,6 +393,7 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
     print "\tcryo_fit will use user_entered_number_of_steps_for_cryo_fit:", user_entered_number_of_steps_for_cryo_fit
     return user_entered_number_of_steps_for_cryo_fit
   
+  '''
   # now number_of_steps_for_cryo_fit is less relevant to molecule size
   number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(model_file_with_pathways)
   number_of_steps_for_cryo_fit = '' # just initial declaration
@@ -407,8 +408,11 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
   else: # ribosome has 223k atoms (lowres_SPLICE.pdb)
     number_of_steps_for_cryo_fit = 6000
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
+  '''
+  
+  number_of_steps_for_cryo_fit = 5000
   return number_of_steps_for_cryo_fit
-### end of determine_number_of_steps_for_cryo_fit function
+######### end of determine_number_of_steps_for_cryo_fit function
 
 
 def determine_number_of_steps_for_minimization(model_file_without_pathways, \
@@ -457,7 +461,8 @@ def decide_number_of_cores_to_use(check_at_each_step):
         else:
             cores = 2
     return cores
-# end of decide_number_of_cores_to_use function
+####### end of decide_number_of_cores_to_use function
+
 
 def ent_as_pdb(file_name):
     new_file_name = file_name[:-4] + ".pdb"
@@ -563,7 +568,8 @@ def get_fft_map(map_coeffs=None):
        symmetry_flags=maptbx.use_space_group_symmetry)
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded().as_double()
-# end of get_fft_map function
+########### end of get_fft_map function
+
 
 # not used for now, but will be used in future
 def get_structure_factor_from_pdb_string () :
@@ -1192,3 +1198,49 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
     f_out.close()
     return output_pdb_file_name   
 ########### end of translate_pdb_file_by_xyz ()
+
+
+
+def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
+                         emweight_multiply_by, emwritefrequency, lincs_order, nstxtcout):
+  for line in fin:
+    splited = line.split()
+    if splited[0] == "dt":
+      new_line = "dt = " + str(time_step_for_cryo_fit) + "\n"
+      fout.write(new_line)
+    elif splited[0] == "emsteps":
+      if (emsteps == None):
+          new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/100)) + "\n" # to make cryo_fit step 8 faster
+          # when emsteps is too sparse, cc went to become worse
+          fout.write(new_line)
+      else:
+        new_line = "emsteps = " + str(emsteps) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "emweight":
+      number_of_atoms_in_gro = return_number_of_atoms_in_gro()
+      print "\temweight_multiply_by:", emweight_multiply_by
+      new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
+      fout.write(new_line)
+    elif splited[0] == "emwritefrequency":
+      if (emwritefrequency == None): # default is 1,000,000, because I don't see any usefulness of writing intermediate .sit file
+        fout.write(line)
+      else:
+        new_line = "emwritefrequency = " + str(emwritefrequency) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "lincs-order":
+      if (lincs_order == None):
+        fout.write(line)
+      else:
+        new_line = "lincs-order  = " + str(lincs_order) + "\n"
+        fout.write(new_line)
+    elif splited[0] == "nsteps":
+      new_line = "nsteps          = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
+      fout.write(new_line)
+    elif splited[0] == "nstxtcout":
+      new_line = "nstxtcout          = " + str(nstxtcout) + "\n"
+      fout.write(new_line)
+    else:
+      fout.write(line)
+  fout.close()
+  fin.close()
+############### end of write_for_cryo_fit_mdp(fout, fin):

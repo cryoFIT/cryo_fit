@@ -159,15 +159,20 @@ Options
             If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
             If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended.
   emwritefrequency = None
-    .type = int
+    .type          = int
     .short_caption = EM write frequency
-    .help = Frequency with which the simulated maps are written to file. \
-            If this frequency is too small, it can cause extremely large amounts of data to be written.\
-            If it is left blank, the cryo_fit will use default value of 1,000,000
+    .help          = Frequency with which the simulated maps are written to file. \
+                     If this frequency is too small, it can cause extremely large amounts of data to be written.\
+                     If it is left blank, the cryo_fit will use default value of 1,000,000
   no_rerun         = False
     .type          = bool
     .short_caption = No automatic re-run of cryo_fit
     .help          = If checked/true, cryo_fit does not re-run even its cc values kept increasing.
+  nstxtcout        = 100
+    .type          = int
+    .short_caption = Frequency for trajectory
+    .help          = A frequency to write coordinates to xtc trajectory. \
+                     By default this is 100.
   number_of_steps_for_cryo_fit = None
     .type = int
     .short_caption = Number of steps for the 1st iteration of cryo_fit
@@ -319,48 +324,6 @@ def end_regression(starting_dir,write_this):
   exit(1)
 ########## end of end_regression
 
-
-def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
-                         emweight_multiply_by, emwritefrequency, lincs_order):
-  for line in fin:
-    splited = line.split()
-    if splited[0] == "dt":
-      new_line = "dt = " + str(time_step_for_cryo_fit) + "\n"
-      fout.write(new_line)
-    elif splited[0] == "emsteps":
-      if (emsteps == None):
-          new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/100)) + "\n" # to make cryo_fit step 8 faster
-          # when emsteps is too sparse, cc went to become worse
-          fout.write(new_line)
-      else:
-        new_line = "emsteps = " + str(emsteps) + "\n"
-        fout.write(new_line)
-    elif splited[0] == "emweight":
-      number_of_atoms_in_gro = return_number_of_atoms_in_gro()
-      print "\temweight_multiply_by:", emweight_multiply_by
-      new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
-      fout.write(new_line)
-    elif splited[0] == "emwritefrequency":
-      if (emwritefrequency == None): # default is 1,000,000, because I don't see any usefulness of writing intermediate .sit file
-        fout.write(line)
-      else:
-        new_line = "emwritefrequency = " + str(emwritefrequency) + "\n"
-        fout.write(new_line)
-    elif splited[0] == "lincs-order":
-      if (lincs_order == None):
-        fout.write(line)
-      else:
-        new_line = "lincs-order  = " + str(lincs_order) + "\n"
-        fout.write(new_line)
-    elif splited[0] == "nsteps":
-      new_line = "nsteps          = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
-      fout.write(new_line)
-    else:
-      fout.write(line)
-  fout.close()
-  fin.close()
-############### end of write_for_cryo_fit_mdp(fout, fin):
-  
   
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
            force_field, ignh, missing, remove_metals, cryo_fit_path, *args):
@@ -821,11 +784,10 @@ def step_6(logfile, command_path, starting_dir, model_file_without_pathways):
 
 
 def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, \
-           emsteps, emwritefrequency, lincs_order, time_step_for_cryo_fit, \
+           emsteps, emwritefrequency, lincs_order, nstxtcout, time_step_for_cryo_fit, \
            model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb):
   show_header("Step 7 : Make a tpr file for cryo_fit")
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
-
   
   this_is_test_for_each_step = False # default
   if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
@@ -840,65 +802,20 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
     cp3_command_string = "cp ../6_make_0_charge/*0_charge.top ." # there is only one *0_charge.top file
     libtbx.easy_run.fully_buffered(cp3_command_string)
   
-  
   print "\tBe number_of_steps_for_cryo_fit as ", number_of_steps_for_cryo_fit
     
   fout = open("for_cryo_fit.mdp", "wt")
   fin = ''
   if (many_step_____n__dot_pdb == False):
-    #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
     cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/template_for_cryo_fit.mdp ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     fin = open("template_for_cryo_fit.mdp", "rt")
   else:
-    #cp_command_string = "cp " + command_path + "steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
     cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/template_for_cryo_fit_many_step_____n__dot_pdb.mdp ."
     libtbx.easy_run.fully_buffered(cp_command_string)
     fin = open("template_for_cryo_fit_many_step_____n__dot_pdb.mdp", "rt")
   write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
-                         emweight_multiply_by, emwritefrequency, lincs_order)
-  
-  '''
-  with open("template_for_cryo_fit.mdp", "rt") as fin:
-    with open("for_cryo_fit.mdp", "wt") as fout:
-      for line in fin:
-        splited = line.split()
-        if splited[0] == "dt":
-          new_line = "dt = " + str(time_step_for_cryo_fit) + "\n"
-          fout.write(new_line)
-        elif splited[0] == "emsteps":
-          if (emsteps == None):
-              new_line = "emsteps = " + str(int(number_of_steps_for_cryo_fit/100)) + "\n" # to make cryo_fit step 8 faster
-              # when emsteps is too sparse, cc went to become worse
-              fout.write(new_line)
-          else:
-            new_line = "emsteps = " + str(emsteps) + "\n"
-            fout.write(new_line)
-        elif splited[0] == "emweight":
-          number_of_atoms_in_gro = return_number_of_atoms_in_gro()
-          print "\temweight_multiply_by:", emweight_multiply_by
-          new_line = "emweight = " + str(int(number_of_atoms_in_gro)*int(emweight_multiply_by)) + "\n"
-          fout.write(new_line)
-        elif splited[0] == "emwritefrequency":
-          if (emwritefrequency == None): # default is 1,000,000, because I don't see any usefulness of writing intermediate .sit file
-            fout.write(line)
-          else:
-            new_line = "emwritefrequency = " + str(emwritefrequency) + "\n"
-            fout.write(new_line)
-        elif splited[0] == "lincs-order":
-          if (lincs_order == None):
-            fout.write(line)
-          else:
-            new_line = "lincs-order  = " + str(lincs_order) + "\n"
-            fout.write(new_line)
-        elif splited[0] == "nsteps":
-          new_line = "nsteps  = " + str(number_of_steps_for_cryo_fit) + " ; Maximum number of steps to perform cryo_fit\n"
-          fout.write(new_line)
-        else:
-          fout.write(line)
-    fout.close()
-  fin.close()
-  '''
+                         emweight_multiply_by, emwritefrequency, lincs_order, nstxtcout)
   
   cp_command_string = "cp " + command_path + "files_for_steps/7_make_tpr_with_disre2/runme_make_tpr_with_disre2.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
@@ -1289,6 +1206,7 @@ def run_cryo_fit(logfile, params, inputs):
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
+  nstxtcout = params.cryo_fit.Options.nstxtcout
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
@@ -1324,6 +1242,16 @@ def run_cryo_fit(logfile, params, inputs):
   number_of_steps_for_cryo_fit = determine_number_of_steps_for_cryo_fit(model_file_without_pathways,\
                                                                             model_file_with_pathways, \
                                                                             user_entered_number_of_steps_for_cryo_fit, devel)
+  if (nstxtcout > number_of_steps_for_cryo_fit):
+    write_this = "\nnstxtcout (" + str(nstxtcout) + ") > number_of_steps_for_cryo_fit (" \
+              + str(number_of_steps_for_cryo_fit) + ")"
+    print write_this
+    logfile.write(write_this)
+    write_this = "Please reset so that nstxtcout < number_of_steps_for_cryo_fit to extract gro/pdb files properly later. Exit now.\n"
+    print write_this
+    logfile.write(write_this)
+    exit(1)
+    
   if (initial_cc_wo_min == True):
     no_rerun = True
     number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
@@ -1502,7 +1430,7 @@ def run_cryo_fit(logfile, params, inputs):
       
     if (steps_list[6] == True):
       this_is_test_for_each_step = step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, emweight_multiply_by, emsteps, \
-             emwritefrequency, lincs_order, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb)
+             emwritefrequency, lincs_order, nstxtcout, time_step_for_cryo_fit, model_file_without_pathways, cryo_fit_path, many_step_____n__dot_pdb)
       write_this = "Step 7 (Make a tpr file for cryo_fit) is successfully ran\n"
       if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
