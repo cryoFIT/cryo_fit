@@ -938,7 +938,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if "regression_" in model_file_without_pathways:
       this_is_test = True
     cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record", this_is_test)
-    #print "\t\tVerdict of cc_has_been_increased function in the last 30~50 cc evaluations:", cc_has_been_increased
     print "\tVerdict of cc_has_been_increased function with all cc evaluations:", cc_has_been_increased
 
     if (devel == True):
@@ -1560,8 +1559,11 @@ def run_cryo_fit(logfile, params, inputs):
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
         charge_group_moved = False # just initial value
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
-        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
+        
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 1.3
+        
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in 0 step only run eventually
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
