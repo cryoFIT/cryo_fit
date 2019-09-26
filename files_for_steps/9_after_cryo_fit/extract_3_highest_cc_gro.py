@@ -23,7 +23,7 @@ from common_functions import *
 # Even with cc_record.txt, 
 def adjust_step_number():
     print "\n\t\t\tAdjust step number due to restart for longer steps."
-    f = open('../restart_record_for_longer_steps.txt', 'r')
+    f = open('../aim_this_step_when_restart.txt', 'r')
     # count # of lines
     number_of_lines = 0
     for line in f:
@@ -32,7 +32,7 @@ def adjust_step_number():
     
     #last_step_to_be_added = '' # initial
     last_step_to_be_added = 0 # initial
-    f = open('../restart_record_for_longer_steps.txt', 'r')
+    f = open('../aim_this_step_when_restart.txt', 'r')
     j = 0
     for line in f:
         last_step_to_be_added = int(line) # just in case when there is only one value like nucleosome case
@@ -237,10 +237,10 @@ if (__name__ == "__main__") :
         result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
     else: # default running
         # adjust step number if cryo_fit restarted for longer steps
-        if (os.path.isfile("../restart_record_for_longer_steps.txt") == True):
+        if (os.path.isfile("../aim_this_step_when_restart.txt") == True):
             # this exists for only a case when cryo_fit restarted with longer steps, not with higher map
             adjust_step_number()
-            #os.remove("../restart_record_for_longer_steps.txt") # only for development, keep this file
+            #os.remove("../aim_this_step_when_restart.txt") # only for development, keep this file
         
         if (no_rerun == "False"): # default running
             

@@ -30,8 +30,8 @@ def run():
     assert (os.path.isfile("data/regression_pdb5khe.pdb") == True)
   
     # to avoid 322122547200 steps !!!!!!!
-    if (os.path.isfile("restart_record_for_longer_steps.txt") == True):
-        cmd = "rm restart_record_for_longer_steps.txt"
+    if (os.path.isfile("aim_this_step_when_restart.txt") == True):
+        cmd = "rm aim_this_step_when_restart.txt"
         easy_run.call(cmd)
     
     cmd = " ".join([
@@ -66,8 +66,8 @@ def run():
     shutil.rmtree("output")
     shutil.rmtree("steps")
     
-    if (os.path.isfile("restart_record_for_longer_steps.txt") == True):
-        os.remove("restart_record_for_longer_steps.txt")
+    if (os.path.isfile("aim_this_step_when_restart.txt") == True):
+        os.remove("aim_this_step_when_restart.txt")
     
 ############ end of run()
 
