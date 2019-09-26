@@ -143,14 +143,14 @@ Options
     .help = Specify number of steps for minimization. \
            If this is left blank, cryo_fit will estimate it depending on molecule size. \
            Enough minimization will prevent "blow-up" during MD simulation later.
-  emsteps = None
-    .type = int
+  emsteps          = None
+    .type          = int
     .short_caption = EM steps
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
   emweight_multiply_by = 3
-    .type = int
+    .type          = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
             Default value is 3 (at 8, tRNA lost base-pairs). \
@@ -175,15 +175,15 @@ Options
     .help          = A frequency to write coordinates to xtc trajectory. \
                      By default this is 100.
   number_of_steps_for_cryo_fit = None
-    .type = int
-    .short_caption = Number of steps for the 1st iteration of cryo_fit
+    .type                      = int
+    .short_caption             = Number of steps for the 1st iteration of cryo_fit
     .help = This is the initial number of steps for the 1st iteration of cryo_fit. \
             Eventually, cryo_fit will increase it iteratively until it reaches cc plateau. \
             This value should be > 100. \
             (Just for tutorial files, this will be a fixed value, e.g. 70,000, unless a user specifies it)
   time_step_for_cryo_fit = 0.002
-    .type = float
-    .short_caption = Time step for MD simulation during cryo_fit
+    .type                = float
+    .short_caption       = Time step for MD simulation during cryo_fit
     .help = Default value is 0.002. Try 0.001 if a user see this error during cryo_fit \
       "Fatal error: A charge group moved too far between two domain decomposition steps \
       This usually means that your system is not well equilibrated"
@@ -1561,6 +1561,7 @@ def run_cryo_fit(logfile, params, inputs):
   
         charge_group_moved = False # just initial value
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 30 steps\n"
         print write_this
