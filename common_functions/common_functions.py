@@ -8,6 +8,7 @@ from libtbx.utils import Sorry
 from libtbx.utils import multi_out
 import mmtbx.model
 import mmtbx.utils
+import numpy as np
 from os.path import expanduser # to find home_dir
 import shutil # for rmdir
 from subprocess import check_output, Popen, PIPE
@@ -119,10 +120,55 @@ def check_first_cc(cc_record):
 def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   print "\tCheck_whether_cc_has_been_increased"
   
+  min_step_number_for_judging = 50
+  cc_array = []
+  
+  f_in = open(cc_record)
+  for line in f_in:
+    splited = line.split(" ")
+    cc = splited[4]
+    if (float(cc) < 0.0001):
+      print "\t\tcc: " + cc + " < 0.0001"
+      print "\t\tExit now, since further cc will be 0.000 as well\n"
+      exit(1)
+    cc_array.append(cc)
+  f_in.close()
+  
+  i = 0
+  cc_1st_array = []
+  cc_2nd_array = []
+  f_in = open(cc_record)
+  for line in f_in:
+    i = i + 1
+    splited = line.split(" ")
+    cc = float(splited[4])
+    
+    if (i < (len(cc_array)/2)):
+        cc_1st_array.append(cc)
+    else:
+        cc_2nd_array.append(cc)
+  f_in.close()
+
+  
+  print "\tthis_is_test:", this_is_test
+  if (this_is_test == True):
+    min_step_number_for_judging = 5
+  if (len(cc_array) < min_step_number_for_judging):
+    print "\t\tnumber of cc evaluations (", len(cc_array), ") < min_step_number_for_judging (", min_step_number_for_judging, ")"
+    print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
+    print "\t\tTherefore, cryo_fit just hypothetically considers as if the most recent CCs have been increased for now."
+    
+    return True 
+  
+  
+  ''' old method -> use the last 50 cc values only
+  
   f_in = open(cc_record)
   former_cc = -99
+  step_number_for_judging = 50
   cc_has_been_increased_array = []
   cc_array = []
+  
   for line in f_in:
     splited = line.split(" ")
     cc = splited[4]
@@ -137,8 +183,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
       cc_has_been_increased_array.append(False)
     former_cc = cc
   f_in.close()
-
-  step_number_for_judging = 30
+  
   print "this_is_test:", this_is_test
   if (this_is_test == True):
     step_number_for_judging = 5
@@ -146,11 +191,15 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     print "\t\tnumber of cc evaluations (", len(cc_has_been_increased_array), ") < step_number_for_judging (", step_number_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
     print "\t\tTherefore, cryo_fit just hypothetically considers as if the most recent CCs have been increased for now."
+    
     return True 
+  
   
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
   print "\t\tlast cc:", cc_last
+  
+  # Only use the last step_number_for_judging cc values
   for i in xrange(len(cc_array)-1, len(cc_array)-(step_number_for_judging+1), -1):
     cc = cc_array[i]
     print "\t\t",i,"th cc:",cc
@@ -161,7 +210,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   if the_highest_cc == cc_last:
     print "\t\tDefinitely re-run with longer cryo_fit steps since the_highest_cc = cc_last"
     return True
-
+    
   cc_has_been_increased = 0
   cc_has_been_decreased = 0
   
@@ -192,30 +241,62 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     multiply_by_this = 2 # to finish quickly. However because of this trick, below codes may not be tested
     
   if (cc_has_been_increased > cc_has_been_decreased*multiply_by_this): # cc_has_been_increased > cc_has_been_decreased+3 confirmed to be too harsh
-    cc_30th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
-    cc_20th_last = cc_array[len(cc_array)-(step_number_for_judging+11)]
+    cc_50th_last = cc_array[len(cc_array)-(step_number_for_judging+1)]
+    cc_25th_last = cc_array[len(cc_array)-(step_number_for_judging+26)]
     
-    if ((cc_last > cc_30th_last) and (cc_last > cc_20th_last)):
-        write_this = "\tcc_last (" + cc_last + ") > cc_30th_last (" + cc_30th_last + ")"
+    if ((cc_last > cc_50th_last) and (cc_last > cc_25th_last)):
+        write_this = "\tcc_last (" + cc_last + ") > cc_50th_last (" + cc_50th_last + ")"
         print write_this
         logfile.write(write_this)
         
-        write_this = "\tcc_last (" + cc_last + ") > cc_20th_last (" + cc_20th_last + ")"
+        write_this = "\tcc_last (" + cc_last + ") > cc_25th_last (" + cc_25th_last + ")"
         print write_this
         logfile.write(write_this)
         
-        return True # the last 30 cc values tend to be increased, so re-run with longer steps
+        return True # the last 30~50 cc values tend to be increased, so re-run with longer steps
     else:
-        write_this = "\tcc_last (" + cc_last + ") <= cc_30th_last (" + cc_30th_last + ")"
+        write_this = "\tcc_last (" + cc_last + ") <= cc_50th_last (" + cc_50th_last + ")"
         print write_this
         logfile.write(write_this)
         
-        write_this = "\tOr cc_last (" + cc_last + ") <= cc_20th_last (" + cc_20th_last + ")"
+        write_this = "\tOr cc_last (" + cc_last + ") <= cc_25th_last (" + cc_25th_last + ")"
         print write_this
         logfile.write(write_this)
         
         return False
   else:
+    return False # either this is a regression or the last 30 cc values tend NOT to be increased
+  '''
+  
+  # New method -> use all cc values in cc_record file
+  the_highest_cc = -99
+  cc_last = cc_array[len(cc_array)-1]
+  
+  for i in xrange(0, (len(cc_array)-1), 1):
+    cc = cc_array[i]
+    #print "\t\t",i,"th cc:",cc
+    if cc > the_highest_cc:
+      the_highest_cc = cc
+  print "\tthe_highest_cc:",the_highest_cc, "cc_last:",cc_last
+  
+  if the_highest_cc == cc_last:
+    print "\tDefinitely re-run with longer cryo_fit steps since the_highest_cc = cc_last"
+    return True
+
+  if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
+    write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
+
+    return True # the last 30~50 cc values tend to be increased, so re-run with longer steps
+  else:
+    write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
+    
+    write_this = "\tcc values are saturated\n"
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
     return False # either this is a regression or the last 30 cc values tend NOT to be increased
 ############################ end of check_whether_cc_has_been_increased function
 
@@ -974,6 +1055,7 @@ def remove_former_files():
         or (each_file[-4:] == ".trr") or (each_file[-4:] == ".xtc") or (each_file == "md.out"):
           subprocess.call(["rm", each_file])
 ############################## end of remove_former_files function 
+
 
 def remove_water_for_gromacs(input_pdb_file_name):
     f_in = open(input_pdb_file_name)

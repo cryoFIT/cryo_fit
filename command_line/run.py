@@ -149,11 +149,12 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 8
+  emweight_multiply_by = 3
     .type = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by which is 8) \
+            Default value is 3 (at 8, tRNA lost base-pairs). \
+            For example, emweight = (number of atoms in gro file) x (emweight_multiply_by) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
             If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
@@ -217,6 +218,9 @@ lincs_order = None
   .short_caption = LINear Constraint Solver
   .help = The accuracy in set with lincs-order, which sets the number of matrices in the expansion for the matrix inversion. \
           If it is not specified, the cryo_fit will use 4.
+max_emweight_multiply_by = 7
+                   .type = int
+                   .short_caption = Up to this value, emweight_multiply_by keeps increasing by 2 times
 missing = True
   .type = bool
   .short_caption = If true, Continue when atoms are missing, dangerous
@@ -235,8 +239,8 @@ perturb_xyz_by = 0.05
   .type = float
   .short_caption = perturb xyz coordinates of 0,0,0 atoms by this much after gromacs' pdb2gmx
   .help = This exists for troubleshooting
-remove_metals = True
-  .type = bool
+remove_metals    = True
+  .type          = bool
   .short_caption = If true, remove MG and ZN during cleaning before pdb2gmx
 debug = False
   .type = bool
@@ -934,7 +938,8 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if "regression_" in model_file_without_pathways:
       this_is_test = True
     cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record", this_is_test)
-    print "\t\tVerdict of cc_has_been_increased function in the last 30 cc evaluations:", cc_has_been_increased
+    #print "\t\tVerdict of cc_has_been_increased function in the last 30~50 cc evaluations:", cc_has_been_increased
+    print "\tVerdict of cc_has_been_increased function with all cc evaluations:", cc_has_been_increased
 
     if (devel == True):
         no_rerun = True
@@ -1583,7 +1588,13 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        emweight_multiply_by = emweight_multiply_by * 2 # this new emweight_multiply_by will be used at step 7 (tpr file generation)
+        if (max_emweight_multiply_by <= emweight_multiply_by*2):
+          emweight_multiply_by = emweight_multiply_by * 2 # this new emweight_multiply_by will be used at step 7 (tpr file generation)
+        else:
+          write_this = "\nemweight_multiply_by x 2 exceeds max_emweight_multiply_by. Therefore, cryo_fit will finish now.\n"
+          print write_this
+          logfile.write(write_this)
+          break
         
         # this check is important to avoid infinite loop and "vtot is inf: inf" error
         if (emweight_multiply_by > 1000 ):

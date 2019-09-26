@@ -9,6 +9,8 @@ from libtbx.utils import Sorry
 from subprocess import check_output
 import libtbx.load_env
 import shutil
+import time
+
 
 cryo_fit_repository_dir = libtbx.env.dist_path("cryo_fit") # # Locate phenix.cryo_fit.run_tests executable
 
@@ -18,8 +20,9 @@ if (__name__ == "__main__") :
 
     print "This phenix.cryo_fit.run_tests executable comes from ", cryo_fit_repository_dir
 
-
+    
     ############# test 1, tutorial adenylate_kinase, each steps ###############
+    
     regression_path = os.path.join(cryo_fit_repository_dir,
                                      'regression',
                                      'Adenylate_Kinase')
@@ -27,18 +30,28 @@ if (__name__ == "__main__") :
     os.chdir(regression_path)
 
     for i in range (1,9):
+        time_start = time.time()
         command_string = "python tst_step_" + str(i) + ".py"
         print "command_string:", command_string
         rc = libtbx.easy_run.call(command=command_string)
+        time_end = time.time()
+        print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
         assert rc==0
 
+    time_start = time.time()
+    
     command_string = "python tst_step_final.py"
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
+    
+    time_end = time.time()
+    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
     assert rc==0
     
     
+    
     ############# test 2, tutorial GTPase_activation_center, each steps ###############
+    time_start = time.time()
     regression_path = os.path.join(cryo_fit_repository_dir,
                                      'regression',
                                      'GTPase_activation_center')
@@ -46,40 +59,65 @@ if (__name__ == "__main__") :
     os.chdir(regression_path)
 
     for i in range (1,9):
+        time_start = time.time()    
+    
         command_string = "python tst_step_" + str(i) + ".py"
         print "command_string:", command_string
         rc = libtbx.easy_run.call(command=command_string)
+    
+        time_end = time.time()
+        print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
         assert rc==0
 
+    time_start = time.time()
+    
     command_string = "python tst_step_final.py"
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
+    
+    time_end = time.time()
+    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
     assert rc==0
     
+
     
     ############# test 3, simple biomolecule all steps without restart ###############
+    time_start = time.time()
     regression_path = os.path.join(cryo_fit_repository_dir,
                                      'regression',
                                      'emd_8249')
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
+    time_start = time.time()
+    
     command_string = "python tst_emd_8249.py" % locals()
     rc = libtbx.easy_run.call(command=command_string) # if failed (such as gromacs is not installed), rc = 1
+    
+    time_end = time.time()
+    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    
     assert rc==0    
-
+    
+    
 
     ############# test 4, simple biomolecule all steps allowing restart ###############
+    time_start = time.time()
     regression_path = os.path.join(cryo_fit_repository_dir,
                                      'regression',
                                      'emd_8249_restart')
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
+    time_start = time.time()
+    
     command_string = "python tst_emd_8249_restart.py" % locals()
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0
-
+    
+    time_end = time.time()
+    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    
 
     ##########  don't run this test 5, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
     ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########
