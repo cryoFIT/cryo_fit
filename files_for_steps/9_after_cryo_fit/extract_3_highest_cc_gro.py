@@ -111,8 +111,6 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
            
         else:
             users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
-            # print "cc:",cc
-            print "users_cc:",users_cc
             if ((users_cc == '') or (users_cc == None)):
                 write_this = "User's cc can't be retrieved. Please email doonam@lanl.gov"
                 print write_this
@@ -167,7 +165,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     splited = result.split()
     dt = splited[2]
 
-    print_this = "\n\tdt:" + dt + "\n" # this \n at the end is needed for gro_extraction.txt
+    print_this = "\tdt:" + dt + "\n" # this \n at the end is needed for gro_extraction.txt
     print print_this
     gro_extraction_note_file.write(print_this)
     # <end> extract dt

@@ -149,11 +149,11 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 3
+  emweight_multiply_by = 2
     .type          = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            Default value is 3 (at 8, tRNA lost base-pairs). \
+            Default value is 2 (at 3~8, tRNA lost base-pairs). \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
@@ -173,7 +173,7 @@ Options
     .type          = int
     .short_caption = Frequency for trajectory
     .help          = A frequency to write coordinates to xtc trajectory. \
-                     By default this is 100.
+                     By default, this is 100.
   number_of_steps_for_cryo_fit = None
     .type                      = int
     .short_caption             = Number of steps for the 1st iteration of cryo_fit
@@ -1560,10 +1560,10 @@ def run_cryo_fit(logfile, params, inputs):
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
         charge_group_moved = False # just initial value
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
-        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
         
-        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased over the last 30 steps\n"
+        write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
         logfile.write(write_this)
         
