@@ -1560,8 +1560,8 @@ def run_cryo_fit(logfile, params, inputs):
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
   
         charge_group_moved = False # just initial value
-        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
