@@ -1,0 +1,41 @@
+# credit:https://stackoverflow.com/questions/50493615/git-pre-push-hooks-not-aborting-push-in-case-of-more-than-one-checks
+
+testing_exit_code=0
+
+function run_check () {
+    # Usage: run_check <check name> <working directory> <command> [args...]
+    local cmd="$1"
+    trap 'testing_exit_code=$?; echo "$cmd FAILED"; return 0' ERR
+    local cmd_wd="$2"
+    shift 2
+    ( cd "$cmd_wd" && "$@" )  # run the command
+    echo "$cmd OK"
+}
+
+function exit_test () {
+    if (( testing_exit_code != 0 )); then
+        echo "Some check(s) failed."
+    fi
+    exit $testing_exit_code
+}
+
+currentDate=`date`
+echo "It is ($currentDate)"
+
+STARTTIME=$(date +%s)
+echo 'Starting unit tests'
+mkdir -p empty
+cd empty
+
+set -e
+
+run_check 'run_test' . cryo_fit.run_tests
+
+rm -rf empty
+ENDTIME=$(date +%s)
+echo "It takes $(($ENDTIME - $STARTTIME)) seconds to complete these unit tests"
+
+currentDate=`date`
+echo "It is ($currentDate)"
+
+exit_test
