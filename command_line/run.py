@@ -555,7 +555,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
   
   this_is_test_for_each_step = False # default
   
-  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if ("regression_pdb5khe" in model_file_without_pathways):
     cp1_command_string = "cp ../2_clean_gro/*.gro . "  
     cp2_command_string = "cp ../1_make_gro/*.top . "
     libtbx.easy_run.fully_buffered(cp2_command_string)
@@ -1580,7 +1580,8 @@ def run_cryo_fit(logfile, params, inputs):
         
         # aim_this_step_when_restart.txt is essential to extract gro from traj.xtc when restarted WITH LONGER STEPS (not restarted w/ higher map weight)
         restart_record = open("../../aim_this_step_when_restart.txt", "a+")
-        write_this = str(number_of_steps_for_cryo_fit)+"\n"
+        #write_this = str(number_of_steps_for_cryo_fit)+"\n" # wrote 6500.0
+        write_this = str(int(number_of_steps_for_cryo_fit)) + "\n" 
         restart_record.write(write_this)
         restart_record.close()
         

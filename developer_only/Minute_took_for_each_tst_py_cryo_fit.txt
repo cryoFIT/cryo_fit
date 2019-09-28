@@ -1,20 +1,27 @@
-Minutes took for this test: 0.16
-Minutes took for this test: 0.07
-Minutes took for this test: 0.1
-Minutes took for this test: 0.11
-Minutes took for this test: 0.11
-Minutes took for this test: 0.06
-Minutes took for this test: 0.19
-Minutes took for this test: 0.22
-Minutes took for this test: 0.13
-Minutes took for this test: 0.22
-Minutes took for this test: 0.07
-Minutes took for this test: 0.12
-Minutes took for this test: 0.13
-Minutes took for this test: 0.13
-Minutes took for this test: 0.07
-Minutes took for this test: 0.38
-Minutes took for this test: 0.38
-Minutes took for this test: 0.28
-Minutes took for this test: 0.54
-Minutes took for this test: 1.0
+Minutes took for tst_step_1.py:0.13
+Minutes took for tst_step_2.py:0.06
+Minutes took for tst_step_3.py:0.09
+Minutes took for tst_step_4.py:0.08
+Minutes took for tst_step_5.py:0.11
+Minutes took for tst_step_6.py:0.05
+Minutes took for tst_step_7.py:0.13
+Minutes took for tst_step_8.py:0.32
+Minutes took for tst_step_final.py: 0.14
+Minutes took for tst_step_1.py:0.25
+Minutes took for tst_step_2.py:0.09
+Minutes took for tst_step_3.py:0.15
+Minutes took for tst_step_4.py:0.14
+Minutes took for tst_step_5.py:0.14
+Minutes took for tst_step_6.py:0.13
+Minutes took for tst_step_7.py:0.63
+Minutes took for tst_step_8.py:0.39
+Minutes took for tst_step_final.py: 0.2
+Minutes took for tst_emd_8249.py: 0.44
+Minutes took for tst_emd_8249_10_AA_restart.py: 0.57
+Minutes took for tst_step_1.py:0.12
+Minutes took for tst_step_2.py:0.05
+Minutes took for tst_step_3.py:0.08
+Minutes took for tst_step_4.py:0.11
+Minutes took for tst_step_5.py:0.08
+Minutes took for tst_step_6.py:0.05
+Minutes took for tst_step_7.py:0.19

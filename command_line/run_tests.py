@@ -101,7 +101,7 @@ if (__name__ == "__main__") :
     assert rc==0    
     
     
-
+    ''' # sometimes, exceeds 1 min
     ############# test 4, simple protein all steps allowing restart ###############
     time_start = time.time()
     regression_path = os.path.join(cryo_fit_repository_dir,
@@ -118,7 +118,28 @@ if (__name__ == "__main__") :
     
     time_end = time.time()
     print "Minutes took for tst_emd_8249_restart.py:", ( round(((time_end-time_start)/60),2)   )
-    #'''
+    '''
+    
+    
+    
+    ############# test 4, simple protein all steps allowing restart ###############
+    time_start = time.time()
+    regression_path = os.path.join(cryo_fit_repository_dir,
+                                     'regression',
+                                     'emd_8249_10_AA_restart')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+
+    time_start = time.time()
+    
+    command_string = "python tst_emd_8249_10_AA_restart.py" % locals()
+    rc = libtbx.easy_run.call(command=command_string)
+    assert rc==0
+    
+    time_end = time.time()
+    print "Minutes took for tst_emd_8249_10_AA_restart.py:", ( round(((time_end-time_start)/60),2)   )
+    
+    
     
     
     ############# test 5, tRNA+EFTU all steps allowing restart ###############
