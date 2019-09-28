@@ -69,6 +69,7 @@ def make_gro_top(input_pdb_file_name, force_field, *args):
   f_out.close()
 ########### end of make_gro_top function
 
+
 if (__name__ == "__main__") :
   #remove_former_files() # only needed for development
   args=sys.argv[1:]
@@ -101,6 +102,7 @@ if (__name__ == "__main__") :
   bool_gro = 0
   for gro_file in glob.glob("*.gro"):
       bool_gro = 1
-      print "\tSuccess! A gro file is made\n"
+      print "\tSuccess. A gro file is made\n"
   if (bool_gro == 0):
-      print "\tFailure! A gro file is not made\n"
+      print "\tFailure. A gro file is not made\n"
+########## end of if (__name__ == "__main__")

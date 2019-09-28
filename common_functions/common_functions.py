@@ -380,10 +380,6 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                             write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
                             print write_this
                             logfile.write(write_this)
-                            #write_this = "\nExit cryo_fit now\n"
-                            #print write_this
-                            #logfile.write(write_this)
-                            #exit(1)
                             return "failed"
                         cc_record_file.close()
             if (step_name != "Step 8"):
@@ -543,6 +539,21 @@ def decide_number_of_cores_to_use(check_at_each_step):
             cores = 2
     return cores
 ####### end of decide_number_of_cores_to_use function
+
+
+def end_regression(starting_dir, write_this):
+  print "end regression (both for each step and all steps)"
+  os.chdir (starting_dir)
+  print write_this
+  
+  if (os.path.isfile("cc_record_full") == True):
+    rm_command_string = "rm cryo_fit* cc_record_full"
+  else:
+    rm_command_string = "rm cryo_fit*"
+  libtbx.easy_run.fully_buffered(rm_command_string)
+  
+  exit (1) # exit the whole program as expected
+########## end of end_regression
 
 
 def ent_as_pdb(file_name):

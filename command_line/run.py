@@ -153,7 +153,7 @@ Options
     .type          = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            Default value is 2 (at 3~8, tRNA lost base-pairs). \
+            Default value is 2 (Paul/Serdal recommended 2, at 2~8, tRNA lost base-pairs). \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
@@ -260,6 +260,22 @@ master_params = master_params_str
 master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
+'''
+def end_regression(starting_dir,write_this):
+  print "end regression (both for each step and all steps)"
+  os.chdir (starting_dir)
+  print write_this
+  
+  if (os.path.isfile("cc_record_full") == True):
+    rm_command_string = "rm cryo_fit* cc_record_full"
+  else:
+    rm_command_string = "rm cryo_fit*"
+  libtbx.easy_run.fully_buffered(rm_command_string)
+  
+  exit(1)
+########## end of end_regression
+'''
+
 def get_release_tag():
   release_tag = os.environ.get("PHENIX_RELEASE_TAG", None)
   return release_tag
@@ -312,21 +328,6 @@ def validate_params(params): # validation for GUI
   print "\tvalidate_params pass"
   return True
 ############### end of validate_params function
-
-
-def end_regression(starting_dir,write_this):
-  print "end regression (both for each step and all steps)"
-  os.chdir (starting_dir)
-  print write_this
-  
-  if (os.path.isfile("cc_record_full") == True):
-    rm_command_string = "rm cryo_fit* cc_record_full"
-  else:
-    rm_command_string = "rm cryo_fit*"
-  libtbx.easy_run.fully_buffered(rm_command_string)
-  
-  exit(1)
-########## end of end_regression
 
   
 def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_file_without_pathways, \
@@ -440,7 +441,9 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   
   os.chdir (starting_dir)
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_GAC.pdb") \
+   or (model_file_without_pathways == "regression_Adenylate.pdb") \
+   or (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     this_is_test_for_each_step = True
   
   return this_is_test_for_each_step
@@ -456,10 +459,11 @@ def step_2(logfile, command_path, starting_dir, model_file_with_pathways, model_
   cp_command_string = ''
 
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  #if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_GAC.pdb") \
+   or (model_file_without_pathways == "regression_Adenylate.pdb") \
+   or (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     this_is_test_for_each_step = True
-    
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
     cp_command_string = "cp ../../data/input_for_step_2/*_cleaned_for_gromacs_by_pdb2gmx.gro ."
   else: # regular running and emd (both wo_restart and w_restart)
     cp_command_string = "cp ../1_make_gro/*.gro ."
@@ -513,14 +517,12 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
   remake_this_folder("steps/3_make_tpr_to_minimize")
   remake_and_move_to_this_folder(starting_dir, "steps/3_make_tpr_to_minimize")
 
-  #cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/minimization_template.mdp ."
   cp_command_script = "cp " + command_path + "files_for_steps/3_make_tpr_to_minimize/minimization_template.mdp ."
   libtbx.easy_run.fully_buffered(cp_command_script)
-  
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb") \
-    or (model_file_without_pathways == "regression_pdb5khe.pdb" ) or (devel == True)):
-    number_of_steps_for_minimization = 5
 
+  if (("regression_" in model_file_without_pathways) or (devel == True)):
+    number_of_steps_for_minimization = 5
+  
   print "\tBe number_of_steps_for_minimization as ", number_of_steps_for_minimization
   with open("minimization_template.mdp", "rt") as fin:
     with open("minimization.mdp", "wt") as fout:
@@ -539,7 +541,6 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
         print "\ttime_step_for_minimization != 0.001"
         new_line = "\ndt = " + str(time_step_for_minimization) + "\n"
         fout.write(new_line)
-      #print "\trestraint_algorithm_minimization:", restraint_algorithm_minimization
       if str(restraint_algorithm_minimization) == "None" or str(restraint_algorithm_minimization) == "none":
         print "\trestraint_algorithm_minimization = none"
         new_line = "\nrestraint-algorithm: none\n"
@@ -547,7 +548,6 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
     fout.close()
   fin.close()
   
-  #cp_command_script = "cp " + command_path + "steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
   cp_command_script = "cp " + command_path + "files_for_steps/3_make_tpr_to_minimize/runme_make_tpr.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
@@ -555,13 +555,13 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
   
   this_is_test_for_each_step = False # default
   
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
-    this_is_test_for_each_step = True
-    cp1_command_string = "cp ../../data/input_for_step_3/* ."
-  elif (model_file_without_pathways == "regression_pdb5khe.pdb"):
+  if (model_file_without_pathways == "regression_pdb5khe.pdb"):
     cp1_command_string = "cp ../2_clean_gro/*.gro . "  
     cp2_command_string = "cp ../1_make_gro/*.top . "
     libtbx.easy_run.fully_buffered(cp2_command_string)
+  elif ("regression_" in model_file_without_pathways):
+    this_is_test_for_each_step = True
+    cp1_command_string = "cp ../../data/input_for_step_3/* ."
   else: # regular running
     if str(restraint_algorithm_minimization) != "none_default":
       cp1_command_string = "cp ../2_clean_gro/*.gro . "
@@ -604,12 +604,13 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "\nStep 4-1: Minimization itself"
   remake_and_move_to_this_folder(starting_dir, "steps/4_minimize")
 
-  #cp_command_script = "cp " + command_path + "steps/4_minimize/runme_minimize.py ."
   cp_command_script = "cp " + command_path + "files_for_steps/4_minimize/runme_minimize.py ."
   libtbx.easy_run.fully_buffered(cp_command_script)
   
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_GAC.pdb") or \
+      (model_file_without_pathways == "regression_Adenylate.pdb") or \
+      (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     cp_command_string = "cp ../../data/input_for_step_4/* ."
     this_is_test_for_each_step = True
   else:
@@ -699,7 +700,6 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   print "Step 4-1", (show_time(start, end))
   
   print "\nStep 4-2: Add C prefix to terminal amino acids to minimized.gro for grompp by gromacs"
-  #cp_command_string = "cp " + command_path + "steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/2_clean_gro/*_rename_term_res_to_Cres*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
@@ -720,12 +720,13 @@ def step_5(logfile, command_path, starting_dir, model_file_without_pathways, cry
   remake_and_move_to_this_folder(starting_dir, "steps/5_make_restraints")
   
   start = time.time()
-  #cp_command_string = "cp " + command_path + "steps/5_make_restraints/runme_make_contact_potential.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/5_make_restraints/runme_make_contact_potential.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_Adenylate.pdb") or
+      (model_file_without_pathways == "regression_GAC.pdb") or
+      (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     cp_command_string = "cp ../../data/input_for_step_5/* ."
     this_is_test_for_each_step = True
   else:
@@ -754,16 +755,16 @@ def step_6(logfile, command_path, starting_dir, model_file_without_pathways):
   show_header("Step 6: Make all charges of atoms be 0")
   remake_and_move_to_this_folder(starting_dir, "steps/6_make_0_charge")
 
-  #cp_command_string = "cp " + command_path + "steps/6_make_0_charge/changetop.awk ."
   cp_command_string = "cp " + command_path + "files_for_steps/6_make_0_charge/changetop.awk ."
   libtbx.easy_run.fully_buffered(cp_command_string)
       
-  #cp_command_string = "cp " + command_path + "steps/6_make_0_charge/runme_make_0_charge.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/6_make_0_charge/runme_make_0_charge.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
 
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_Adenylate.pdb") or
+      (model_file_without_pathways == "regression_GAC.pdb") or
+      (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     cp_command_string = "cp ../../data/input_for_step_6/* ."
     this_is_test_for_each_step = True
   else:
@@ -794,7 +795,9 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   remake_and_move_to_this_folder(starting_dir, "steps/7_make_tpr_with_disre2")
   
   this_is_test_for_each_step = False # default
-  if ((model_file_without_pathways == "regression_GAC.pdb") or (model_file_without_pathways == "regression_Adenylate.pdb")):
+  if ((model_file_without_pathways == "regression_Adenylate.pdb") or
+      (model_file_without_pathways == "regression_GAC.pdb") or
+      (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     cp1_command_string = "cp ../../data/input_for_step_7/* ."
     libtbx.easy_run.fully_buffered(cp1_command_string)
     this_is_test_for_each_step = True
@@ -1302,6 +1305,7 @@ def run_cryo_fit(logfile, params, inputs):
     write_this = "Step 1 (Make gro and topology file by regular gromacs) is successfully ran\n"
     if (this_is_test_for_each_step == True):
       end_regression(starting_dir, write_this)
+      #return 0 # exit the whole main fn as expected
     else:
       logfile.write(write_this)
     
@@ -1393,6 +1397,7 @@ def run_cryo_fit(logfile, params, inputs):
     else:
       logfile.write(write_this)
   
+    
   cc_has_been_increased = True # just an initial value
   charge_group_moved = True # just an initial value
   re_run_with_higher_map_weight = True # just an initial value

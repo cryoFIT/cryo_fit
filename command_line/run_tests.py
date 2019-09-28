@@ -21,6 +21,7 @@ if (__name__ == "__main__") :
     print "This phenix.cryo_fit.run_tests executable comes from ", cryo_fit_repository_dir
 
     
+    #'''
     ############# test 1, tutorial adenylate_kinase, each steps ###############
     
     regression_path = os.path.join(cryo_fit_repository_dir,
@@ -35,7 +36,7 @@ if (__name__ == "__main__") :
         print "command_string:", command_string
         rc = libtbx.easy_run.call(command=command_string)
         time_end = time.time()
-        print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+        print "Minutes took for tst_step_" + str(i) + ".py:" + str(( round(((time_end-time_start)/60),2)   ))
         assert rc==0
 
     time_start = time.time()
@@ -45,7 +46,7 @@ if (__name__ == "__main__") :
     rc = libtbx.easy_run.call(command=command_string)
     
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for tst_step_final.py:", ( round(((time_end-time_start)/60),2)   )
     assert rc==0
     
     
@@ -66,7 +67,7 @@ if (__name__ == "__main__") :
         rc = libtbx.easy_run.call(command=command_string)
     
         time_end = time.time()
-        print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+        print "Minutes took for tst_step_" + str(i) + ".py:" + str(( round(((time_end-time_start)/60),2)   ))
         assert rc==0
 
     time_start = time.time()
@@ -76,7 +77,7 @@ if (__name__ == "__main__") :
     rc = libtbx.easy_run.call(command=command_string)
     
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for tst_step_final.py:", ( round(((time_end-time_start)/60),2)   )
     assert rc==0
     
 
@@ -95,13 +96,13 @@ if (__name__ == "__main__") :
     rc = libtbx.easy_run.call(command=command_string) # if failed (such as gromacs is not installed), rc = 1
     
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for tst_emd_8249.py:", ( round(((time_end-time_start)/60),2)   )
     
     assert rc==0    
     
     
 
-    ############# test 4, simple biomolecule all steps allowing restart ###############
+    ############# test 4, simple protein all steps allowing restart ###############
     time_start = time.time()
     regression_path = os.path.join(cryo_fit_repository_dir,
                                      'regression',
@@ -116,10 +117,33 @@ if (__name__ == "__main__") :
     assert rc==0
     
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for tst_emd_8249_restart.py:", ( round(((time_end-time_start)/60),2)   )
+    #'''
+    
+    
+    ############# test 5, tRNA+EFTU all steps allowing restart ###############
+    time_start = time.time()
+    regression_path = os.path.join(cryo_fit_repository_dir,
+                                     'regression',
+                                     'tRNA_EFTU_partial')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+    for i in range (1,8):
+        time_start = time.time()    
+    
+        command_string = "phenix.python tst_step_" + str(i) + ".py"
+        print "command_string:", command_string
+        rc = libtbx.easy_run.call(command=command_string)
+        assert rc==0
+        
+        time_end = time.time()
+        print "Minutes took for tst_step_" + str(i) + ".py:" + str(( round(((time_end-time_start)/60),2)   ))
+        
+    
+    
     
 
-    ##########  don't run this test 5, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
+    ##########  don't run this test, tutorial_GTPase_activation_center for all steps, since it takes 2 minutes #####
     ########## tutorial_GTPase_activation_center for each steps run individually anyway ##########
     '''
     pdb_file_name = 'GTPase_activation_center_tutorial.pdb'

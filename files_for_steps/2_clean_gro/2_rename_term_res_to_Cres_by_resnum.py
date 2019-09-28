@@ -14,7 +14,8 @@ def decide_HID_HIE_HIP(temp_gro_array):
         return "CHIE"
     else:
         return "CHIP"
-# end of decide_HID_HIE_HIP function
+########## end of decide_HID_HIE_HIP function
+
 
 def rename_term_by_resnum(input_gro_file_name):
     print "rename_term_by_resnum fn"
