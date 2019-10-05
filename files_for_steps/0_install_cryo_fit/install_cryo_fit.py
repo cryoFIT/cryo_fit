@@ -1,3 +1,10 @@
+########################
+## Probably, you open this source code, because you can't run this install_source code?
+## So that you want to install cryo_fit manually (e.g. make and others)?
+## Please email to doonam@lanl.gov, if you have issue running this code.
+## Doo Nam recommends to run this code by python xxx.py, not by manual method
+########################
+
 import glob, os, subprocess, sys, time
 from os.path import exists
 from subprocess import check_output, Popen, PIPE # for FFTW_INSTALL
