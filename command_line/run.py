@@ -1578,17 +1578,17 @@ def run_cryo_fit(logfile, params, inputs):
           print write_this
           logfile.write(write_this)
           
-          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is \
-                        too high. cryo_fit will divide emweight_multiply_by by 3 (so that \
-                        emweight_multiply_by becomes ' + \
-                        str(emweight_multiply_by/3) + ') and rerun again.\n'
+          # this long 1 line is essential for proper writing into log file
+          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high. Cryo_fit will divide emweight_multiply_by by 3 (so that emweight_multiply_by becomes ' + str(round(emweight_multiply_by/3,2)) + ') and rerun again.\n'
           
           emweight_multiply_by = emweight_multiply_by/3
           
           print write_this
           logfile.write(write_this)
           
-          break
+          #break
+          os.chdir( starting_dir ) # needed for re-running
+          continue
         
         cp_command_string = "cp state.cpt ../.."
         libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
@@ -1598,7 +1598,7 @@ def run_cryo_fit(logfile, params, inputs):
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 1.3
         
-        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in 0 step only run eventually
+        #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in "0 step only run" eventually
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this

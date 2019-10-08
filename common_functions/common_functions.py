@@ -70,10 +70,10 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to as
 
 
 def assign_model_name(params, starting_dir, inputs, model_file_name):
-  print "\n\tAssign model file name."
+  print "\n\tAssign a model file name."
   params.cryo_fit.Input.model_file_name = model_file_name
   if os.path.isfile(params.cryo_fit.Input.model_file_name) != True:
-    print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
+    print "Please correct the model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
     exit(1)
   
   ### Assign model_file_without_pathways (not final)
