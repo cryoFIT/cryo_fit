@@ -173,7 +173,7 @@ Options
     .type          = int
     .short_caption = Frequency for trajectory
     .help          = A frequency to write coordinates to xtc trajectory. \
-                     By default, this is 100.
+                     By default, this is 100 (both commandline and GUI).
   number_of_steps_for_cryo_fit = None
     .type                      = int
     .short_caption             = Number of steps for the 1st iteration of cryo_fit
@@ -836,8 +836,10 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   
   if (this_is_test_for_each_step == True):
     return True
-  check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr", logfile)
+  returned = check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr", logfile)
   print "Step 7", (show_time(start_make_tpr, end_make_tpr))
+  if (returned == "failed"):
+    exit(1)
   os.chdir( starting_dir )
   return False # this is not a test for each step
 ########################### end of step_7 (make tpr for cryo_fit) function        
@@ -1223,6 +1225,10 @@ def run_cryo_fit(logfile, params, inputs):
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
+  
+  if (params.cryo_fit.Options.nstxtcout == None): # if nstxtcout is empty in GUI, there was an error. That's why we have this if clause.
+    params.cryo_fit.Options.nstxtcout = 100
+  
   nstxtcout = params.cryo_fit.Options.nstxtcout
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization

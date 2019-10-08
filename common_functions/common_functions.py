@@ -398,7 +398,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
                 print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
             return "success"
     print step_name, " didn't successfully run"
-    if (step_name == "Step 4" or step_name == "Step 8"):
+    if (step_name == "Step 4" or step_name == "Step 7" or step_name == "Step 8"):
       return "failed"
 ######################## end of check_whether_the_step_was_successfully_ran function
 
