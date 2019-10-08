@@ -333,6 +333,7 @@ def check_whether_install_is_done(check_this_file_w_path):
 
 
 def check_whether_mdrun_is_accessible():
+    '''
     long_message  = """
         cryo_fit can't find a gromacs executable (e.g. mdrun)
         
@@ -342,6 +343,7 @@ def check_whether_mdrun_is_accessible():
         For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
         add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
         """
+    '''
     try:
         path = subprocess.check_output(["which", "mdrun"])
         splited = path.split("/")
@@ -353,10 +355,10 @@ def check_whether_mdrun_is_accessible():
             print "\tUser's mdrun executable comes from ", mdrun_path
             return mdrun_path
         else:
-            print long_message
+            #print long_message
             return False
     except:
-        print long_message
+        #print long_message
         return False
 ######################## end of check_whether_mdrun_is_accessible()
 

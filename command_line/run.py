@@ -1182,6 +1182,16 @@ def run_cryo_fit(logfile, params, inputs):
       cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
       cryo_fit_path = cryo_fit_path + "/" # for later steps
     else:
+      long_message  = """
+        cryo_fit can't find a gromacs executable (e.g. mdrun)
+        
+        If gromacs_cryo_fit is not installed, install it according to http://www.phenix-online.org/documentation/reference/cryo_fit.html
+        
+        If gromacs_cryo_fit is installed, source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
+        For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
+        add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
+        """
+      print long_message
       print "\texit now"
       exit(1)
   else:
