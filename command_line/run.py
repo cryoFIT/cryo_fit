@@ -1222,16 +1222,28 @@ def run_cryo_fit(logfile, params, inputs):
   # Options used for GUI based specification as well
   restraint_algorithm_minimization = params.cryo_fit.Options.restraint_algorithm_minimization
   emsteps = params.cryo_fit.Options.emsteps
+  
+  if (params.cryo_fit.Options.emweight_multiply_by == None): 
+    params.cryo_fit.Options.emweight_multiply_by = 2
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
+  
+  
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
   
   if (params.cryo_fit.Options.nstxtcout == None): # if nstxtcout is empty in GUI, there was an error. That's why we have this if clause.
     params.cryo_fit.Options.nstxtcout = 100
-  
   nstxtcout = params.cryo_fit.Options.nstxtcout
+  
+  if (params.cryo_fit.Options.time_step_for_cryo_fit == None): 
+    params.cryo_fit.Options.time_step_for_cryo_fit = 0.002
   time_step_for_cryo_fit = params.cryo_fit.Options.time_step_for_cryo_fit
+  
+  if (params.cryo_fit.Options.time_step_for_minimization == None): 
+    params.cryo_fit.Options.time_step_for_minimization = 0.001
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
+  
+  
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
   
