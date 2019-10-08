@@ -998,7 +998,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   remake_and_move_to_this_folder(starting_dir, "output")
   
   this_is_test_for_each_step = False # just initial value assignment
-  splited_starting_dir = starting_dir.split("/")
   
   cp_command_string = "cp " + command_path + "files_for_steps/9_after_cryo_fit/*.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
@@ -1487,9 +1486,10 @@ def run_cryo_fit(logfile, params, inputs):
         
       ################### (begin) check user_s_cc sanity
       cwd = os.getcwd()
-      splited_cwd = cwd.split("/")
+      
+      last_folder_name = os.path.basename(cwd)
       user_s_cc = ''
-      if (splited_cwd[len(splited_cwd)-1] != "8_cryo_fit"):
+      if (last_folder_name != "8_cryo_fit"):
         user_s_cc = check_first_cc("steps/8_cryo_fit/cc_record")
       else:
         user_s_cc = check_first_cc("cc_record")
