@@ -622,6 +622,8 @@ if (__name__ == "__main__") :
 
   print "\tIf a user does \"python clean_pdb_for_gromacs.py <input_pdb_file_name>\" only, then by default 0 0 0"
   args=sys.argv[1:]
+  
+  ''' # can't deal with "3f2q-FMN riboswitch-fit.pdb"
   if (len(args) >= 1):
     input_pdb_file_name = args[0] # pdb input file
     if (input_pdb_file_name[-4:] != ".pdb"):
@@ -630,6 +632,9 @@ if (__name__ == "__main__") :
   else:
     print "Please provide a pdb file."
     exit(1)
+  '''
+  
+  input_pdb_file_name = args[0]
   
   bool_rna_name_reposition = 0 # default_value
   bool_remove_MIA = 0 # default_value

@@ -58,8 +58,7 @@ def assign_map_name(params, starting_dir, inputs, map_file_name): # I need to as
     map_file_with_pathways = map_file_with_pathways[:-5] + "_converted_to_sit.sit"
   
   ### assign map_file_without_pathways
-  splited_map_file_name = map_file_with_pathways.split("/")
-  map_file_without_pathways = splited_map_file_name[len(splited_map_file_name)-1]
+  map_file_without_pathways = os.path.basename.map_file_with_pathways
   
   if os.path.isfile(map_file_with_pathways) != True:
     print "\tcryo_fit can't find ", map_file_with_pathways
@@ -77,9 +76,28 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
     print "Please correct model file location, cryo_fit can't find " + params.cryo_fit.Input.model_file_name
     exit(1)
   
-  ### assign model_file_without_pathways (not final)
-  splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  ### Assign model_file_without_pathways (not final)
+  
+  
+  #splited_model_file_name = params.cryo_fit.Input.model_file_name.split("/")
+  ##model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  model_file_without_pathways = os.path.basename.params.cryo_fit.Input.model_file_name
+  
+
+  splited_model_file_without_pathways_by_space = model_file_without_pathways.split(" ")
+  if (len(splited_model_file_without_pathways_by_space) != 1):
+    original_model_file_name_without_pathways = model_file_without_pathways
+    shutil.copy(params.cryo_fit.Input.model_file_name, original_model_file_name_without_pathways)
+    
+    model_file_without_pathways_replaced = model_file_without_pathways.replace(" ", "_")
+    shutil.copy(model_file_without_pathways, model_file_without_pathways_replaced)
+    
+    shutil.move(model_file_without_pathways_replaced, model_file_without_pathways)
+  
+  
+  # model_file_without_pathways = model_file_without_pathways.replace(" ", "\ ")
+  ######## not works
+  
   
   if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
     print "\t\tSince a user provided .cif file, let's turn it into .pdb"
@@ -97,8 +115,9 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
     print "\t\tmodel_file_with_pathways is wrong"
     exit(1)
     
-  splited_model_file_name = model_file_with_pathways.split("/")
-  model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  #splited_model_file_name = model_file_with_pathways.split("/")
+  #model_file_without_pathways = splited_model_file_name[len(splited_model_file_name)-1]
+  model_file_without_pathways = os.path.basename.model_file_with_pathways
   
   os.chdir(starting_dir)
   return model_file_with_pathways, model_file_without_pathways

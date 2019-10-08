@@ -338,11 +338,14 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
   cw_dir = os.getcwd()
   print "\tCurrent working directory: %s" % cw_dir
   
-  cp_command_string = "cp " + model_file_with_pathways + " ."
-  libtbx.easy_run.fully_buffered(cp_command_string)
+  # can't copy "3f2q-FMN riboswitch-fit.pdb"
+  #cp_command_string = "cp " + model_file_with_pathways + " ."
+  #libtbx.easy_run.fully_buffered(cp_command_string)
+  
+  # copied "3f2q-FMN riboswitch-fit.pdb" well
+  shutil.copy(model_file_with_pathways, ".")
 
   start = time.time()
-  #cp_command_string = "cp " + command_path + "steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/1_before_pdb2gmx_prepare_pdb.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
@@ -365,7 +368,6 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
     exit(1)
     
-  #cp_command_string = "cp " + command_path + "steps/1_make_gro/2_runme_make_gro.py ."
   cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/2_runme_make_gro.py ."
   libtbx.easy_run.fully_buffered(cp_command_string)
   
