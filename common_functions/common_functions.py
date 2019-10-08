@@ -79,19 +79,20 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
   ### Assign model_file_without_pathways (not final)
   model_file_without_pathways = os.path.basename(params.cryo_fit.Input.model_file_name)
 
+  model_file_with_pathways = ''
+
+  
+  # (begin) this renaming is necessary to process a file name with a space  
   splited_model_file_without_pathways_by_space = model_file_without_pathways.split(" ")
   if (len(splited_model_file_without_pathways_by_space) != 1):
-    original_model_file_name_without_pathways = model_file_without_pathways
-    shutil.copy(params.cryo_fit.Input.model_file_name, original_model_file_name_without_pathways)
-    
-    model_file_without_pathways_replaced = model_file_without_pathways.replace(" ", "_")
-    shutil.copy(model_file_without_pathways, model_file_without_pathways_replaced)
-    
-    shutil.move(model_file_without_pathways_replaced, model_file_without_pathways)
-  
-  
-  # model_file_without_pathways = model_file_without_pathways.replace(" ", "\ ")
-  ######## not works
+    model_file_with_pathways_replaced = params.cryo_fit.Input.model_file_name.replace(" ", "_")
+
+    shutil.copy(params.cryo_fit.Input.model_file_name, model_file_with_pathways_replaced)
+    model_file_with_pathways = model_file_with_pathways_replaced
+    model_file_with_pathways = os.path.abspath(model_file_with_pathways)
+  else:
+    model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
+  # (end) this renaming is necessary to process a file name with a space
   
   
   if params.cryo_fit.Input.model_file_name.endswith('.cif'): # works well, 4/23/2018
@@ -104,12 +105,6 @@ def assign_model_name(params, starting_dir, inputs, model_file_name):
     print "\t\tSince a user provided .ent file, let's simply change its extension into .pdb"
     params.cryo_fit.Input.model_file_name = ent_as_pdb(params.cryo_fit.Input.model_file_name)
   
-  model_file_with_pathways = os.path.abspath(params.cryo_fit.Input.model_file_name)
-  print "\t\tmodel_file_with_pathways:",model_file_with_pathways
-  if os.path.isfile(model_file_with_pathways) != True:
-    print "\t\tmodel_file_with_pathways is wrong"
-    exit(1)
-    
   model_file_without_pathways = os.path.basename(model_file_with_pathways)
   
   os.chdir(starting_dir)
