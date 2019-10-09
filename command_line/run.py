@@ -149,11 +149,11 @@ Options
     .help = emsteps is the number of integration steps between re-evaluation of the simulated map and forces. \
             The longer the emsteps be, the faster overall cryo_fit running time. \
             If it is left blank, the cryo_fit will automatically determine the emsteps
-  emweight_multiply_by = 2
+  emweight_multiply_by = 8
     .type          = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            Default value is 2 (Paul/Serdal recommended 2, at 2~8, tRNA lost base-pairs). \
+            Default value is 8 (Paul/Serdal recommended 2, at 2~8, tRNA lost base-pairs according to phenix.secondary_structure_restraints. However, visual inspection shows all good base-pairs.). \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
@@ -1483,7 +1483,9 @@ def run_cryo_fit(logfile, params, inputs):
 
       if (results == True): # this is a test for each step
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
-        
+      
+      many_stepxb = False
+      
       ################### (begin) check user_s_cc sanity
       cwd = os.getcwd()
       
@@ -1571,7 +1573,7 @@ def run_cryo_fit(logfile, params, inputs):
         
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
-        many_stepxb = False
+        
         
         # Copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
@@ -1584,7 +1586,7 @@ def run_cryo_fit(logfile, params, inputs):
             break
           
           # this long 1 line is essential for proper writing into log file
-          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high. Cryo_fit will divide emweight_multiply_by by 3 (so that emweight_multiply_by becomes ' + str(int(round(emweight_multiply_by/3,0))) + ') and rerun again.\n'
+          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high.\n Cryo_fit will divide emweight_multiply_by by 3 (then round, so that emweight_multiply_by becomes ' + str(int(round(emweight_multiply_by/3,0))) + ') and re-run again.\n'
           
           emweight_multiply_by = int(round((emweight_multiply_by/3), 0))
           if (emweight_multiply_by < 1):
@@ -1599,16 +1601,13 @@ def run_cryo_fit(logfile, params, inputs):
         if (many_stepxb == True):
           break
         
-        #cp_command_string = "cp state.cpt ../.."
-        #libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
         shutil.copy("state.cpt", "../..")
   
         charge_group_moved = False # just initial value
         
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
-        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 1.3
-        
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in "0 step only run" eventually
+        number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.3) 
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
@@ -1620,7 +1619,6 @@ def run_cryo_fit(logfile, params, inputs):
         
         # aim_this_step_when_restart.txt is essential to extract gro from traj.xtc when restarted WITH LONGER STEPS (not restarted w/ higher map weight)
         restart_record = open("../../aim_this_step_when_restart.txt", "a+")
-        #write_this = str(number_of_steps_for_cryo_fit)+"\n" # wrote 6500.0
         write_this = str(int(number_of_steps_for_cryo_fit)) + "\n" 
         restart_record.write(write_this)
         restart_record.close()
@@ -1672,9 +1670,12 @@ def run_cryo_fit(logfile, params, inputs):
         charge_group_moved = False
         cc_has_been_increased = False
         re_run_with_higher_map_weight = False
-  logfile.write("\nStep 8 ran\n")
+  if (many_stepxb == True):
+    logfile.write("\nStep 8 ran, but not successfully.\n")
+  else:
+    logfile.write("\nStep 8 ran.\n")
 
-  if ((initial_cc_wo_min == False) and (initial_cc_w_min == False)):
+  if ((initial_cc_wo_min == False) and (initial_cc_w_min == False) and (many_stepxb == False)):
     this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                               cryo_fit_path, no_rerun) # just to arrange final output
     write_this = "step final is done"
