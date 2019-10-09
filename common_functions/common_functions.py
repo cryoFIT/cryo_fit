@@ -168,7 +168,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     return True 
   
   
-  ''' old method -> use the last 50 cc values only
+  ''' Old method -> use the last 50 cc values only
   
   f_in = open(cc_record)
   former_cc = -99
@@ -275,7 +275,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     return False # either this is a regression or the last 30 cc values tend NOT to be increased
   '''
   
-  # New method -> use all cc values in cc_record file
+  # New and better method -> use all cc values in cc_record file
   the_highest_cc = -99
   cc_last = cc_array[len(cc_array)-1]
   
@@ -292,7 +292,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
 
   if (this_is_test == True):
     #if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)*1.05): # didn't re-run
-    if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)*1.03):  # re-ran 1~3 times all within 1 minute
+    if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)*1.03):  # re-ran 1~3 times all the times within 1 minute
         write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
         print('%s' %(write_this))
         logfile.write(str(write_this))
