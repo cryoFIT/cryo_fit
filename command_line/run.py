@@ -1495,7 +1495,7 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record")
       
       if (user_s_cc == ''):
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. cc_record seems not found. Please contact doonam@lanl.gov"
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. \ncc_record seems not found. \n Please contact doonam@lanl.gov"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1571,27 +1571,37 @@ def run_cryo_fit(logfile, params, inputs):
         
         restart_w_longer_steps = True
         re_run_with_higher_map_weight = False
+        many_stepxb = False
         
         # Copy for a next restart step
         if (os.path.isfile("state.cpt") == False):
-          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \nExit cryo_fit now\n'
+          write_this = 'state.cpt not found, step_8 may be full of stepxb_nx.pdb. \nVisit https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html \n'
           print write_this
           logfile.write(write_this)
+          
+          if (emweight_multiply_by == 1):
+            many_stepxb = True
+            break
           
           # this long 1 line is essential for proper writing into log file
-          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high. Cryo_fit will divide emweight_multiply_by by 3 (so that emweight_multiply_by becomes ' + str(round(emweight_multiply_by/3,2)) + ') and rerun again.\n'
+          write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high. Cryo_fit will divide emweight_multiply_by by 3 (so that emweight_multiply_by becomes ' + str(int(round(emweight_multiply_by/3,0))) + ') and rerun again.\n'
           
-          emweight_multiply_by = emweight_multiply_by/3
+          emweight_multiply_by = int(round((emweight_multiply_by/3), 0))
+          if (emweight_multiply_by < 1):
+            emweight_multiply_by = 1
           
           print write_this
           logfile.write(write_this)
           
-          #break
           os.chdir( starting_dir ) # needed for re-running
           continue
         
-        cp_command_string = "cp state.cpt ../.."
-        libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
+        if (many_stepxb == True):
+          break
+        
+        #cp_command_string = "cp state.cpt ../.."
+        #libtbx.easy_run.fully_buffered(command=cp_command_string).raise_if_errors()
+        shutil.copy("state.cpt", "../..")
   
         charge_group_moved = False # just initial value
         
