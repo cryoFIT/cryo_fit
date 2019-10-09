@@ -1448,6 +1448,7 @@ def run_cryo_fit(logfile, params, inputs):
   
   # Iterate until any condition is met
   iteration_numner = 0
+  many_stepxb = False
   while ((iteration_numner >= 20) or (cc_has_been_increased == True) or (charge_group_moved == True) \
          or (re_run_with_higher_map_weight == True)):
     
@@ -1484,7 +1485,7 @@ def run_cryo_fit(logfile, params, inputs):
       if (results == True): # this is a test for each step
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
       
-      many_stepxb = False
+      
       
       ################### (begin) check user_s_cc sanity
       cwd = os.getcwd()
