@@ -232,7 +232,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   if (cc_has_been_decreased > cc_has_been_increased):
     msg=(
     '\n\tcc tends to decrease over the last ' + str(step_number_for_judging) + ' steps.'
-    '\n\tRead https://github.com/cryoFIT/cryo_fit/blob/master/temporary_FAQ.txt'
+    '\n\tRead https://github.com/cryoFIT/cryo_fit/blob/master/Cryo_fit1_FAQ.pdf'
     '\n\tHere, cryo_fit will try stronger map weight automatically.'
     )
     print (msg)
