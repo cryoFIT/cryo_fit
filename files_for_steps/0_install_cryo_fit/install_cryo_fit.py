@@ -5,6 +5,14 @@
 ## Doo Nam recommends to run this code by python xxx.py, not by manual method
 ########################
 
+##### developer note
+##### Per Pavel's request, I tried this, but it downloaded zip file only partially.
+#import requests
+#url = 'https://github.com/cryoFIT/cryo_fit_install/blob/master/gromacs-4.5.5_cryo_fit.zip'
+#r = requests.get(url, allow_redirects=True)
+#open('/Users/doonam/gromacs-4.5.5_cryo_fit.zip', 'wb').write(r.content)
+
+
 import glob, os, subprocess, sys, time
 from os.path import exists
 from subprocess import check_output, Popen, PIPE # for FFTW_INSTALL
