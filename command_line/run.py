@@ -1451,14 +1451,18 @@ def run_cryo_fit(logfile, params, inputs):
   many_stepxb = False
   while ((cc_has_been_increased == True) or (charge_group_moved == True) \
          or (re_run_with_higher_map_weight == True)):
-    if ((iteration_numner >= 20) or (emweight_multiply_by > 100)):
-      break
+    iteration_numner += 1
     
     if "regression_" in model_file_without_pathways:
       if (iteration_numner >= 5):
         break
-      
-    iteration_numner += 1
+    else:
+      if (iteration_numner >= 20):
+        break
+    
+    if (emweight_multiply_by > 100):
+      break
+    
     if ((this_is_test_for_each_step == True) \
        or (steps_list[0] == False and steps_list[1] == False and steps_list[2] == False \
            and steps_list[3] == False and steps_list[4] == False and steps_list[5] == False \
