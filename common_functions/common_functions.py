@@ -165,7 +165,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
     print "\t\tTherefore, cryo_fit just hypothetically considers as if the most recent CCs have been increased for now."
     
-    return True 
+#    return True
+    return "increased" # the cc values tend to be increased, so re-run with longer steps
   
   
   ''' Old method -> use the last 50 cc values only
@@ -288,7 +289,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   
   if the_highest_cc == cc_last:
     print "\tDefinitely re-run with longer cryo_fit steps since the_highest_cc = cc_last"
-    return True
+    #return True
+    return "increased" # the cc values tend to be increased, so re-run with longer steps
 
   if (this_is_test == True):
     #if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)*1.05): # didn't re-run
@@ -296,13 +298,19 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
         write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
         print('%s' %(write_this))
         logfile.write(str(write_this))
-        return True # the cc values tend to be increased, so re-run with longer steps
+        #return True # the cc values tend to be increased, so re-run with longer steps
+        return "increased" # the cc values tend to be increased, so re-run with longer steps
   else:
     if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
         write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
         print('%s' %(write_this))
         logfile.write(str(write_this))
-        return True # the cc values tend to be increased, so re-run with longer steps
+        #return True # the cc values tend to be increased, so re-run with longer steps
+        return "increased" # the cc values tend to be increased, so re-run with longer steps
+    elif (np.mean(cc_1st_array) > np.mean(cc_2nd_array)*1.03):
+        return "re_run_with_higher_map_weight"
+    # Current overall scheme of cryo_fit can't reliably fit with certainty since geometry estimation lacks (while RSR has one).
+    # However, current scheme of cryo_fit safely/naively assumes that user provided atomic model has decent initial fit and reasonable geometry according to Doonam's experiences with user requests.
 
   ### Common for both regression/test and regular run
   write_this = "\tmean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
@@ -312,7 +320,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   write_this = "\tcc values are saturated\n"
   print('%s' %(write_this))
   logfile.write(str(write_this))
-  return False # either this is a regression or the last 30 cc values tend NOT to be increased
+  #return False # either this is a regression or the last cc values tend NOT to be increased
+  return "saturated" # either this is a regression or the last cc values tend NOT to be increased
 ############################ end of check_whether_cc_has_been_increased function
 
         

@@ -950,11 +950,12 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if (devel == True):
         no_rerun = True
     if (no_rerun == False):
-      if cc_has_been_increased == True:
+      #if cc_has_been_increased == True:
+      if cc_has_been_increased == "increased":
         return "re_run_with_longer_steps"
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
         return "re_run_with_higher_map_weight"
-      else: # cc_has_been_increased = False
+      else: # cc_has_been_increased = "saturated"  #### cc_has_been_increased = False
         write_this = "\ncc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
         print write_this
         logfile.write(write_this)
