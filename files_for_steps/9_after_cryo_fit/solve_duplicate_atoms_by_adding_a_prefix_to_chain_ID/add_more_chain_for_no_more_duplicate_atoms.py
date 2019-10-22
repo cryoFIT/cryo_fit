@@ -58,8 +58,8 @@ def change_chain_if_duplicated(input_pdb_file_name):
 
 if (__name__ == "__main__") :
    if len (sys.argv) < 2:
-      print "How to use: add_more_chain.py file.pdb "
-      print "Example:    add_more_chain.py 80S_fit_by_chi_to_1_manual_fixed_trp.pdb"
+      print "How to use: python add_more_chain.py file.pdb "
+      print "Example:    python add_more_chain.py 80S_fit_by_chi_to_1_manual_fixed_trp.pdb"
       sys.exit(0)
       
    args=sys.argv[1:]
