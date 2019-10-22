@@ -61,6 +61,8 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   
   output_pdb_file_name = shorten_file_name_if_needed(output_pdb_file_name)
   
+  #output_pdb_file_name = remove_the_prefix_of_chain_ID(output_pdb_file_name)
+  
   output_pdb_file_name = no_more_100k_atom_num (output_pdb_file_name)
   output_pdb_file_name = put_TER_between_chains (output_pdb_file_name)
   
@@ -159,7 +161,6 @@ def start_resnum_at_1_at_each_chain(input_pdb_file_name):
   os.system(cmd)
   return output_pdb_file_name
 ########### end of start_resnum_at_1_at_each_chain
-
 
 
 def start_atom_num_at_1_at_each_chain(input_pdb_file_name):
@@ -292,54 +293,6 @@ def clean_RNA_atoms_for_amber03(input_pdb_file_name):
 ##################### end of clean_RNA_atoms_for_amber03 function
 
 
-def remove_the_fourth_character(input_pdb_file_name):
-  # remove the fourth character in residue part, it should be either two characters like RA or \
-  # three characters like ASP
-  f_in = open(input_pdb_file_name)
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_no_4th_char.pdb"
-  f_out = open(output_pdb_file_name, 'wt')
-  for line in f_in:
-    TER_candidate = line[0:3]
-    if (TER_candidate == "HET"):
-      fourth_character = line[20:21]
-      new_line = line[:20] + " " + line[21:]
-      f_out.write(new_line)
-    else:
-      f_out.write(line)
-  f_in.close()
-  f_out.close()
-  cmd = "rm " + input_pdb_file_name
-  os.system(cmd)
-  return output_pdb_file_name
-######### end of remove_the_fourth_character function
-
-
-def put_TER_between_chains(input_pdb_file_name):
-  f_in = open(input_pdb_file_name, 'r')
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_TER_added.pdb"
-  f_out = open(output_pdb_file_name, 'w')
-  old_residue_number = -1 # just initial value of course
-  for line in f_in:
-    if line[0:4] == "ATOM" or line[0:6] == "HETATM":
-      residue_number = line[22:26]
-      #print "\nold_residue_number: ", old_residue_number
-      #print "residue_number: ", residue_number
-      if (int(residue_number) < int(old_residue_number)):
-        #print "a new chain starts, although chain name may not have changed"
-        if old_TER_candidate != "TER":
-          f_out.write("TER\n")
-    f_out.write(line)
-    old_residue_number = residue_number
-    old_TER_candidate = line[0:3]
-    #print "old_TER_candidate:", old_TER_candidate
-  f_out.close()
-  f_in.close()
-  cmd = "rm " + input_pdb_file_name
-  os.system(cmd)
-  return output_pdb_file_name
-######### end of put_TER_between_chains function
-
-
 def clean_unusual_residue(input_pdb_file_name):
   if (os.path.isfile("../../unusual_residue_removed.txt") == True):
     os.remove("../../unusual_residue_removed.txt")
@@ -351,7 +304,7 @@ def clean_unusual_residue(input_pdb_file_name):
           
   for line in f_in:
     residue = line[17:20]
-    if ((residue == "34G") or (residue == "7C4") or (residue == "BMA") or (residue == "CSX")):
+    if ((residue == "34G") or (residue == "7C4") or (residue == "ADP") or (residue == "AGS") or (residue == "BMA") or (residue == "CSX")):
       write_this = str(residue) + " removed\n"
       f_report.write(write_this)
       print write_this
@@ -402,6 +355,58 @@ def clean_unusual_residue(input_pdb_file_name):
 ############ end of clean_unusual_residue function
 
 
+def remove_the_fourth_character(input_pdb_file_name):
+  # remove the fourth character in residue part, it should be either two characters like RA or \
+  # three characters like ASP
+  # to avoid "Fatal error: Residue 'RCa' not found in residue topology database" in step_1_cleaning_pdb \
+  # for ribosome pdb file's double digit/character chain ID
+  f_in = open(input_pdb_file_name)
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_no_4th_char.pdb"
+  f_out = open(output_pdb_file_name, 'wt')
+  for line in f_in:
+    TER_candidate = line[0:3]
+    #if (TER_candidate == "HET"):
+    if ((TER_candidate == "HET") or (line[0:4] == "ATOM")):
+      fourth_character = line[20:21]
+      new_line = line[:20] + " " + line[21:]
+      f_out.write(new_line)
+    else:
+      f_out.write(line)
+  f_in.close()
+  f_out.close()
+  cmd = "rm " + input_pdb_file_name
+  os.system(cmd)
+  return output_pdb_file_name
+######### end of remove_the_fourth_character function
+
+
+def put_TER_between_chains(input_pdb_file_name):
+  f_in = open(input_pdb_file_name, 'r')
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_TER_added.pdb"
+  f_out = open(output_pdb_file_name, 'w')
+  old_residue_number = -1 # just initial value of course
+  for line in f_in:
+    if line[0:4] == "ATOM" or line[0:6] == "HETATM":
+      residue_number = line[22:26]
+      #print "\nold_residue_number: ", old_residue_number
+      #print "residue_number: ", residue_number
+      if (int(residue_number) < int(old_residue_number)):
+        #print "a new chain starts, although chain name may not have changed"
+        if old_TER_candidate != "TER":
+          f_out.write("TER\n")
+    f_out.write(line)
+    old_residue_number = residue_number
+    old_TER_candidate = line[0:3]
+    #print "old_TER_candidate:", old_TER_candidate
+  f_out.close()
+  f_in.close()
+  cmd = "rm " + input_pdb_file_name
+  os.system(cmd)
+  return output_pdb_file_name
+######### end of put_TER_between_chains function
+
+
+
 def remove_OXT(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_wo_HOH.pdb"
@@ -439,7 +444,8 @@ def remove_water(input_pdb_file_name):
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
   return output_pdb_file_name
-# end of remove_water function
+########## end of remove_water function
+
 
 def clean_RNA_OP1(input_pdb_file_name, bool_remove_MIA, bool_MIA_to_A):
   bool_MIA_to_A_done = 0
