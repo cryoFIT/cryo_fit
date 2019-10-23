@@ -950,7 +950,6 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     if (devel == True):
         no_rerun = True
     if (no_rerun == False):
-      #if cc_has_been_increased == True:
       if cc_has_been_increased == "increased":
         return "re_run_with_longer_steps"
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
