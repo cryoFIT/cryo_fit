@@ -1694,11 +1694,16 @@ def run_cryo_fit(logfile, params, inputs):
       print write_this
       logfile.write(write_this)
       
-    write_this = "step final is done"
+    write_this = "See https://www.phenix-online.org/documentation/tutorials/cryo_fit_cmdline.html#output to know how to utilize results."
+    print write_this
+    logfile.write(write_this)
+    
+    write_this_for_regression = "Final step is done."
+    
     if (this_is_test_for_each_step == "failed"):
       exit(1)
     elif (this_is_test_for_each_step == True):
-      end_regression(starting_dir, write_this)
+      end_regression(starting_dir, write_this_for_regression)
     else:
       if "regression_" in model_file_without_pathways: # regression for all steps
         return True

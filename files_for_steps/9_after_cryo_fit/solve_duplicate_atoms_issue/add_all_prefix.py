@@ -13,8 +13,16 @@ def change_chain_if_duplicated(input_pdb_file_name):
   old_atom_number = '' # just initial
   new_two_char_chain = '' # just initial
   
+  all_char = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  all_char_list = list(all_char)
+  
+  all_char_numeric = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  all_char_numeric_list = list(all_char_numeric)
+  
   all_single_char = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[]^_`{|}~ '
   all_single_char_list = list(all_single_char)
+  #"Phenix crashed for me after a little when using SS-restraints. The error it gave was...
+  
   new_two_char_written = False # initial
   
   for line in f_in:
@@ -38,6 +46,30 @@ def change_chain_if_duplicated(input_pdb_file_name):
             new_two_char_written = False
           else:
             while (1):
+              single_prefix = random.choice(all_char_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+              
+              single_prefix = random.choice(all_char_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+              
+              single_prefix = random.choice(all_char_numeric_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+                
+              single_prefix = random.choice(all_char_numeric_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+                
               single_prefix = random.choice(all_single_char_list)
               new_two_char_chain = str(single_prefix) + str(chain)
               new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
@@ -57,6 +89,30 @@ def change_chain_if_duplicated(input_pdb_file_name):
             new_two_char_written = False
           else:
             while (1):
+              single_prefix = random.choice(all_char_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+              
+              single_prefix = random.choice(all_char_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+              
+              single_prefix = random.choice(all_char_numeric_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+                
+              single_prefix = random.choice(all_char_numeric_list)
+              new_two_char_chain = str(single_prefix) + str(chain)
+              new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
+              if (new_two_char_chain_exists_in_array == False):
+                break
+                
               single_prefix = random.choice(all_single_char_list)
               new_two_char_chain = str(single_prefix) + str(chain)
               new_two_char_chain_exists_in_array = str(new_two_char_chain) in two_char_chain_array
