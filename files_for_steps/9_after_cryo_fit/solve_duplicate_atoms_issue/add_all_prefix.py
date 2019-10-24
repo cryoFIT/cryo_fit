@@ -1,8 +1,6 @@
 # author: Doonam
-
 import glob, os, random, string, sys
 
-   
 def change_chain_if_duplicated(input_pdb_file_name):
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_no_duplicate_atoms_w_prefix_to_chain_ID.pdb"
@@ -88,8 +86,9 @@ def change_chain_if_duplicated(input_pdb_file_name):
 
 if (__name__ == "__main__") :
    if len (sys.argv) < 2:
-      print "How to use: python add_more_chain.py <user>.pdb "
-      print "Example:    python add_more_chain.py extracted_0.4_ps.pdb"
+      print "Explanation: This script generates a new pdb file with a prefix to chain ID to avoid duplicate atoms problem."
+      print "How to use : python add_more_chain.py <user>.pdb "
+      print "Example    : python add_more_chain.py extracted_0.4_ps.pdb"
       sys.exit(0)
       
    args=sys.argv[1:]

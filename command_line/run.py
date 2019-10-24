@@ -448,6 +448,11 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
    or (model_file_without_pathways == "regression_tRNA_EFTU_within_10.pdb")):
     this_is_test_for_each_step = True
   
+  if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed. Please see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      print write_this
+      logfile.write(write_this)
+      
   return this_is_test_for_each_step
 ############################################## end of step_1 function
 
@@ -1504,7 +1509,7 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record")
       
       if (user_s_cc == ''):
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. \ncc_record seems not found. \n Please contact doonam@lanl.gov"
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. \ncc_record is not found. \n Please contact doonam.kim@gmail.com"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1669,7 +1674,6 @@ def run_cryo_fit(logfile, params, inputs):
         os.chdir( starting_dir ) # needed for re-running
 
       else: # normal ending of cryo_fit
-        
         print_this = "\nA user's provided input pdb file has " + str(round(float(user_s_cc), 3)) + " cc\n"
         print print_this
         logfile.write(print_this)
@@ -1685,6 +1689,11 @@ def run_cryo_fit(logfile, params, inputs):
   if ((initial_cc_wo_min == False) and (initial_cc_w_min == False) and (many_stepxb == False)):
     this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                               cryo_fit_path, no_rerun) # just to arrange final output
+    if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed. Please see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      print write_this
+      logfile.write(write_this)
+      
     write_this = "step final is done"
     if (this_is_test_for_each_step == "failed"):
       exit(1)

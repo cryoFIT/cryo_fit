@@ -80,7 +80,8 @@ def clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, b
   cmd = "mv " + output_pdb_file_name + " " + final_output_pdb_file_name
   os.system(cmd)
   
-  return final_output_pdb_file_name
+  #return final_output_pdb_file_name
+  #return prefix_of_chain_ID_removed
 ############ end of clean_main function
 
 
@@ -360,14 +361,17 @@ def remove_the_fourth_character(input_pdb_file_name):
   # three characters like ASP
   # to avoid "Fatal error: Residue 'RCa' not found in residue topology database" in step_1_cleaning_pdb \
   # for ribosome pdb file's double digit/character chain ID
+  prefix_of_chain_ID_removed = False # initial assignment
+  
   f_in = open(input_pdb_file_name)
   output_pdb_file_name = input_pdb_file_name[:-4] + "_no_4th_char.pdb"
   f_out = open(output_pdb_file_name, 'wt')
   for line in f_in:
     TER_candidate = line[0:3]
-    #if (TER_candidate == "HET"):
     if ((TER_candidate == "HET") or (line[0:4] == "ATOM")):
       fourth_character = line[20:21]
+      if (fourth_character != " "):
+        prefix_of_chain_ID_removed = True
       new_line = line[:20] + " " + line[21:]
       f_out.write(new_line)
     else:
@@ -376,6 +380,11 @@ def remove_the_fourth_character(input_pdb_file_name):
   f_out.close()
   cmd = "rm " + input_pdb_file_name
   os.system(cmd)
+  
+  if (prefix_of_chain_ID_removed == True):
+    f_report = open("prefix_of_chain_ID_removed", 'wt')
+    f_report.close()   
+  
   return output_pdb_file_name
 ######### end of remove_the_fourth_character function
 
@@ -620,6 +629,7 @@ def remove_former_files():
     os.system(cmd)
 ############ end of remove_former_files function
 
+
 if (__name__ == "__main__") :
   remove_former_files()
 
@@ -660,8 +670,8 @@ if (__name__ == "__main__") :
     bool_remove_MIA = args[2]
     bool_MIA_to_A = args[3]
     bool_remove_metals = args[4]
-  clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, bool_MIA_to_A, \
-                               bool_remove_metals)
+  clean_main(input_pdb_file_name, bool_rna_name_reposition, bool_remove_MIA, \
+                                          bool_MIA_to_A, bool_remove_metals)
 
   ''' # for dealing many pdb files
   args=sys.argv[1:]
