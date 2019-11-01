@@ -353,7 +353,7 @@ if (__name__ == "__main__") :
     start_time = time.time()
     color_print ("This will install openmpi by python script", 'green')
     color_print ("It will remove existing ~/bin/openmpi... and ~/src/openmpi... folders (if any) and install openmpi there.", 'green')
-    color_print ("If you need troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)", 'green')
+    color_print ("If you need troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam.kim@gmail.com)", 'green')
     
     args=sys.argv[1:]
     print "len(args):", len(args)

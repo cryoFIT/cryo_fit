@@ -365,7 +365,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     
   if (pdb_file_is_cleand != True):
     print "pdb file cleaning is not done, exit now"
-    print "\nPlease email phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
+    print "\nPlease email phenixbb@phenix-online.org or doonam.kim@gmail.com for any feature request/help."
     exit(1)
     
   cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/2_runme_make_gro.py ."
@@ -423,7 +423,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     Solution if these residue/atoms are important:\n
     \tFix wrong names of atoms/residues. Running real_space_refine via phenix GUI will show which atoms need to be fixed.
     \tIf gromacs amber03 force field doesn't have parameters for these residue/atoms, you may need to add appropriate parameters.
-    \tIf you added parameters, please email me (doonam@lanl.gov), I want to recognize your contribution publicly.
+    \tIf you added parameters, please email me (doonam.kim@gmail.com), I want to recognize your contribution publicly.
     \tMost MD simulation force fields do not support all kinds of rare residue/atoms.
     \tcryo_fit2 is under development to address this issue using phenix.eLBOW
     
@@ -437,7 +437,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     logfile.write(print_this)
     logfile.close()
     
-    print "\nEmail phenixbb@phenix-online.org or doonam@lanl.gov for any feature request/help."
+    print "\nEmail phenixbb@phenix-online.org or doonam.kim@gmail.com for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))
   
@@ -1026,7 +1026,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
-    print "extract_3_highest_cc_gro.py is not found, please email doonam@lanl.gov. Exit now"
+    print "extract_3_highest_cc_gro.py is not found, please email doonam.kim@gmail.com. Exit now"
     exit(1)
 
   log_file_name = "../cryo_fit.overall_log"
@@ -1517,7 +1517,7 @@ def run_cryo_fit(logfile, params, inputs):
       try:
         user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is stil '', "ValueError: could not convert string to float:"
       except:
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. Please contact doonam@lanl.gov"
+        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. Please contact doonam.kim@gmail.com"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed

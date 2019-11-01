@@ -1,7 +1,7 @@
 ########################
 ## Probably, you open this source code, because you can't run this install_source code?
 ## So that you want to install cryo_fit manually (e.g. make and others)?
-## Please email to doonam@lanl.gov, if you have issue running this code.
+## Please email to doonam.kim@gmail.com, if you have issue running this code.
 ## Doo Nam recommends to run this code by python xxx.py, not by manual method
 ########################
 
@@ -283,7 +283,7 @@ def get_FFTW_INSTALL_path (home_dir):
 
     
 def install_gromacs_cryo_fit(zipped_file, *args):
-  color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam@lanl.gov)\n", 'green')
+  color_print ("If you need a troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam.kim@gmail.com)\n", 'green')
   
   starting_dir = os.getcwd()
   color_print ("\nCurrent start working directory: ", 'green')
