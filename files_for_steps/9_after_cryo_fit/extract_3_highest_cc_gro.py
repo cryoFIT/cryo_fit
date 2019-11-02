@@ -65,7 +65,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
     target_ps = ''
     print_this = ''
     if (nsteps_from_state_cpt != ''):
-        print_this = "nsteps_from_state_cpt:",nsteps_from_state_cpt
+        print_this = "nsteps_from_state_cpt:" + nsteps_from_state_cpt
         print print_this
         gro_extraction_note_file.write(print_this)
         
@@ -76,7 +76,6 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
         
         print_this = "target_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps) + "dt: " + str(dt)
         
-         
     else:
         target_ps = (float(target_step)/float(nsteps))*float(total_ps)    
         print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
@@ -127,7 +126,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
                 gro_extraction_note_file.write(write_this)
                 return "empty"
             
-            print_this = "\tusers_cc:", users_cc
+            print_this = "\tusers_cc:" + users_cc
             print print_this
             gro_extraction_note_file.write(print_this)
             

@@ -1107,8 +1107,8 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     for pdb in glob.glob("*.pdb"):
       returned = check_whether_the_step_was_successfully_ran("Step final", pdb, logfile)
       break
-    #returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
-    # sometimes misclassified as success run although it failed to convert to pdb file
+      # returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
+      # --> sometimes misclassified as success run although it failed to convert to pdb file
   
   print_this = "\n\tOutputs are in \"output\" folder"
   print print_this
@@ -1592,7 +1592,7 @@ def run_cryo_fit(logfile, params, inputs):
             many_stepxb = True
             break
           
-          # this long 1 line is essential for proper writing into log file
+          # This long 1 line is essential for proper writing into log file
           write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high.\nTherefore, cryo_fit will divide emweight_multiply_by by 3 (then round, so that emweight_multiply_by becomes ' + str(int(round(emweight_multiply_by/3,0))) + ') and re-run again.\n'
           
           emweight_multiply_by = int(round((emweight_multiply_by/3), 0))
@@ -1614,7 +1614,7 @@ def run_cryo_fit(logfile, params, inputs):
         
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in "0 step only run" eventually
-        number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.3) 
+        number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.4) # multiplying by 1.3 sometimes didn't increase len(cc_array) that much
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
