@@ -76,7 +76,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
         
         print_this = "target_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps) + "dt: " + str(dt)
         
-        
+         
     else:
         target_ps = (float(target_step)/float(nsteps))*float(total_ps)    
         print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
