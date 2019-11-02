@@ -65,8 +65,18 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
     target_ps = ''
     print_this = ''
     if (nsteps_from_state_cpt != ''):
+        print_this = "nsteps_from_state_cpt:",nsteps_from_state_cpt
+        print print_this
+        gro_extraction_note_file.write(print_this)
+        
         target_ps = (float(target_step)/float(nsteps))*float(total_ps) + float(dt)*float(nsteps_from_state_cpt)
         print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps) + float(dt)*float(nsteps_from_state_cpt)" + "\n"
+        print print_this
+        gro_extraction_note_file.write(print_this)
+        
+        print_this = "target_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps) + "dt: " + str(dt)
+        
+        
     else:
         target_ps = (float(target_step)/float(nsteps))*float(total_ps)    
         print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
@@ -79,8 +89,8 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
     print print_this
     gro_extraction_note_file.write(print_this)
     
-    #output_gro_name = "extracted_" + str(target_step) + "_steps_" + str(target_ps) + "_ps.gro"
-    output_gro_name = "extracted_" + str(target_ps) + "_ps.gro"
+    output_gro_name = "extracted_" + str(target_step) + "_target_step_" + str(target_ps) + "_target_ps.gro"
+    #output_gro_name = "extracted_" + str(target_ps) + "_ps.gro"
     
     os.system("echo 0 > input_parameters") # to select system
     
@@ -88,7 +98,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
           " -s for_cryo_fit.tpr < input_parameters"
     write_this = "\t" + cmd + "\n"
     print write_this
-    gro_extraction_note_file.write(write_this)
+    gro_extraction_note_file.write(write_this) # "ValueError: I/O operation on closed file"
     os.system(cmd)
     
     returned_file_size = file_size(output_gro_name)
@@ -117,6 +127,10 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
                 gro_extraction_note_file.write(write_this)
                 return "empty"
             
+            print_this = "\tusers_cc:", users_cc
+            print print_this
+            gro_extraction_note_file.write(print_this)
+            
             if (float(cc) > float(users_cc)):
                 print "\tTherefore, rename this gro file to cryo_fitted.gro"
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
@@ -142,14 +156,14 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     try:
         splited = result.split()
         nsteps = splited[1] # actually used step_number
-        print_this = "\tnsteps when state.cpt was used: " + str(nsteps) + "\n" # this \n at the end is needed for gro_extraction.txt
+        print_this = "\n\tnsteps when state.cpt was used: " + str(nsteps) + "\n" # this \n at the end is needed for gro_extraction.txt
         gro_extraction_note_file.write(print_this)
         print print_this
         nsteps_from_state_cpt = nsteps
     except:
         state_cpt_used = False
     
-    # <begin> extract dt
+    ################ <begin> extract dt
     for_cryo_fit_mdp_location = ''
     if (this_is_test == "False"):
         for_cryo_fit_mdp_location = "../steps/7_make_tpr_with_disre2/for_cryo_fit.mdp"
@@ -168,7 +182,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     print_this = "\tdt:" + dt + "\n" # this \n at the end is needed for gro_extraction.txt
     print print_this
     gro_extraction_note_file.write(print_this)
-    # <end> extract dt
+    ############# <end> extract dt
     
     if (state_cpt_used == False):
         grep_nsteps_string = "grep nsteps " + for_cryo_fit_mdp_location + " | grep -v when"
