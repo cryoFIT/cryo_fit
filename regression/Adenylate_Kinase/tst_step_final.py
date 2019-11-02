@@ -2,10 +2,12 @@ import iotbx.pdb
 from libtbx import easy_run
 import glob, os, shutil, time
 
+
 def file_size(fname):
     statinfo = os.stat(fname)
     return statinfo.st_size
-# end of file_size()
+######## end of file_size()
+
 
 def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   if (os.path.isfile(check_this_file)):
@@ -17,6 +19,7 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file):
   print step_name, " didn't successfully ran"
   exit(1)
 ################ end of check_whether_the_step_was_successfully_ran function
+
 
 def run(prefix="tst_step_final"):
     """
@@ -45,7 +48,8 @@ def run(prefix="tst_step_final"):
     new_path = starting_dir + "/output"
     os.chdir( new_path )
   
-    the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "user_provided_cleaned_for_real_space_refine_molprobity.pdb")
+    #the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "user_provided_cleaned_for_real_space_refine_molprobity.pdb")
+    the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", "extracted_0_target_step_0.0_target_ps_cleaned_for_real_space_refine_molprobity.pdb")
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"
         time.sleep(10000) # so that it is recognized instantly

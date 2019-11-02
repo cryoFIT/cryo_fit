@@ -123,7 +123,6 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
         print write_this
         gro_extraction_note_file.write(write_this)
         
-        #if (target_step == "0"): # works as expected
         if (float(users_cc) == float(cc)):
             write_this = "\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
             print write_this
@@ -240,7 +239,7 @@ if (__name__ == "__main__") :
     
     gro_extraction_note_file = open("gro_extraction.txt","w+")
     
-    write_this = "\nExtract 3 highest cc gro (among the whole run, not just the last run)\n"
+    write_this = "\nExtract 3 highest cc gro (from the last run, not from the whole run)\n"
     gro_extraction_note_file.write(write_this)
     print write_this
     
@@ -302,7 +301,8 @@ if (__name__ == "__main__") :
         
         returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_state_cpt, dt, total_ps, target_step, i, cc)
             
-        if ((returned == "empty_gro") or (returned == "no_user_cc")):
+        #if ((returned == "empty_gro") or (returned == "no_user_cc")):
+        if (returned == "empty_gro"):
             f= open("extract_gro_failed.txt","w+")
             f.close()
     

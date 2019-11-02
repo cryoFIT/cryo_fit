@@ -337,7 +337,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   return "cc_saturated" # either this is a regression or the last cc values tend NOT to be increased
 ############################ end of check_whether_cc_has_been_increased function
 
-        
+
 def check_whether_install_is_done(check_this_file_w_path):
     print "Check whether ", check_this_file_w_path, " exists."
     returned_file_size = ''

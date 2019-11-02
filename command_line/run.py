@@ -1029,7 +1029,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
   libtbx.easy_run.call(command_string)
   write_this = "\t" + command_string + "\n\n"
-  #logfile.write(write_this)
+  logfile.write(write_this)
   print "\tcommand: ", write_this
   
 
