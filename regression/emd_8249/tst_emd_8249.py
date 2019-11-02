@@ -49,7 +49,7 @@ def run():
     os.chdir( new_path )
     
     the_step_was_successfully_ran = check_whether_the_step_was_successfully_ran("Step final", \
-                                                                                "extracted_0.2_ps_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb")
+                                                                                "extracted_100_target_step_0.2_target_ps_chain_recovered_cleaned_for_real_space_refine_molprobity.pdb")
     
     if (the_step_was_successfully_ran != 1):
         print "failed, sleep for 10,000 seconds"

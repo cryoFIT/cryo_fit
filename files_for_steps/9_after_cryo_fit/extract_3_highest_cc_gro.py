@@ -179,7 +179,7 @@ def get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path):
     splited = result.split()
     dt = splited[2]
 
-    print_this = "\tdt:" + dt + "\n" # this \n at the end is needed for gro_extraction.txt
+    print_this = "\ndt:" + dt + "\n" # this \n at the end is needed for gro_extraction.txt
     print print_this
     gro_extraction_note_file.write(print_this)
     ############# <end> extract dt
