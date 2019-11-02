@@ -127,7 +127,23 @@ def check_first_cc(cc_record):
 def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   print "\tCheck_whether_cc_has_been_increased"
   
-  min_step_number_for_judging = 50
+  ################## (begin) Judge whether this is the very first run of step_8
+  f_in = open(cc_record)
+  last_cc = ''
+  for line in f_in:
+    splited = line.split(" ")
+    cc = splited[1]
+    last_cc = cc
+  f_in.close()
+  
+  if (int(last_cc) == 10000):
+    write_this = "\tProbably this is the very first run of step_8.\n\tVery first run of step_8 may have cc fluctuating first few steps.\n\tTherefore, cryo_fit will run longer.\n"
+    print write_this
+    logfile.write(str(write_this))
+    return "increased"
+  ############### (end) Judge whether this is the very first run of step_8
+  
+  #min_cc_numbers_for_judging = 20
   cc_array = []
   
   f_in = open(cc_record)
@@ -156,16 +172,18 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
         cc_2nd_array.append(cc)
   f_in.close()
 
+  ####### commented out below since it is too often (len(cc_array) < min_cc_numbers_for_judging)
+  '''
   print "\tthis_is_test:", this_is_test
   if (this_is_test == True):
-    min_step_number_for_judging = 3
-  if (len(cc_array) < min_step_number_for_judging):
-    print "\t\tnumber of cc evaluations (", len(cc_array), ") < min_step_number_for_judging (", min_step_number_for_judging, ")"
+    min_cc_numbers_for_judging = 3
+  if (len(cc_array) < min_cc_numbers_for_judging):
+    print "\t\tnumber of cc evaluations (", len(cc_array), ") < min_cc_numbers_for_judging (", min_cc_numbers_for_judging, ")"
     print "\t\tCryo_fit will re-run because usually first few evaluations of cc tend to fluctuate."
     print "\t\tTherefore, cryo_fit just hypothetically considers as if the most recent CCs have been increased for now."
     
     return "increased" # the cc values tend to be increased, so re-run with longer steps
-  
+  '''
   
   ''' Old method -> use the last 50 cc values only
   
@@ -316,7 +334,7 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
   print('%s' %(write_this))
   logfile.write(str(write_this))
 
-  return "saturated" # either this is a regression or the last cc values tend NOT to be increased
+  return "cc_saturated" # either this is a regression or the last cc values tend NOT to be increased
 ############################ end of check_whether_cc_has_been_increased function
 
         
@@ -508,7 +526,8 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
   print "\tTherefore, a new number_of_steps for cryo_fit is ", number_of_steps_for_cryo_fit
   '''
   
-  number_of_steps_for_cryo_fit = 5000
+  #number_of_steps_for_cryo_fit = 5000 # this mere 5k is the cause of low (21~29) number of cc evaluations???
+  number_of_steps_for_cryo_fit = 10000
   return number_of_steps_for_cryo_fit
 ######### end of determine_number_of_steps_for_cryo_fit function
 
@@ -708,13 +727,13 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 
 
 def get_users_cc(cc_record):
-  print "\tGet a user provided atomic model's cc"
+  print "\tGet the first cc in this cc_record/"
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")
     cc = splited[4]
     f_in.close()
-    print "\tUser provided atomic model's cc: ", cc
+    print "\tThe first cc in this cc_record: ", cc
     return cc
 ################ end of get_users_cc(cc_record)
 
@@ -1017,7 +1036,6 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
           #  print "x:",x # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
           #  print "y:",y # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.0
           #  print "z:",z # first value of L1 stalk:0, emd_8249:0.0, tRNA: 0.0, emd_1044: 0.945454545455
-            #STOP()
             value = target_map_data.value_at_closest_grid_point((x,y,z)) # doesn't work when x,y,z < 0
             
             # print "value: %10.6f" %value,

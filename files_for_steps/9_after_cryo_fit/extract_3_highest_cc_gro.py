@@ -58,14 +58,10 @@ def adjust_step_number():
 
 def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_state_cpt, dt, total_ps, target_step, i, cc):
 
-    # old style when state.cpt is not considered
-    #target_ps = (float(target_step)/float(nsteps))*float(total_ps)
-    
-    # new style when state.cpt is considered
     target_ps = ''
     print_this = ''
     if (nsteps_from_state_cpt != ''):
-        print_this = "nsteps_from_state_cpt:" + nsteps_from_state_cpt
+        print_this = "\n\tnsteps_from_state_cpt:" + nsteps_from_state_cpt
         print print_this
         gro_extraction_note_file.write(print_this)
         
@@ -74,22 +70,25 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
         print print_this
         gro_extraction_note_file.write(print_this)
         
-        print_this = "target_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps) + "dt: " + str(dt)
+        print_this = "\ttarget_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps) + " dt: " + str(dt)
         
     else:
         target_ps = (float(target_step)/float(nsteps))*float(total_ps)    
         print_this = "\n\ttarget_ps = (float(target_step)/float(nsteps))*float(total_ps)" + "\n"
+        print print_this
+        gro_extraction_note_file.write(print_this)
+        
+        print_this = "\ttarget_step:" + str(target_step) + " nsteps:" + str(nsteps) + " total_ps:" + str(total_ps)
 
     print print_this
     gro_extraction_note_file.write(print_this)
 
     
-    print_this = "\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
+    print_this = "\n\tTherefore, the cryo_fit will extract a gro file from " + str(target_ps) + " ps" + "\n"
     print print_this
     gro_extraction_note_file.write(print_this)
     
     output_gro_name = "extracted_" + str(target_step) + "_target_step_" + str(target_ps) + "_target_ps.gro"
-    #output_gro_name = "extracted_" + str(target_ps) + "_ps.gro"
     
     os.system("echo 0 > input_parameters") # to select system
     
@@ -106,30 +105,37 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
         print write_this
         gro_extraction_note_file.write(write_this)
         gro_extraction_note_file.close()
-        return "empty" 
-        
+        return "empty_gro" 
+    
+    users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
+    if ((users_cc == '') or (users_cc == None)):
+        write_this = "User's cc can't be retrieved. Please email doonam.kim@gmail.com"
+        print write_this
+        gro_extraction_note_file.write(write_this)
+        return "no_user_cc"
+    
+    print_this = "\tusers_cc:" + users_cc
+    print print_this
+    gro_extraction_note_file.write(print_this)
+    
     if (i == 0):
-        print "\t", target_step, " step has the highest cc"
-        if (target_step == "0"): # works as expected
-           print "\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
-           cmd = "mv " + output_gro_name + " user_provided.gro"
-           write_this = "\t" + cmd + "\n"
-           print write_this
-           gro_extraction_note_file.write(write_this)
-           os.system(cmd)
+        write_this = "\t" + str(target_step) + " step has the highest cc"
+        print write_this
+        gro_extraction_note_file.write(write_this)
+        
+        #if (target_step == "0"): # works as expected
+        if (float(users_cc) == float(cc)):
+            write_this = "\tHowever, it was the initial model that a user provided, so don't rename it to cryo_fitted.gro"
+            print write_this
+            gro_extraction_note_file.write(write_this)
+        
+            cmd = "mv " + output_gro_name + " user_provided.gro"
+            write_this = "\t" + cmd + "\n"
+            print write_this
+            gro_extraction_note_file.write(write_this)
+            os.system(cmd)
            
         else:
-            users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
-            if ((users_cc == '') or (users_cc == None)):
-                write_this = "User's cc can't be retrieved. Please email doonam.kim@gmail.com"
-                print write_this
-                gro_extraction_note_file.write(write_this)
-                return "empty"
-            
-            print_this = "\tusers_cc:" + users_cc
-            print print_this
-            gro_extraction_note_file.write(print_this)
-            
             if (float(cc) > float(users_cc)):
                 print "\tTherefore, rename this gro file to cryo_fitted.gro"
                 cmd = "mv " + output_gro_name + " cryo_fitted.gro"
@@ -270,20 +276,23 @@ if (__name__ == "__main__") :
     '''
     
     # new style    
-    result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
+    highest_3_cc_record = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
         
-    write_this = "3 highest cc steps that need to be extracted:" + str(result) + "\n\n"
+    write_this = "3 highest cc steps that need to be extracted:" + str(highest_3_cc_record) + "\n\n"
     gro_extraction_note_file.write(write_this)
     print write_this
     
-    if (len(result) == 0):
+    if (len(highest_3_cc_record) == 0):
         print "no steps to be extracted, please email doonam.kim@gmail.com"
         exit(1)
     
     nsteps, nsteps_from_state_cpt, dt, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)
     
-    for i in range(len(result)):
-        splited = result[i].split()
+    if (os.path.isfile("extract_gro_failed.txt") == True):
+            os.remove("extract_gro_failed.txt")
+            
+    for i in range(len(highest_3_cc_record)):
+        splited = highest_3_cc_record[i].split()
         target_step = splited[1]
         cc = splited[4]
         
@@ -292,10 +301,8 @@ if (__name__ == "__main__") :
         print write_this
         
         returned = extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_state_cpt, dt, total_ps, target_step, i, cc)
-        if (os.path.isfile("extract_gro_failed.txt") == True):
-            os.remove("extract_gro_failed.txt")
             
-        if (returned == "empty"):
+        if ((returned == "empty_gro") or (returned == "no_user_cc")):
             f= open("extract_gro_failed.txt","w+")
             f.close()
     

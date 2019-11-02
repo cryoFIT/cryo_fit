@@ -941,18 +941,20 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     this_is_test = False
     if "regression_" in model_file_without_pathways:
       this_is_test = True
+      
     cc_has_been_increased = check_whether_cc_has_been_increased(logfile, "cc_record", this_is_test)
     print "\tVerdict of cc_has_been_increased function with all cc evaluations:", cc_has_been_increased
 
     if (devel == True):
         no_rerun = True
+        
     if (no_rerun == False):
       if cc_has_been_increased == "increased":
         return "re_run_with_longer_steps"
       elif cc_has_been_increased == "re_run_with_higher_map_weight":
         return "re_run_with_higher_map_weight"
-      else: # cc_has_been_increased = "saturated"  #### cc_has_been_increased = False
-        write_this = "\ncc has been saturated, so cryo_fit will go to the next step (e.g. final_output_arrange_step)"
+      else: # cc_has_been_increased = "cc_saturated"
+        write_this = "\n\tTherefore, cryo_fit will go to the next step (e.g. a final output arranging step)"
         print write_this
         logfile.write(write_this)
 
@@ -1016,7 +1018,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
-    print "extract_3_highest_cc_gro.py is not found, please email doonam.kim@gmail.com. Exit now"
+    print "extract_3_highest_cc_gro.py is not found, please email doonam.kim@gmail.com. Cryo_fit will exit now."
     exit(1)
 
   logfile.close() # to write user's cc for now
@@ -1148,7 +1150,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 ############################## end of step_final (arrange output) function
 
 
-''' not used now, but keep
+''' not used now, but keep to draw cc by python
 def step_9(command_path, starting_dir):
   show_header("Step 9: Show Correlation Coefficient")
   remake_and_move_to_this_folder(starting_dir, "steps/9_after_cryo_fit/draw_cc")
@@ -1202,7 +1204,12 @@ def run_cryo_fit(logfile, params, inputs):
     cryo_fit_path = mdrun_path
   print "\tcryo_fit_path:",cryo_fit_path
   
-  show_header("Step 0: Prepare to run cryo_fit")
+  write_this = "Initial emweight_multiply_by = " + str(params.cryo_fit.Options.emweight_multiply_by) + "\n"
+  logfile.write(write_this)
+  
+  write_this = "Step 0: Prepare to run cryo_fit"
+  logfile.write(write_this)
+  show_header(write_this)
 
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
@@ -1229,7 +1236,6 @@ def run_cryo_fit(logfile, params, inputs):
     params.cryo_fit.Options.emweight_multiply_by = 2
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   
-  
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
   
@@ -1244,7 +1250,6 @@ def run_cryo_fit(logfile, params, inputs):
   if (params.cryo_fit.Options.time_step_for_minimization == None): 
     params.cryo_fit.Options.time_step_for_minimization = 0.001
   time_step_for_minimization = params.cryo_fit.Options.time_step_for_minimization
-  
   
   user_entered_number_of_steps_for_cryo_fit = params.cryo_fit.Options.number_of_steps_for_cryo_fit
   user_entered_number_of_steps_for_minimization = params.cryo_fit.Options.number_of_steps_for_minimization
@@ -1299,7 +1304,22 @@ def run_cryo_fit(logfile, params, inputs):
     no_rerun = True
     number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
     number_of_steps_for_cryo_fit = 100
+  
+  
+  ######### (begin) remove previous files  
+  if (os.path.isfile("aim_this_step_when_restart.txt") == True):
+    os.remove("aim_this_step_when_restart.txt")
+  
+  if (os.path.isfile("cc_record_full") == True):
+    os.remove("cc_record_full")  
+  
+  if (os.path.isfile("cc_record_full_renumbered") == True):
+    os.remove("cc_record_full_renumbered")
     
+  if (os.path.isfile("state.cpt") == True):
+    os.remove("state.cpt")  
+  ######### (end) remove previous files
+  
   
   params.cryo_fit.Options.number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit
   print "\tparams.cryo_fit.Options.number_of_steps_for_cryo_fit (a real value that will be used eventually): ", \
@@ -1450,6 +1470,7 @@ def run_cryo_fit(logfile, params, inputs):
   # Iterate until any condition is met
   iteration_numner = 0
   many_stepxb = False
+  #very_first_run_of_step_8 = True # initial value # declaration of very_first_run_of_step_8 here didn't work as a global variable for step_8
   while ((cc_has_been_increased == True) or (charge_group_moved == True) \
          or (re_run_with_higher_map_weight == True)):
     iteration_numner += 1
@@ -1494,14 +1515,15 @@ def run_cryo_fit(logfile, params, inputs):
       
       
       ################### (begin) check user_s_cc sanity
-      cwd = os.getcwd()
-      
-      last_folder_name = os.path.basename(cwd)
       user_s_cc = ''
-      if (last_folder_name != "8_cryo_fit"):
-        user_s_cc = check_first_cc("steps/8_cryo_fit/cc_record")
+      if (os.path.isfile("../../cc_record_full") == True):
+        user_s_cc = check_first_cc("../../cc_record_full")
+      elif (os.path.isfile("../../cc_record_full_renumbered") == True):
+        user_s_cc = check_first_cc("../../cc_record_full_renumbered")
+      elif (os.path.isfile("cc_record_full") == True):
+        user_s_cc = check_first_cc("cc_record_full")
       else:
-        user_s_cc = check_first_cc("cc_record")
+        user_s_cc = check_first_cc("cc_record_full_renumbered")
       
       if (user_s_cc == ''):
         print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. \ncc_record is not found. \n Please contact doonam.kim@gmail.com"
@@ -1510,9 +1532,9 @@ def run_cryo_fit(logfile, params, inputs):
         return "failed" # flatly failed
       
       try:
-        user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is stil '', "ValueError: could not convert string to float:"
+        user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is still '' -> "ValueError: could not convert string to float:"
       except:
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. Please contact doonam.kim@gmail.com"
+        print_this = "cryo_fit cannot calculate cc with a user input pdb file and map file. Please contact doonam.kim@gmail.com"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1612,15 +1634,16 @@ def run_cryo_fit(logfile, params, inputs):
   
         charge_group_moved = False # just initial value
         
+        number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 10000 # do not multiply by float to avoid error during gro file extraction later
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
+        #number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.2) # seems to generate an error sometimes during gro file extraction
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 5000 # for a unknown reason, this method resulted in "0 step only run" eventually
-        number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.4) # multiplying by 1.3 sometimes didn't increase len(cc_array) that much
         
         write_this = "\nStep 8 (cryo_fit itself) is ran well, but correlation coefficient values tend to be increased recently.\n"
         print write_this
         logfile.write(write_this)
         
-        write_this = "Therefore, step 7 & 8 will re-run with longer steps (including all previously ran steps, up to " + str(number_of_steps_for_cryo_fit) + ")\n\n"
+        write_this = "\tTherefore, step 7 & 8 will re-run with longer steps (including all previously ran steps, up to " + str(number_of_steps_for_cryo_fit) + ")\n\n"
         print write_this
         logfile.write(write_this)
         
@@ -1695,10 +1718,13 @@ def run_cryo_fit(logfile, params, inputs):
     log_file_name = "cryo_fit.overall_log"
     logfile = open(log_file_name, "a+") # append
   
-    write_this = "\n\tTo know how to utilize results, see https://www.phenix-online.org/documentation/tutorials/cryo_fit_cmdline.html#output\n"
+    write_this = "\n\tTo utilize outputs, see https://www.phenix-online.org/documentation/tutorials/cryo_fit_cmdline.html#output\n"
     print write_this
     logfile.write(write_this)
 
+    # Other than development purpose, this file is no longer needed.
+    if (os.path.isfile("aim_this_step_when_restart.txt") == True):
+      os.remove("aim_this_step_when_restart.txt")
     
     if (this_is_test_for_each_step == "failed"):
       exit(1)
@@ -1747,8 +1773,9 @@ def cmd_run(args, validated=False, out=sys.stdout):
     input_command_file.write(args[i] + " ")
     logfile.write(args[i] + " ")
   input_command_file.write("\n")
-  logfile.write("\n\n")
   input_command_file.close()
+  logfile.write("\n\n")
+  
 
   # very simple parsing of model and map
   for i, arg in enumerate(args):
@@ -1809,9 +1836,9 @@ def cmd_run(args, validated=False, out=sys.stdout):
   
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
-  print "\nTotal cryo_fit", time_took
   
   write_this = "\nTotal cryo_fit " + time_took + "\n"
+  print write_this
   logfile = open(log_file_name, "a+") # append
   logfile.write(write_this)
   logfile.close()
