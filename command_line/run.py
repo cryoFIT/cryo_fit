@@ -276,38 +276,6 @@ def end_regression(starting_dir,write_this):
 ########## end of end_regression
 '''
 
-def get_release_tag():
-  release_tag = os.environ.get("PHENIX_RELEASE_TAG", None)
-  return release_tag
-
-def get_version():
-    version = os.environ.get("PHENIX_VERSION", None)
-    if (version is None):
-      tag_file = libtbx.env.under_dist("libtbx", "../TAG")
-      if (os.path.isfile(tag_file)):
-        try: version = open(tag_file).read().strip()
-        except KeyboardInterrupt: raise
-        except: pass
-    return version
-
-def print_author():
-  version = get_version()
-  release_tag = get_release_tag()
-  print """\
- %s
-  cryo_fit %s 
-    - Doo Nam Kim, Nigel Moriarty, Serdal Kirmizialtin, Billy Poon, Karissa Sanbonmatsu
- %s""" % ("-"*78, version, "-"*78)
-# end of print_author()
-
-def show_header(title):
-  print "\n"
-  print '#'*95
-  number_of_remaining_sharp = 95 - len(title)
-  put_this_number_of_sharp = int(int(number_of_remaining_sharp)/2)
-  print '#'*(put_this_number_of_sharp-1) + " " + title + " " + '#'*(put_this_number_of_sharp-1)
-  print '#'*95
-# end of show_header function
 
 def validate_params(params): # validation for GUI
   # check if file type is OK
@@ -934,7 +902,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
       return "failed_with_nan_in_cc"
     
     elif (returned == "0_size"):
-      write_this = "\n\tcc_record file has 0 size."
+      write_this = "\n\tcc_record file has 0 size.\nStep 8 may have failed without helpful error message.\nFor example, gromacs may have generated \"Segmentation fault: 11\"\n"""
       print write_this
       logfile.write(write_this)
       
@@ -1211,9 +1179,10 @@ def run_cryo_fit(logfile, params, inputs):
   write_this = "Initial emweight_multiply_by = " + str(params.cryo_fit.Options.emweight_multiply_by) + "\n\n"
   logfile.write(write_this)
   
-  write_this = "Step 0 Prepare to run cryo_fit\n"
-  logfile.write(write_this)
+  write_this = "Step 0 Prepare to run cryo_fit"
   show_header(write_this)
+  write_this = write_this + "\n"
+  logfile.write(write_this)
 
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
@@ -1242,6 +1211,10 @@ def run_cryo_fit(logfile, params, inputs):
   if (params.cryo_fit.Options.emweight_multiply_by == None): 
     params.cryo_fit.Options.emweight_multiply_by = 2
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
+  
+  
+  max_emweight_multiply_by = params.cryo_fit.max_emweight_multiply_by
+  
   
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
@@ -1533,7 +1506,7 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record_full_renumbered")
       
       if (user_s_cc == ''):
-        print_this = "\tcryo_fit cannot calculate cc with a user input pdb file and map file.\n\tcc_record is not found.\n\tPlease contact doonam.kim@gmail.com"
+        print_this = "\n\tcryo_fit cannot calculate cc with a user input pdb file and map file.\n\n\tcc_record is not found.\n\tPlease contact doonam.kim@gmail.com\n"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed

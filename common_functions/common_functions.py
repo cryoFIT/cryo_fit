@@ -693,6 +693,7 @@ def get_fc(complete_set, xray_structure):
     xray_structure=xray_structure).f_calc()
   return f_calc
 
+
 def get_fft_map(map_coeffs=None):
     from cctbx import maptbx
     from cctbx.maptbx import crystal_gridding
@@ -702,6 +703,12 @@ def get_fft_map(map_coeffs=None):
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded().as_double()
 ########### end of get_fft_map function
+
+
+def get_release_tag():
+  release_tag = os.environ.get("PHENIX_RELEASE_TAG", None)
+  return release_tag
+########### end of def get_release_tag():
 
 
 # not used for now, but will be used in future
@@ -737,6 +744,18 @@ def get_users_cc(cc_record):
     print "\tThe first cc in this cc_record: ", cc
     return cc
 ################ end of get_users_cc(cc_record)
+
+
+def get_version():
+    version = os.environ.get("PHENIX_VERSION", None)
+    if (version is None):
+      tag_file = libtbx.env.under_dist("libtbx", "../TAG")
+      if (os.path.isfile(tag_file)):
+        try: version = open(tag_file).read().strip()
+        except KeyboardInterrupt: raise
+        except: pass
+    return version
+############# end of def get_version():
 
 
 def id_shell():
@@ -1078,6 +1097,17 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
 ################ end of mrc_to_sit(map_file_name)
 
 
+def print_author():
+  version = get_version()
+  release_tag = get_release_tag()
+  print """\
+ %s
+  cryo_fit %s 
+    - Doo Nam Kim, Nigel Moriarty, Serdal Kirmizialtin, Billy Poon, Karissa Sanbonmatsu
+ %s""" % ("-"*78, version, "-"*78)
+########## end of print_author()
+
+
 def remake_and_move_to_this_folder(starting_dir, this_folder):
   if (os.path.isdir(this_folder) == True):
       shutil.rmtree(this_folder)
@@ -1256,6 +1286,17 @@ def shorten_file_name_if_needed(model_file_without_pathways):
 ################# end of shorten_file_name_if_needed
 
 
+def show_header(title):
+  print "\n"
+  multiply_asterisk = 95
+  print '#'*multiply_asterisk
+  number_of_remaining_sharp = multiply_asterisk - len(title)
+  put_this_number_of_sharp = int(int(number_of_remaining_sharp)/2)
+  print '#'*(put_this_number_of_sharp-1) + " " + title + " " + '#'*(put_this_number_of_sharp-1)
+  print '#'*multiply_asterisk
+########### end of show_header function
+
+
 def show_time(time_start, time_end):
     time_took = 0 # temporary of course
     if (round((time_end-time_start)/60, 1) < 1):
@@ -1331,7 +1372,6 @@ def translate_pdb_file_by_xyz(input_pdb_file_name, move_x_by, move_y_by, move_z_
     f_out.close()
     return output_pdb_file_name   
 ########### end of translate_pdb_file_by_xyz ()
-
 
 
 def write_for_cryo_fit_mdp(fout, fin, emsteps, time_step_for_cryo_fit, number_of_steps_for_cryo_fit, \
