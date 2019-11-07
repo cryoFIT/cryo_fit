@@ -1,0 +1,99 @@
+;Run control: A leap-frog algorithm for integrating Newton's equations.
+integrator               = sd
+; time step in femtoseconds
+dt                       = 0.002
+; 0.005 causes problem
+; number of steps
+nsteps                   = 10000
+; frequency to write coordinates to output trajectory file
+nstxout                  = 100
+; frequency to write velocities to output trajectory file
+nstvout                  = 100000
+; frequency to write energies to log file
+nstlog                   = 100
+; frequency to write energies to energy file
+nstenergy                = 1000
+; frequency to write coordinates to xtc trajectory
+nstxtcout                = 100
+;NOTE:  Group name "system" is defined if you are NOT using an index file.  If you use an index file, all group references need to be consistent with the names give
+n in the index file.  Our webpage, by default, names the chains "1", "2", ...   You can change these names to whatever you like, just make sure the mdp file uses th
+e same naming scheme.  For more information on group usage, please consult the Gromacs manual.
+; group(s) to write to xtc trajectory
+xtc_grps                 = system
+; group(s) to write to energy file
+energygrps               = system
+; frequency to update the neighbor list (and the long-range forces,
+; when using twin-range cut-off's).
+nstlist                  = 20
+coulombtype              = Cut-off 
+; Make a grid in the box and only check atoms in neighboring grid cells
+; when constructing a new neighbor list every nstlist steps.
+ns_type                  = grid
+; cut-off distance for the short-range neighbor list
+rlist                    = 0.5
+; treatment of electrostatic interactions
+epsilon-rf       = 0 
+rcoulomb                 = 0.5 
+; treatment of van der waals interactions
+rvdw                     = 0.61
+; no periodic boudary conditions in all the directions
+pbc                      = no 
+table-extension          = 2 ; (nm) this must be longer than longest posssible pair interaction.
+; temperature coupling
+;tcoupl          = v-scale
+tc-grps                  = system
+tau_t                    = 0.10
+; the reference temperature during fitting.  We typically use a low temperature (Folding of small proteins often occurs at ~ 120 for these models.)
+ref_t                    = 40.0
+; pressure coupling
+Pcoupl                   = no
+; velocity generation
+gen_vel                  = yes
+gen_temp                 = 100.0
+gen_seed                 = -1 
+; constrain no bonds
+constraints     = h-bonds 
+constraint-algorithm  = lincs
+; Highest order in the expansion of the constraint coupling matrix =
+lincs-order              = 4
+; Lincs will write a warning to the stderr if in one step a bond =
+; rotates over more degrees than =
+lincs-warnangle          = 90
+; when fitting, there is no need for removing the translational/rotational degrees of freedom. In the MDfit code, we have disabled warnings regarding flying ice cub
+es when enabling the MDfit algorithms.
+comm_mode                = none
+; MDFIT-SPECIFIC TERMS
+; emsteps is the number of integration steps between re-evaluation of the simulated map and forces.
+emsteps                  = 1000
+; emweight is the energetic weight of the em term.  Since the total stabilizing energy in an all-atom SBM is set to the number of atoms, we typically give a weight 
+that is 1-2 times the overall stabilizing energy.  Here, AKE has 22k atoms, so we will use a weight of 44k. 
+emweight                 = 88000
+; when generating a simulated map, emsigma is the width of the gaussian function used for each atom.  We use 0.5 nm for All-atom models.  If fitting a CA model, you
+ may want to increase this value.
+emsigma                  = 0.5
+; emcutoff indicates the value at which the Gaussian expansion of each atom is truncated to zero.  emcutoff is provided as a fraction of the maximum value.  emcutof
+f=0.01 means indicates that when the Gaussian function is at 1% of the maximum value, the function is set to zero.
+emcutoff                 = 0.0001
+; emthresh is the value of that the experimental map will be truncated to.  All voxel values below emthresh will be set to 0
+emthresh                 = 0.0
+; emffgrps is the group(s) of atoms used during fitting.  Here, we select all atoms in the system. 
+emffgrps                 = system 
+; emwritefrequency is the frequency with which the simulated maps are written to file.  Warning: This can cause for extremely large amounts of data to be written.  
+;-1 turns off writing of the densities
+emwritefrequency                 = 1000000
+;Restraints
+define = -DDISRES
+disre           = simple
+disre_weighting = equal
+disre_mixed     = no  
+disre_fc        = 400
+disre_tau       = 0
+;freezegrps = OPEND
+;freezedim = Y Y Y
+;energygrps_excl     =  OPEND OPEND OPEND RNA
+;avoids calculating nb interactions between ENDS and ENDS, ENDS and RNA
+; Simulated annealing
+annealing = periodic
+annealing_npoints = 6
+annealing_time = 0 50 100 150 200 250
+annealing_temp = 800 400 200 100 50 0.004

@@ -1029,7 +1029,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
   command_string = "python extract_3_highest_cc_gro.py " + str(this_is_test_for_each_step) + " " + str(cryo_fit_path) + " " + str(no_rerun)
   libtbx.easy_run.call(command_string)
   write_this = "\t" + command_string + "\n\n"
-  logfile.write(write_this)
+  #logfile.write(write_this)
   print "\tcommand: ", write_this
   
 
@@ -1109,9 +1109,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     for pdb in glob.glob("*.pdb"):
       returned = check_whether_the_step_was_successfully_ran("Step final", pdb, logfile)
       break
-      # returned = check_whether_the_step_was_successfully_ran("Step final", "cc_record_full_renumbered", logfile)
-      # --> sometimes misclassified as success run although it failed to convert to pdb file
-  
+      
   print_this = "\n\tOutputs are in \"output\" folder"
   print print_this
   logfile.write(print_this)
@@ -1135,7 +1133,6 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
     
     logfile.close()
     return "failed"
-    #exit(1) # even when step final failed, whole regression test appear as success
   
   for py in glob.glob("*.py"): # most users will not need *.py
     run_this = "rm " + py
@@ -1204,10 +1201,10 @@ def run_cryo_fit(logfile, params, inputs):
     cryo_fit_path = mdrun_path
   print "\tcryo_fit_path:",cryo_fit_path
   
-  write_this = "Initial emweight_multiply_by = " + str(params.cryo_fit.Options.emweight_multiply_by) + "\n"
+  write_this = "Initial emweight_multiply_by = " + str(params.cryo_fit.Options.emweight_multiply_by) + "\n\n"
   logfile.write(write_this)
   
-  write_this = "Step 0: Prepare to run cryo_fit"
+  write_this = "Step 0 Prepare to run cryo_fit\n"
   logfile.write(write_this)
   show_header(write_this)
 
