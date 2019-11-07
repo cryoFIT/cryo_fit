@@ -260,22 +260,6 @@ master_params = master_params_str
 master_phil = phil.parse(master_params_str, process_includes=True)
 # This sentence works before main function
 
-'''
-def end_regression(starting_dir,write_this):
-  print "end regression (both for each step and all steps)"
-  os.chdir (starting_dir)
-  print write_this
-  
-  if (os.path.isfile("cc_record_full") == True):
-    rm_command_string = "rm cryo_fit* cc_record_full"
-  else:
-    rm_command_string = "rm cryo_fit*"
-  libtbx.easy_run.fully_buffered(rm_command_string)
-  
-  exit(1)
-########## end of end_regression
-'''
-
 
 def validate_params(params): # validation for GUI
   # check if file type is OK
@@ -821,7 +805,7 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
 
 def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
        map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight, \
-       model_file_without_pathways, cryo_fit_path):
+       model_file_without_pathways, cryo_fit_path, initial_cc_wo_min):
   show_header("Step 8: Run cryo_fit")
   print "\tmap_file_with_pathways:",map_file_with_pathways
 
@@ -880,6 +864,9 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
   
   command_string = "cat md.log | grep correlation >> ../../cc_record_full"
   libtbx.easy_run.fully_buffered(command_string)
+  
+  if (initial_cc_wo_min == True):
+    return "initial_cc_wo_min"
   
   if (this_is_test_for_each_step == True):
     return "test_for_each_step"
@@ -1151,7 +1138,6 @@ def step_9(command_path, starting_dir):
 '''
 
 
-
 def run_cryo_fit(logfile, params, inputs):
   mdrun_path = check_whether_mdrun_is_accessible()
   cryo_fit_path = ''
@@ -1212,9 +1198,7 @@ def run_cryo_fit(logfile, params, inputs):
     params.cryo_fit.Options.emweight_multiply_by = 2
   emweight_multiply_by = params.cryo_fit.Options.emweight_multiply_by
   
-  
   max_emweight_multiply_by = params.cryo_fit.max_emweight_multiply_by
-  
   
   emwritefrequency = params.cryo_fit.Options.emwritefrequency
   no_rerun = params.cryo_fit.Options.no_rerun
@@ -1488,11 +1472,13 @@ def run_cryo_fit(logfile, params, inputs):
     if (steps_list[7] == True):
       results_of_step_8 = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
-             re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path)
+             re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path, initial_cc_wo_min)
 
+      if (results_of_step_8 == "initial_cc_wo_min"):
+        return "initial_cc_wo_min"
+      
       if (results_of_step_8 == "test_for_each_step"): # this is a test for each step
         end_regression(starting_dir, "This is a test for each step, so break early of this step 7 & 8 loop")
-      
       
       ################### (begin) check user_s_cc sanity
       user_s_cc = ''
@@ -1831,6 +1817,9 @@ def cmd_run(args, validated=False, out=sys.stdout):
   logfile = open(log_file_name, "a+") # append
   logfile.write(write_this)
   logfile.close()
+  
+  if (results_of_cryo_fit == "initial_cc_wo_min"):
+    exit(1)
   
   if (results_of_cryo_fit == "failed") or (results_of_cryo_fit == "re_run_w_smaller_MD_time_step"): # errored
     exit(1)
