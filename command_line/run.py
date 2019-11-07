@@ -60,9 +60,9 @@ Usage example with step 7~8 only
     - phenix.cryo_fit GTPase_activation_center.pdb GTPase_activation_center.map step_1=False step_2=False step_3=False step_4=False step_5=False step_6=False
     
 Most useful options (GUI has more explanation about these):
+    - emweight_multiply_by
     - number_of_cores_to_use
     - number_of_steps_for_minimization
-    - map_weight_multiply
     - number_of_steps_for_cryo_fit
 """
 
