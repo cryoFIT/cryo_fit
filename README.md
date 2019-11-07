@@ -1,6 +1,9 @@
 # cryo_fit
 
-- Visit https://phenix-online.org/documentation/reference/cryo_fit.html for documentation (or <phenix path>/doc/reference/cryo_fit.html for the latest documentation).
+- Visit https://phenix-online.org/documentation/reference/cryo_fit.html for documentation 
+
+(or <phenix path>/doc/reference/cryo_fit.html if a user has the latest PHENIX version).
+
 
 - To dos by developers:
 * Allow to calculate electrostatic interaction as well

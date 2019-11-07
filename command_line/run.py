@@ -62,7 +62,7 @@ Usage example with step 7~8 only
 Most useful options (GUI has more explanation about these):
     - number_of_cores_to_use
     - number_of_steps_for_minimization
-    - emweight_multiply_by
+    - map_weight_multiply
     - number_of_steps_for_cryo_fit
 """
 
