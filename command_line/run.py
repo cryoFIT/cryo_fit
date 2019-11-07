@@ -840,7 +840,6 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
   libtbx.easy_run.fully_buffered(command_string) 
   end_make_tpr = time.time()
   
-  
   if (this_is_test_for_each_step == True):
     return True
   returned = check_whether_the_step_was_successfully_ran("Step 7", "for_cryo_fit.tpr", logfile)
@@ -924,13 +923,21 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     print write_this
     logfile.write(write_this)
     
-    write_this = "\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
+    write_this = "\nVisit https://phenix-online.org/documentation/faqs/cryo_fit_FAQ.html (or <PHENIX path>/doc/faqs/cryo_fit_FAQ.html if a user has the latest PHENIX version)."
     print write_this
     logfile.write(write_this)
     
     if (returned == "failed_with_nan_in_cc"):
+      write_this = "\ncc_record file has nan."
+      print write_this
+      logfile.write(write_this)
       return "failed_with_nan_in_cc"
     
+    elif (returned == "0_size"):
+      write_this = "\n\tcc_record file has 0 size."
+      print write_this
+      logfile.write(write_this)
+      
     searched = search_charge_in_md_log()
     if searched == 0: # no "charge group... " message in md.log
       return "failed"
@@ -1211,6 +1218,9 @@ def run_cryo_fit(logfile, params, inputs):
   starting_dir = os.getcwd()
   print "\tCurrent working directory: %s" % starting_dir
 
+  if (os.path.isfile("cc_record_full") == True):
+    os.remove("cc_record_full")
+    
   bool_step_1 = params.cryo_fit.Steps.step_1
   bool_step_2 = params.cryo_fit.Steps.step_2
   bool_step_3 = params.cryo_fit.Steps.step_3
@@ -1523,7 +1533,7 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record_full_renumbered")
       
       if (user_s_cc == ''):
-        print_this = "cryo_fit cannot calculate CC with a user input pdb file and map file. \ncc_record is not found. \n Please contact doonam.kim@gmail.com"
+        print_this = "\tcryo_fit cannot calculate cc with a user input pdb file and map file.\n\tcc_record is not found.\n\tPlease contact doonam.kim@gmail.com"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1531,7 +1541,7 @@ def run_cryo_fit(logfile, params, inputs):
       try:
         user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is still '' -> "ValueError: could not convert string to float:"
       except:
-        print_this = "cryo_fit cannot calculate cc with a user input pdb file and map file. Please contact doonam.kim@gmail.com"
+        print_this = "\tcryo_fit cannot calculate cc with a user input pdb file and map file.\nPlease contact doonam.kim@gmail.com"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1540,12 +1550,15 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\nA user's provided input pdb file has less than 0.0001 cc\n"
         print write_this
         logfile.write(write_this)
+        
         write_this = "Please read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
         print write_this
         logfile.write(write_this)
+        
         write_this = "Sleep 10,000 seconds, so that this error is recognized instantly \n"
         print write_this
         logfile.write(write_this)
+        
         write_this = "Exit cryo_fit by ctrl+C \n"
         print write_this
         logfile.write(write_this)
@@ -1556,12 +1569,18 @@ def run_cryo_fit(logfile, params, inputs):
         write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
         print write_this
         logfile.write(write_this)
+        
         write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html\n"
         print write_this
         logfile.write(write_this)
+        
         return "failed" # flat fail
       
-      if (results_of_step_8 == "failed"): # flat fail
+      elif (results_of_step_8 == "failed"): # flat fail
+        write_this = "\n\tStep 8 failed without helpful error message. For example, gromacs may have generated \"Segmentation fault: 11\"\n"
+        print write_this
+        logfile.write(write_this)
+        
         return "failed"
         # For a small peptide, this error was possible "The initial cell size (0.392390) is smaller than the cell size limit (0.421512), change options -dd, -rdd or -rcon, see the log file for details
 
@@ -1757,7 +1776,7 @@ def cmd_run(args, validated=False, out=sys.stdout):
   log.register("stdout", out)
   
   log_file_name = "cryo_fit.overall_log"
-  logfile = open(log_file_name, "w")
+  logfile = open(log_file_name, "w") # since it is not "a", I expect that it will write from the empty state.
   logfile.write("Overall log of cryo_fit\n\n")
   log.register("logfile", logfile)
   

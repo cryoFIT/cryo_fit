@@ -125,18 +125,17 @@ def check_first_cc(cc_record):
 
 
 def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
-  print "\tCheck_whether_cc_has_been_increased"
+  print "\tCryo_fit will check whether cc has been increased.\n"
   
   ################## (begin) Judge whether this is the very first run of step_8
   f_in = open(cc_record)
-  last_cc = ''
+  step_number = ''
   for line in f_in:
     splited = line.split(" ")
-    cc = splited[1]
-    last_cc = cc
+    step_number = splited[1]
   f_in.close()
   
-  if (int(last_cc) == 10000):
+  if (int(step_number) == 10000):
     write_this = "\tProbably this is the very first run of step_8.\n\tVery first run of step_8 may have cc fluctuating first few steps.\n\tTherefore, cryo_fit will run longer.\n"
     print write_this
     logfile.write(str(write_this))
@@ -151,8 +150,8 @@ def check_whether_cc_has_been_increased(logfile, cc_record, this_is_test):
     splited = line.split(" ")
     cc = splited[4]
     if (float(cc) < 0.0001):
-      print "\t\tcc: " + cc + " < 0.0001"
-      print "\t\tExit now, since further cc will be 0.000 as well\n"
+      print "\tcc: " + cc + " < 0.0001"
+      print "\tExit now, since further cc will be 0.000 as well\n"
       exit(1)
     cc_array.append(cc)
   f_in.close()
@@ -384,10 +383,10 @@ def check_whether_mdrun_is_accessible():
             print "\tUser's mdrun executable comes from ", mdrun_path
             return mdrun_path
         else:
-            #print long_message
+            print long_message
             return False
     except:
-        #print long_message
+        print long_message
         return False
 ######################## end of check_whether_mdrun_is_accessible()
 
@@ -426,6 +425,8 @@ def check_whether_the_step_was_successfully_ran(step_name, check_this_file, logf
             else: # step 8 again
                 print step_name, " may have successfully ran" # "state.cpt not found, step_8 may be full of stepxb_nx.pdb."
             return "success"
+        else:
+            return "0_size"
     print step_name, " didn't successfully run"
     if (step_name == "Step 4" or step_name == "Step 7" or step_name == "Step 8"):
       return "failed"
@@ -727,7 +728,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 
 
 def get_users_cc(cc_record):
-  print "\tGet the first cc in this cc_record/"
+  print "\tGet the first cc in this cc_record."
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")
@@ -1220,7 +1221,7 @@ def search_charge_in_md_log():
   if (returned_file_size > 0):
     print "\tStep 8 (run cryo_fit) failed because of \"A charge group moved too far between two domain decomposition steps\" message in md.log"
     return 1 # found "charge group..."
-  print "\t\"A charge group moved too far between two domain decomposition steps\" not found in md.log"
+  print "\n\t\"A charge group moved too far between two domain decomposition steps\" not found in md.log"
   return 0 # not found "charge group..."
 ################# end of search_charge_in_md_log function
 
