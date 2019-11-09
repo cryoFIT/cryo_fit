@@ -401,7 +401,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     this_is_test_for_each_step = True
   
   if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
-      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed. Please see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
       print write_this
       logfile.write(write_this)
       
@@ -1510,22 +1510,22 @@ def run_cryo_fit(logfile, params, inputs):
         print write_this
         logfile.write(write_this)
         
-        write_this = "Please read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n"
+        write_this = "\nPlease read https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#i-see-user-s-provided-atomic-model-had-0-0-cc-in-my-cryo-fit-overall-log\n\n"
         print write_this
         logfile.write(write_this)
         
-        write_this = "Sleep 10,000 seconds, so that this error is recognized instantly \n"
+        write_this = "\nSleep 100,000 seconds, so that this error is recognized instantly.\n"
         print write_this
         logfile.write(write_this)
         
         write_this = "Exit cryo_fit by ctrl+C \n"
         print write_this
         logfile.write(write_this)
-        time.sleep(10000)
+        time.sleep(100000)
       ################ (end) check user_s_cc sanity
 
       if (results_of_step_8 == "failed_with_nan_in_cc"):
-        write_this = "\n\tStep 8 failed with nan error in cc calculation\n"
+        write_this = "\n\tStep 8 failed cc calculation with nan error.\n"
         print write_this
         logfile.write(write_this)
         
@@ -1588,7 +1588,7 @@ def run_cryo_fit(logfile, params, inputs):
           if (emweight_multiply_by == 1):
             many_stepxb = True
             break
-          
+
           # This long 1 line is essential for proper writing into log file
           write_this = 'Maybe emweight_multiply_by (' + str(emweight_multiply_by) + ') is too high.\nTherefore, cryo_fit will divide emweight_multiply_by by 3 (then round, so that emweight_multiply_by becomes ' + str(int(round(emweight_multiply_by/3,0))) + ') and re-run again.\n'
           
@@ -1601,14 +1601,14 @@ def run_cryo_fit(logfile, params, inputs):
           
           os.chdir( starting_dir ) # needed for re-running
           continue
-        
+
         if (many_stepxb == True):
           break
-        
+
         shutil.copy("state.cpt", "../..")
-  
+
         charge_group_moved = False # just initial value
-        
+
         number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit + 10000 # do not multiply by float to avoid error during gro file extraction later
         #number_of_steps_for_cryo_fit = number_of_steps_for_cryo_fit * 2 # Karissa seems to be concerned over speed
         #number_of_steps_for_cryo_fit = int(number_of_steps_for_cryo_fit * 1.2) # seems to generate an error sometimes during gro file extraction
@@ -1686,7 +1686,7 @@ def run_cryo_fit(logfile, params, inputs):
     this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                               cryo_fit_path, no_rerun)
     if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
-      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed. Please see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
       print write_this
       logfile.write(write_this)
     
