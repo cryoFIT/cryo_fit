@@ -61,7 +61,7 @@ Usage example with step 7~8 only
     
 Most useful options (GUI has more explanation about these):
     - emweight_multiply_by
-    - number_of_cores_to_use
+    - nproc (number of cores to use)
     - number_of_steps_for_minimization
     - number_of_steps_for_cryo_fit
 """
@@ -230,7 +230,7 @@ ns_type = *grid simple
   .short_caption = Method to determine neighbor list (simple, grid) during minimization
   .help = "Grid" is needed for domain decomposition (dd) for faster execution and ran well with GTPase_activation_center, \
           beta-galactosidase, and nucleosome, but "simple" was needed for trouble-shooting of 80S ribosome.
-number_of_cores_to_use = 2 4 8 12 16 24 32 *max
+nproc = 2 4 8 12 16 24 32 *max
   .type = choice
   .short_caption = Number of cores to use for minimization and cryo_fit
   .help = Specify number of cores for minimization and cryo_fit. \
@@ -238,7 +238,7 @@ number_of_cores_to_use = 2 4 8 12 16 24 32 *max
 perturb_xyz_by = 0.05
   .type = float
   .short_caption = perturb xyz coordinates of 0,0,0 atoms by this much after gromacs' pdb2gmx
-  .help = This exists for troubleshooting
+  .help = This option exists for troubleshooting
 remove_metals    = True
   .type          = bool
   .short_caption = If true, remove MG and ZN during cleaning before pdb2gmx
@@ -556,7 +556,7 @@ def step_3(logfile, command_path, starting_dir, ns_type, restraint_algorithm_min
 
 
 def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cores, \
-           number_of_cores_to_use, model_file_without_pathways, cryo_fit_path):
+           nproc, model_file_without_pathways, cryo_fit_path):
   show_header("Step 4: Minimize a gro file (to prevent \"blowup\" during Molecular Dynamics Simulation)")
   os.chdir (starting_dir)
   
@@ -579,7 +579,7 @@ def step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cor
   # when there are both mpi and thread cryo_fit exist, thread cryo_fit was used in commandline mode
   command_string = "python runme_minimize.py to_minimize.tpr " + str(command_path) + " " + \
                 str(ns_type) + " " + str(number_of_available_cores) + " " + str(2) + " " + str(cryo_fit_path)
-              # set number_of_cores_to_use = 2 to minimize a possibility of having cell size error
+              # set nproc = 2 to minimize a possibility of having cell size error
   print "\tcommand: ", command_string
   print "\n\tA user can check progress of minimization at ", starting_dir + "/steps/4_minimize\n"
   start = time.time()
@@ -803,7 +803,7 @@ def step_7(logfile, command_path, starting_dir, number_of_steps_for_cryo_fit, em
 ########################### end of step_7 (make tpr for cryo_fit) function        
 
 
-def step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, \
+def step_8(logfile, command_path, starting_dir, number_of_available_cores, nproc, \
        map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, re_run_with_higher_map_weight, \
        model_file_without_pathways, cryo_fit_path, initial_cc_wo_min):
   show_header("Step 8: Run cryo_fit")
@@ -823,7 +823,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, numbe
     this_is_test_for_each_step = True  
 
   command_string = "python runme_cryo_fit.py " + str(command_path) + " " + str(number_of_available_cores) \
-              + " " + number_of_cores_to_use + " " + map_file_with_pathways + " " + str(starting_dir) \
+              + " " + nproc + " " + map_file_with_pathways + " " + str(starting_dir) \
               + " " + str(this_is_test_for_each_step) + " " + str(restart_w_longer_steps) + " " + str(cryo_fit_path)
   print "\n\tcommand: ", command_string
   print "\n\tA user can check progress of step_8 at ", starting_dir + "/steps/8_cryo_fit\n"
@@ -1228,7 +1228,7 @@ def run_cryo_fit(logfile, params, inputs):
   lincs_order = params.cryo_fit.lincs_order
   missing = params.cryo_fit.missing
   ns_type = params.cryo_fit.ns_type
-  number_of_cores_to_use = params.cryo_fit.number_of_cores_to_use
+  nproc = params.cryo_fit.nproc
   perturb_xyz_by = params.cryo_fit.perturb_xyz_by
   remove_metals = params.cryo_fit.remove_metals
   many_step_____n__dot_pdb = params.cryo_fit.many_step_____n__dot_pdb
@@ -1260,13 +1260,13 @@ def run_cryo_fit(logfile, params, inputs):
     
   if (initial_cc_wo_min == True):
     no_rerun = True
-    number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
+    nproc = str(2) # because of option choice above, it should be assigned as string
     number_of_steps_for_minimization = 0
     number_of_steps_for_cryo_fit = 100
   
   if (initial_cc_w_min == True):
     no_rerun = True
-    number_of_cores_to_use = str(2) # because of option choice above, it should be assigned as string
+    nproc = str(2) # because of option choice above, it should be assigned as string
     number_of_steps_for_cryo_fit = 100
   
   
@@ -1346,7 +1346,7 @@ def run_cryo_fit(logfile, params, inputs):
       
     if (steps_list[3] == True):
       this_is_test_for_each_step = step_4(logfile, command_path, starting_dir, ns_type, number_of_available_cores, \
-                            number_of_cores_to_use, model_file_without_pathways, cryo_fit_path)
+                            nproc, model_file_without_pathways, cryo_fit_path)
       write_this = "Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n"
       if (this_is_test_for_each_step == True):
         end_regression(starting_dir, write_this)
@@ -1363,7 +1363,7 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write(write_this)
       
     if (steps_list[3] == True):
-      this_is_test_for_each_step = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
+      this_is_test_for_each_step = step_4(command_path, starting_dir, ns_type, number_of_available_cores, nproc, \
              model_file_without_pathways, cryo_fit_path)
       write_this = "Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n"
       if (this_is_test_for_each_step == True):
@@ -1387,7 +1387,7 @@ def run_cryo_fit(logfile, params, inputs):
         logfile.write(write_this)
     
     if (steps_list[3] == True):
-      this_is_test_for_each_step = step_4(command_path, starting_dir, ns_type, number_of_available_cores, number_of_cores_to_use, \
+      this_is_test_for_each_step = step_4(command_path, starting_dir, ns_type, number_of_available_cores, nproc, \
              model_file_without_pathways, cryo_fit_path)
       write_this = "Step 4 (Minimize a gro file (to prevent \"blowup\" during MD Simulation)) is successfully ran\n"
       if (this_is_test_for_each_step == True):
@@ -1470,7 +1470,7 @@ def run_cryo_fit(logfile, params, inputs):
 
       
     if (steps_list[7] == True):
-      results_of_step_8 = step_8(logfile, command_path, starting_dir, number_of_available_cores, number_of_cores_to_use, 
+      results_of_step_8 = step_8(logfile, command_path, starting_dir, number_of_available_cores, nproc, 
              map_file_with_pathways, no_rerun, devel, restart_w_longer_steps, \
              re_run_with_higher_map_weight, model_file_without_pathways, cryo_fit_path, initial_cc_wo_min)
 

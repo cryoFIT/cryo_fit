@@ -563,7 +563,7 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
 #### end of determine_number_of_steps_for_minimization function
 
 
-def decide_number_of_cores_to_use(check_at_each_step):
+def decide_nproc(check_at_each_step):
     number_of_total_cores = know_total_number_of_cores()
     color_print ("User's computer has ", 'green')
     print number_of_total_cores
@@ -579,7 +579,7 @@ def decide_number_of_cores_to_use(check_at_each_step):
         else:
             cores = 2
     return cores
-####### end of decide_number_of_cores_to_use function
+####### end of decide_nproc function
 
 
 def end_regression(starting_dir, write_this):
@@ -612,10 +612,10 @@ def file_size(fname):
 ######## end of file_size(fname)
 
 
-def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, \
+def final_prepare_cryo_fit(number_of_available_cores, nproc, \
                            common_command_string, restart_w_longer_steps):
     command_used = '' #just initial value
-    if (number_of_cores_to_use == "max"):
+    if (nproc == "max"):
         if (number_of_available_cores < 4):
             command_used = run_cryo_fit_itself(2, common_command_string, restart_w_longer_steps)
         elif (number_of_available_cores < 8):
@@ -627,14 +627,14 @@ def final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, \
         else: # ribosome benchmark showed that maximum useful number of cores is 16
             command_used = run_cryo_fit_itself(16, common_command_string, restart_w_longer_steps)
     else:
-        command_used = run_cryo_fit_itself(int(number_of_cores_to_use), common_command_string, restart_w_longer_steps)
+        command_used = run_cryo_fit_itself(int(nproc), common_command_string, restart_w_longer_steps)
     return command_used
 ######## end of final_prepare_cryo_fit function
 
 
-def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use, common_command_string):
+def final_prepare_minimization(ns_type, number_of_available_cores, nproc, common_command_string):
     command_used = '' #just initial value
-    if (number_of_cores_to_use == "max"):
+    if (nproc == "max"):
         if (number_of_available_cores < 4):
             command_used = minimize(2, ns_type, common_command_string)
         elif (number_of_available_cores < 8):
@@ -646,12 +646,12 @@ def final_prepare_minimization(ns_type, number_of_available_cores, number_of_cor
         else: # ribosome benchmark showed that maximum useful number of cores is 16
             command_used = minimize(16, ns_type, common_command_string)
     else:
-        command_used = minimize(int(number_of_cores_to_use), ns_type, common_command_string)
+        command_used = minimize(int(nproc), ns_type, common_command_string)
     return command_used
 #################### end of final_prepare_minimization function
 
 
-def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, target_map, restart_w_longer_steps, cryo_fit_path):
+def first_prepare_cryo_fit(number_of_available_cores, nproc, target_map, restart_w_longer_steps, cryo_fit_path):
     
     common_command_string = cryo_fit_path + "mdrun -v -s for_cryo_fit.tpr -mmff -emf " + \
                             target_map + " -nosum  -noddcheck "
@@ -671,16 +671,16 @@ def first_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, ta
                             #           for the domain decomposition cell sizes. By default -rdd is determined by mdrun based on the initial coordinates. \
                             #           The chosen value will be a balance between interaction range and communication cost.
             
-    command_used = final_prepare_cryo_fit(number_of_available_cores, number_of_cores_to_use, common_command_string, restart_w_longer_steps)
+    command_used = final_prepare_cryo_fit(number_of_available_cores, nproc, common_command_string, restart_w_longer_steps)
     command_used = command_used + "\n"    
     return command_used
 ####################### end of first_prepare_cryo_fit function
 
 
 def first_prepare_minimization(ns_type, number_of_available_cores, \
-                                   number_of_cores_to_use, cryo_fit_path):
+                                   nproc, cryo_fit_path):
     common_command_string = cryo_fit_path + "mdrun -v -s to_minimize.tpr -c minimized.gro "    
-    command_used = final_prepare_minimization(ns_type, number_of_available_cores, number_of_cores_to_use,\
+    command_used = final_prepare_minimization(ns_type, number_of_available_cores, nproc,\
                                                                common_command_string)
         
     command_used = command_used + "\n"    

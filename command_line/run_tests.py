@@ -130,6 +130,7 @@ if (__name__ == "__main__") :
     time_start = time.time()
     
     command_string = "python tst_emd_8249_10_AA_restart.py" % locals()
+    
     rc4 = libtbx.easy_run.call(command=command_string)
     assert rc4==0
     

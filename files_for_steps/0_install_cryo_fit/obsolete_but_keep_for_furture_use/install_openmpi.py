@@ -229,7 +229,7 @@ def install_openmpi(openmpi_tar_gz, check_at_each_step):
     configure_openmpi(home_bin_openmpi_dir)
 
     start_time_install = time.time()
-    cores = decide_number_of_cores_to_use(check_at_each_step)
+    cores = decide_nproc(check_at_each_step)
     command_string = "make -j " + cores + " all install"
     color_print ("command: ", 'green')
     print command_string

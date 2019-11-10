@@ -34,11 +34,21 @@ def run():
         cmd = "rm aim_this_step_when_restart.txt"
         easy_run.call(cmd)
     
-    cmd = " ".join([
+    #"Fatal error: Step 9360: The domain decomposition grid has shifted too much in the Y-direction around cell 1 1 0"
+    '''cmd = " ".join([
       "phenix.cryo_fit",
       "data/regression_pdb5khe_10_AA.pdb",
       "data/regression_pdb5khe_10_AA.ccp4"
       ])
+    '''
+      
+    cmd = " ".join([
+      "phenix.cryo_fit",
+      "data/regression_pdb5khe_10_AA.pdb",
+      "data/regression_pdb5khe_10_AA.ccp4",
+      'nproc=2'
+      ])
+      
     print cmd
     easy_run.call(cmd)
   

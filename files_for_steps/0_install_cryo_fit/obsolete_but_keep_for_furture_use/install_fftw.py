@@ -171,12 +171,12 @@ def install_fftw(fftw_tar_gz):
     if (dir_that_gcc_6_was_already_installed_at == False):
         print "Your computer can't find gcc-6 (Serdal's macbook uses gcc-6)."
         print "Your computer may use /usr/bin/gcc instead (Doonam's macbook uses gcc and had no problem)"
-        cores = decide_number_of_cores_to_use(1)
+        cores = decide_nproc(1)
         
         command_script = "make -j " + cores
     else: # reference: https://stackoverflow.com/questions/39548840/issue-compiling-fftw
         print "Your installed gcc-6 is at ", dir_that_gcc_6_was_already_installed_at
-        cores = decide_number_of_cores_to_use(1)
+        cores = decide_nproc(1)
         splited = dir_that_gcc_6_was_already_installed_at.split("\n")
         command_script = "OMPI_CC=" + str(splited[0]) + " make -j " + cores
 

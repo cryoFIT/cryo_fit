@@ -353,7 +353,7 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   ################### Make ###################
   core_numbers_to_use = ''
   if (str(enter_all) != "True"):
-    core_numbers_to_use = decide_number_of_cores_to_use(1)
+    core_numbers_to_use = decide_nproc(1)
   else:
     core_numbers_to_use = 3
   
