@@ -361,7 +361,7 @@ def check_whether_install_is_done(check_this_file_w_path):
 
 
 def check_whether_mdrun_is_accessible():
-    '''
+    #''' # (11/11/2019) even when mdrun is accessible, still this long_message should be defined to avoid error in GUI
     long_message  = """
         cryo_fit can't find a gromacs executable (e.g. mdrun)
         
@@ -371,7 +371,7 @@ def check_whether_mdrun_is_accessible():
         For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
         add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
         """
-    '''
+    #'''
     try:
         path = subprocess.check_output(["which", "mdrun"])
         splited = path.split("/")
