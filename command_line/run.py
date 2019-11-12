@@ -85,7 +85,7 @@ Input{
   cryo_fit_path = None
     .type = path
     .short_caption = gromacs_cryo_fit executable path
-    .help = Path that has gromacs_cryo_fit executables (such as mdrun). For example, /Users/doonam/bin/cryo_fit/bin
+    .help = A path that has gromacs_cryo_fit executables (such as mdrun). For example, /Users/doonam/bin/cryo_fit/bin
     .style = bold directory
 }
 Steps
@@ -263,8 +263,12 @@ master_phil = phil.parse(master_params_str, process_includes=True)
 
 def validate_params(params): # validation for GUI
   # check if file type is OK
+  
   #if (params.cryo_fit.Input.cryo_fit_path is None):
   #  raise Sorry("cryo_fit_path should be given, please install gromacs_cryo_fit")
+  # 11/11/2019, if these are uncommented, GUI without bin folder specification just hangs
+  # 11/11/2019, if these are commented, commandline running errored.
+  
   if (params.cryo_fit.Input.map_file_name is None):
     raise Sorry("Map file should be given")
   if (params.cryo_fit.Input.model_file_name is None):
@@ -826,7 +830,7 @@ def step_8(logfile, command_path, starting_dir, number_of_available_cores, nproc
               + " " + nproc + " " + map_file_with_pathways + " " + str(starting_dir) \
               + " " + str(this_is_test_for_each_step) + " " + str(restart_w_longer_steps) + " " + str(cryo_fit_path)
   print "\n\tcommand: ", command_string
-  print "\n\tA user can check progress of step_8 at ", starting_dir + "/steps/8_cryo_fit\n"
+  print "\n\tA user can check progress of step_8 at ", starting_dir + "/steps/8_cryo_fit/md.log\n"
   time_start_cryo_fit = time.time()
   libtbx.easy_run.call(command_string)
   time_end_cryo_fit = time.time()
@@ -1139,26 +1143,37 @@ def step_9(command_path, starting_dir):
 
 
 def run_cryo_fit(logfile, params, inputs):
-  mdrun_path = check_whether_mdrun_is_accessible()
-  cryo_fit_path = ''
-  if (mdrun_path == False):
-    if (params.cryo_fit.Input.cryo_fit_path != None):
-      cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
-      cryo_fit_path = cryo_fit_path + "/" # for later steps
-    else:
-      long_message  = """
+  # (11/11/2019) Even when mdrun is accessible, still this long_message should be defined to avoid an error in PHENIX GUI
+  long_message  = """
         cryo_fit can't find a gromacs executable (e.g. mdrun)
         
         If gromacs_cryo_fit is not installed, install it according to http://www.phenix-online.org/documentation/reference/cryo_fit.html
         
-        If gromacs_cryo_fit is installed, source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
-        For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
-        add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
+        If gromacs_cryo_fit is installed, and a user is running cryo_fit with GUI,
+          please specify gromacs_cryo_fit executable path when running.
+        
+        If gromacs_cryo_fit is installed, and a user is running cryo_fit with command_line,
+          source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
+        
+          For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
+          add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
+          
+        Cryo_fit will exit now.
         """
+  mdrun_path = check_whether_mdrun_is_accessible(long_message)
+  cryo_fit_path = ''
+  if (mdrun_path == False):
+    if (params.cryo_fit.Input.cryo_fit_path != None):
+      # seems like a regular path for GUI running
+      cryo_fit_path = params.cryo_fit.Input.cryo_fit_path
+      cryo_fit_path = cryo_fit_path + "/" # for later steps
+    else:
       print long_message
-      print "\texit now"
-      exit(1)
+      logfile.write(long_message)
+      #exit(1) # seems just hangs if a user didn't specify bin path
+      return "failed_since_a_user_did_not_specify_bin_path"
   else:
+    # regular path for command_line running
     cryo_fit_path = mdrun_path
   print "\tcryo_fit_path:",cryo_fit_path
   
@@ -1561,13 +1576,13 @@ def run_cryo_fit(logfile, params, inputs):
           print write_this
           logfile.write(write_this)
           
-          write_this = "Step 8 (cryo_fit itself) is successfully ran\n"
+          write_this = "Step 8 (cryo_fit itself) is successfully ran.\n"
           print write_this
           logfile.write(write_this)
           
           this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, no_rerun) # just to arrange final output
           
-          write_this = "result was re_run_with_longer_steps, but this is a test for each step"
+          write_this = "result was re_run_with_longer_steps, but this is a test for each step."
           if (this_is_test_for_each_step == "failed"):
             exit(1)
           elif (this_is_test_for_each_step == True):
@@ -1709,7 +1724,7 @@ def run_cryo_fit(logfile, params, inputs):
       if "regression_" in model_file_without_pathways: # regression for all steps
         return True
       else: # regular running
-        return results_of_step_8 # it should be cc_record_from_step_8
+        return results_of_step_8 # it should be cc_record from_step_8
 
   # keep for now for this cc draw
   #if (steps_list[8] == True):
@@ -1809,6 +1824,12 @@ def cmd_run(args, validated=False, out=sys.stdout):
   
   results_of_cryo_fit = run_cryo_fit(logfile, working_params, inputs)
   
+  if (results_of_cryo_fit == "failed_since_a_user_did_not_specify_bin_path"):
+    logfile = open(log_file_name, "a+") # append
+    write_this = "failed_since_a_user_did_not_specify_bin_path\n"
+    logfile.write(write_this)
+    return "failed_since_a_user_did_not_specify_bin_path"
+  
   time_total_end = time.time()
   time_took = show_time(time_total_start, time_total_end)
   
@@ -1821,9 +1842,9 @@ def cmd_run(args, validated=False, out=sys.stdout):
   if (results_of_cryo_fit == "initial_cc_wo_min"):
     exit(1)
   
-  if (results_of_cryo_fit == "failed") or (results_of_cryo_fit == "re_run_w_smaller_MD_time_step"): # errored
+  if (results_of_cryo_fit == "failed") or (results_of_cryo_fit == "re_run_w_smaller_MD_time_step"):
     exit(1)
-  
+    
   if (results_of_cryo_fit == True): # regression test for all steps
     end_regression(starting_dir,"end regression for all steps")
   
@@ -1841,6 +1862,10 @@ class launcher (runtime_utils.target_with_save_result) :
     utils.safe_makedirs(self.output_dir)
     os.chdir(self.output_dir)
     result = cmd_run(args=self.args, validated=True, out=sys.stdout)
+    if (result == "failed_since_a_user_did_not_specify_bin_path"):
+      print "failed_since_a_user_did_not_specify_bin_path\n"
+      #exit(1) # seems just hangs
+      return 0
     return result
 # =============================================================================
 

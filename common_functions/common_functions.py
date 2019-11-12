@@ -360,18 +360,7 @@ def check_whether_install_is_done(check_this_file_w_path):
 ######################### end of check_whether_install_is_done()
 
 
-def check_whether_mdrun_is_accessible():
-    #''' # (11/11/2019) even when mdrun is accessible, still this long_message should be defined to avoid error in GUI
-    long_message  = """
-        cryo_fit can't find a gromacs executable (e.g. mdrun)
-        
-        If gromacs_cryo_fit is not installed, install it according to http://www.phenix-online.org/documentation/reference/cryo_fit.html
-        
-        If gromacs_cryo_fit is installed, source ~/.bash_profile or ~/.bashrc or open a new terminal so that cryo_fit path is included
-        For example, if user's executables are installed at /Users/doonam/bin/cryo_fit/bin,
-        add \"export PATH=\"/Users/doonam/bin/cryo_fit/bin\":$PATH" + " to ~/.bash_profile or ~/.bashrc and source it
-        """
-    #'''
+def check_whether_mdrun_is_accessible(long_message):
     try:
         path = subprocess.check_output(["which", "mdrun"])
         splited = path.split("/")
@@ -489,7 +478,7 @@ def cif_as_pdb(file_name):
     except Exception, e:
       print "Error converting %s to PDB format:" %file_name
       print " ", str(e)
-######## end of cif_as_pdb()
+############### end of cif_as_pdb()
 
 
 def color_print(text, color):
@@ -497,7 +486,7 @@ def color_print(text, color):
         print colored (text, color)
     else:
         print text
-###### end of color_print()
+############### end of color_print()
 
 
 def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_file_with_pathways, \
@@ -530,7 +519,7 @@ def determine_number_of_steps_for_cryo_fit(model_file_without_pathways, model_fi
   #number_of_steps_for_cryo_fit = 5000 # this mere 5k is the cause of low (21~29) number of cc evaluations???
   number_of_steps_for_cryo_fit = 10000
   return number_of_steps_for_cryo_fit
-######### end of determine_number_of_steps_for_cryo_fit function
+############### end of determine_number_of_steps_for_cryo_fit function
 
 
 def determine_number_of_steps_for_minimization(model_file_without_pathways, \
@@ -560,7 +549,7 @@ def determine_number_of_steps_for_minimization(model_file_without_pathways, \
   number_of_steps_for_minimization = 20000
   print "\tTherefore, a new number_of_steps for minimization is ", number_of_steps_for_minimization
   return number_of_steps_for_minimization
-#### end of determine_number_of_steps_for_minimization function
+############### end of determine_number_of_steps_for_minimization function
 
 
 def decide_nproc(check_at_each_step):
@@ -579,7 +568,7 @@ def decide_nproc(check_at_each_step):
         else:
             cores = 2
     return cores
-####### end of decide_nproc function
+############### end of decide_nproc function
 
 
 def end_regression(starting_dir, write_this):
