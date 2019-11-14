@@ -724,7 +724,7 @@ ATOM      7  H3  GLY P  -1     -23.828  -2.392  15.027  1.00  0.00           H
 
 
 def get_users_cc(cc_record):
-  print "\tGet the first cc in this cc_record."
+  #print "\tGet the first cc in this cc_record."
   f_in = open(cc_record)
   for line in f_in:
     splited = line.split(" ")
