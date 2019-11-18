@@ -153,12 +153,13 @@ Options
     .type          = int
     .short_caption = Multiply EM weight by this number
     .help = Multiply by this number to the number of atoms for weight for cryo-EM map bias. \
-            Default value is 8 (Paul/Serdal recommended 2, at 2~8, tRNA lost base-pairs according to phenix.secondary_structure_restraints. However, visual inspection shows all good base-pairs.). \
+            Default value is 8 (Paul Whitford/Serdal recommended 2, at 2~8, tRNA lost base-pairs according to phenix.secondary_structure_restraints. However, visual inspection shows all good base-pairs.). \
             For example, emweight = (number of atoms in gro file) x (emweight_multiply_by) \
             The higher the weight, the stronger bias toward EM map rather than MD force field and stereochemistry preserving restraints. \
             If user's map has a better resolution, higher value of emweight_multiply_by is recommended since map has much information. \
             If user's map has have a worse resolution, lower value of emweight_multiply_by is recommended for more likely geometry. \
-            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended.
+            If CC (correlation coefficient) needs to be improved faster, higher number of emweight_multiply_by is recommended.\
+            Doo Nam can't rename this into map_weight_multiply due to "Sorry: Ambiguous parameter definition: map = data/input_for_all/1AKE.density.mrc"
   emwritefrequency = None
     .type          = int
     .short_caption = EM write frequency
