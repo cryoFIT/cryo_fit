@@ -1,0 +1,14 @@
+- To dos by developers:
+
+* Fix so that only the first run of step_8 runs for temporary fluctuation
+* add rmsd calculation from cryo_fit2 to cryo_fit1
+* update add_prefix_chain so that it adds alphabetically
+* I'd better use rigid-body translation/rotation from dock_in_map to solve too low initial cc issue.
+* Use part of modules of dock_in_map for very_low_initial_cc_issue
+* Apply MD force to loops only
+* Update phi/psi
+
+* Allow to calculate electrostatic interaction as well
+* Update cryo_fit so that cryo_fit.overall_log is updated in real time
+* Allow cryo_fit to work with map coefficent (mtz file) as well
+* Add more amber03 forcefield parameters for DDB and ribosome
