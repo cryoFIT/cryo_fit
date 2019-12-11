@@ -322,7 +322,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     
   if (pdb_file_is_cleand != True):
     print "pdb file cleaning is not done, exit now"
-    print "\nPlease email phenixbb@phenix-online.org or doonam.kim@gmail.com for any feature request/help."
+    print "\nPlease email phenixbb@phenix-online.org or doonam.kim@pnnl.gov for any feature request/help."
     exit(1)
     
   cp_command_string = "cp " + command_path + "files_for_steps/1_make_gro/2_runme_make_gro.py ."
@@ -380,7 +380,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     Solution if these residue/atoms are important:\n
     \tFix wrong names of atoms/residues. Running real_space_refine via phenix GUI will show which atoms need to be fixed.
     \tIf gromacs amber03 force field doesn't have parameters for these residue/atoms, you may need to add appropriate parameters.
-    \tIf you added parameters, please email me (doonam.kim@gmail.com), I want to recognize your contribution publicly.
+    \tIf you added parameters, please email me (doonam.kim@pnnl.gov), I want to recognize your contribution publicly.
     \tMost MD simulation force fields do not support all kinds of rare residue/atoms.
     \tcryo_fit2 is under development to address this issue using phenix.eLBOW
     
@@ -394,7 +394,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     logfile.write(print_this)
     logfile.close()
     
-    print "\nEmail phenixbb@phenix-online.org or doonam.kim@gmail.com for any feature request/help."
+    print "\nEmail phenixbb@phenix-online.org or doonam.kim@pnnl.gov for any feature request/help."
     exit(1)
   print "Step 1", (show_time(start, end))
   
@@ -406,7 +406,7 @@ def step_1(logfile, command_path, starting_dir, model_file_with_pathways, model_
     this_is_test_for_each_step = True
   
   if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
-      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@pnnl.gov\n\n"
       print write_this
       logfile.write(write_this)
       
@@ -985,7 +985,7 @@ def step_final(logfile, command_path, starting_dir, model_file_without_pathways,
 
   print "\n\tExtract .gro files from the 3 highest cc values."
   if os.path.isfile("extract_3_highest_cc_gro.py") == False:
-    print "extract_3_highest_cc_gro.py is not found, please email doonam.kim@gmail.com. Cryo_fit will exit now."
+    print "extract_3_highest_cc_gro.py is not found, please email doonam.kim@pnnl.gov. Cryo_fit will exit now."
     exit(1)
 
   logfile.close() # to write user's cc for now
@@ -1508,7 +1508,7 @@ def run_cryo_fit(logfile, params, inputs):
         user_s_cc = check_first_cc("cc_record_full_renumbered")
       
       if (user_s_cc == ''):
-        print_this = "\n\tcryo_fit cannot calculate cc with a user input pdb file and map file.\n\n\tcc_record is not found.\n\tPlease contact doonam.kim@gmail.com\n"
+        print_this = "\n\tcryo_fit cannot calculate cc with a user input pdb file and map file.\n\n\tcc_record is not found.\n\tPlease contact doonam.kim@pnnl.gov\n"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1516,7 +1516,7 @@ def run_cryo_fit(logfile, params, inputs):
       try:
         user_s_cc_rounded = str(round(float(user_s_cc), 3)) # if user_s_cc is still '' -> "ValueError: could not convert string to float:"
       except:
-        print_this = "\tcryo_fit cannot calculate cc with a user input pdb file and map file.\nPlease contact doonam.kim@gmail.com"
+        print_this = "\tcryo_fit cannot calculate cc with a user input pdb file and map file.\nPlease contact doonam.kim@pnnl.gov"
         print print_this
         logfile.write(print_this)
         return "failed" # flatly failed
@@ -1702,7 +1702,7 @@ def run_cryo_fit(logfile, params, inputs):
     this_is_test_for_each_step = step_final(logfile, command_path, starting_dir, model_file_without_pathways, \
                               cryo_fit_path, no_rerun)
     if (os.path.isfile("steps/1_make_gro/prefix_of_chain_ID_removed") == True):
-      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@gmail.com\n\n"
+      write_this = "The 4th character of residue name (prefix_of_chain ID) is removed.\nPlease see https://www.phenix-online.org/documentation/faqs/cryo_fit_FAQ.html#how-can-i-use-double-digit-character-id-pdb-file or email doonam.kim@pnnl.gov\n\n"
       print write_this
       logfile.write(write_this)
     

@@ -109,7 +109,7 @@ def extract_gro(gro_extraction_note_file, cryo_fit_path, nsteps, nsteps_from_sta
     
     users_cc = get_users_cc_from_overall_log("../cryo_fit.overall_log")
     if ((users_cc == '') or (users_cc == None)):
-        write_this = "User's cc can't be retrieved. Please email doonam.kim@gmail.com"
+        write_this = "User's cc can't be retrieved. Please email doonam.kim@pnnl.gov"
         print write_this
         gro_extraction_note_file.write(write_this)
         return "no_user_cc"
@@ -265,7 +265,7 @@ if (__name__ == "__main__") :
             if (os.path.isfile("cc_record_adjusted_step_use_for_extraction") == False):
                 ##### need to use cc_record when cryo_fit bumped up map_weight only
                 result = os.popen("cat cc_record | sort -nk5 -r | head -3").readlines()
-                #print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam.kim@gmail.com"
+                #print "cc_record_adjusted_step_use_for_extraction is not found, please email doonam.kim@pnnl.gov"
                 #exit(1)
             else:
                 # number of steps of cc_record is adjusted if it was restarted for longer steps
@@ -282,7 +282,7 @@ if (__name__ == "__main__") :
     print write_this
     
     if (len(highest_3_cc_record) == 0):
-        print "no steps to be extracted, please email doonam.kim@gmail.com"
+        print "no steps to be extracted, please email doonam.kim@pnnl.gov"
         exit(1)
     
     nsteps, nsteps_from_state_cpt, dt, total_ps = get_nsteps_total_ps(gro_extraction_note_file, cryo_fit_path)

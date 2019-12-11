@@ -279,7 +279,7 @@ if (__name__ == "__main__") :
     color_print ("\nThis will install fftw.", 'green')
     color_print ("It will remove existing ~/bin/fftw... and ~/src/fftw... folders (if any) and install fftw there.", 'green')
     color_print ("In order to install fftw, your computer needs to have mpicc (from openmpi or other means) accessible (by PATHWAY)", 'green')
-    color_print ("If you need troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam.kim@gmail.com)", 'green')
+    color_print ("If you need troubleshooting, either try to run each sentence in this script or contact Doo Nam Kim (doonam.kim@pnnl.gov)", 'green')
     color_print ("Hit Enter key to continue.", 'green')
     raw_input()
     

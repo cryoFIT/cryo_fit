@@ -450,7 +450,7 @@ def check_whether_the_step_3_was_successfully_ran(logfile, check_this_file):
     '\t\tOf course, if the ligand is really unusual, cif file from phenix.elbow is required for that phenix.ligandfit\n\n'
     
     '\t\t2nd method> Add atomtypes of your ligand to amber03.ff of this cryo_fit distribution using http://davapc1.bioch.dundee.ac.uk/cgi-bin/prodrg and .../modules/cryo_fit/steps/0_prepare_cryo_fit/top2rtp/runme_top2rtp.py\n'
-    '\t\tThen, email me (doonam.kim@gmail.com), I want to recognize your contribution publicly and distribute updated force field\n'
+    '\t\tThen, email me (doonam.kim@pnnl.gov), I want to recognize your contribution publicly and distribute updated force field\n'
     )
     print (msg)
     logfile.write(msg)
