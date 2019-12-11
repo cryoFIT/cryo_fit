@@ -433,14 +433,15 @@ def install_gromacs_cryo_fit(zipped_file, *args):
   os.system(make_install_command_string)
   
   print '#'*105
-  color_print ("\n\nCheck whether the installation was done without any error.\n", 'green')
+  color_print ("\n\nCryo_fit will check whether the installation was done without any error.\n", 'green')
+  
   color_print ("Was your installation ended with this kind of message?", 'green')
   color_print ("\t...\"GROMACS is installed under ...", 'green')
   color_print ("\t   \"Make sure to update your PATH and MANPATH to find the\"", 'green')
   color_print ("\t...\"If you want links to the executables in /usr/local/bin,", 'green')  
   color_print ("\t   you can issue \"make links\" now.", 'green')   
   color_print ("\t   make[2]: Nothing to be done for `install-data-am'.\"\n\n", 'green')
-  
+
   install_result = '' # just initial value
   
   if (str(enter_all) != "True"):
