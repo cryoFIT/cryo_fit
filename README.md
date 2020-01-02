@@ -1,6 +1,6 @@
 # cryo_fit
 
-<fixed github url for publication>
+(fixed github url for publication)
 
 - Visit https://phenix-online.org/documentation/reference/cryo_fit.html for documentation 
 
