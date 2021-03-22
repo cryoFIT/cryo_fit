@@ -905,6 +905,9 @@ def mrc_to_sit(inputs, map_file_name, pdb_file_name):
     from iotbx import ccp4_map
     ccp4_map = ccp4_map.map_reader(user_input_map)
     print "\t\tMap read from %s" %(user_input_map)
+    #used to work in older phenix versions
+    #target_map_data = ccp4_map.map_data()
+    #new code for phenix-1.19
     target_map_data = ccp4_map.map_data().as_double()
     
     #print "\tdir(): ", dir(ccp4_map)
